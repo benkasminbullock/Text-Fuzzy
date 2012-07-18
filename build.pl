@@ -10,5 +10,6 @@ perl_build (
     cmaker => [
         'text-fuzzy',
     ],
+    clean => './cleanup.pl',
 );
 exit;
