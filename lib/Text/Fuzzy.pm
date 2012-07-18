@@ -1,8 +1,3 @@
-=head1 NAME
-
-Text::Fuzzy
-
-=cut
 package Text::Fuzzy;
 require Exporter;
 @ISA = qw(Exporter);

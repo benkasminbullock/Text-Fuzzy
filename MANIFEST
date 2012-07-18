@@ -1,0 +1,12 @@
+edit-distance.c
+edit-distance.h
+Fuzzy.xs
+lib/Text/Fuzzy.pm
+lib/Text/Fuzzy.pod
+Makefile.PL
+MANIFEST			This list of files
+t/Text-Fuzzy.t
+text-fuzzy-perl.c
+text-fuzzy.c
+text-fuzzy.h
+typemap

@@ -1,2 +1,4 @@
 # Generated from Makefile.PL
 Makefile
+edit-distance-*.[ch]
+edit-distance.c

@@ -1,0 +1,148 @@
+#include "edit-distance-char.h"
+#include "edit-distance-int.h"
+#include "text-fuzzy.h"
+
+#ifdef HEADER
+
+typedef struct text_fuzzy_string {
+    char * text;
+    int length;
+    int * unicode;
+    int ulength;
+}
+text_fuzzy_string_t;
+
+typedef struct text_fuzzy {
+    /* The string we are to match. */
+    text_fuzzy_string_t text;
+    /* The maximum edit distance we allow for. */
+    int max_distance;
+    /* The number of mallocs we are guilty of. */
+    int n_mallocs;
+    /* Alphabet */
+    int alphabet[0x100];
+    int distance;
+    /* Use alphabet filter? */
+    int no_alphabet_filter : 1;
+
+    int use_alphabet : 1;
+    /* Do we account for transpositions? */
+    int transpositions_ok : 1;
+
+    int found : 1;
+
+    int unicode : 1;
+
+}
+text_fuzzy_t;
+
+#endif /* HEADER */
+
+FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
+                       text_fuzzy_string_t * b)
+{
+    /* The edit distance between "text_fuzzy->search_term" and the
+       truncated version of "text_fuzzy->buf". */
+    int d;
+
+    text_fuzzy->found = 0;
+
+    if (text_fuzzy->unicode) {
+        int d;
+        int allocated;
+
+        allocated = 0;
+        if (! b->unicode) {
+            int i;
+            b->unicode = calloc (b->length, sizeof (int));
+            FAIL (! b->unicode, memory_error);
+            allocated = 1;
+            for (i = 0; i < b->length; i++) {
+                unsigned char c;
+                c = b->text[i];
+                if (c < 0x80) {
+                    b->unicode[i] = c;
+                }
+                else {
+                    /* Cannot be equivalent to any Unicode character &
+                       do not want to match it to 0x80 - 0x100
+                       unicodes, so put a "nothing" value in here. */
+                    b->unicode[i] = -1;
+                }
+            }
+            b->ulength = b->length;
+        }
+        d = distance_int (b->unicode, b->ulength,
+                          text_fuzzy->text.unicode,
+                          text_fuzzy->text.ulength,
+                          text_fuzzy->max_distance);
+        if (d < text_fuzzy->max_distance) {
+            text_fuzzy->found = 1;
+            text_fuzzy->distance = d;
+        }
+        if (allocated) {
+            free (b->unicode);
+            b->unicode = 0;
+        }
+    }
+    else {
+
+        /* Alphabet filter: eliminate terms which cannot match. */
+
+        if (text_fuzzy->use_alphabet) {
+            int alphabet_misses;
+            int l;
+
+            alphabet_misses = 0;
+            for (l = 0; l < b->length; l++) {
+                int a = (unsigned char) b->text[l];
+                if (! text_fuzzy->alphabet[a]) {
+                    alphabet_misses++;
+                    if (alphabet_misses > text_fuzzy->max_distance) {
+                        OK;
+                    }
+                }
+            }
+        }
+
+        /* Calculate the edit distance. */
+
+        d = distance_char (b->text, b->length,
+                           text_fuzzy->text.text, text_fuzzy->text.length,
+                           text_fuzzy->max_distance);
+        if (d < text_fuzzy->max_distance) {
+            text_fuzzy->found = 1;
+            text_fuzzy->distance = d;
+        }
+    }
+    OK;
+}
+
+static int max_unique_characters = 45;
+
+FUNC (set_search_term) (text_fuzzy_t * text_fuzzy)
+{
+    int unique_characters;
+    int i;
+    if (text_fuzzy->use_alphabet) {
+        for (i = 0; i < 0x100; i++) {
+            text_fuzzy->alphabet[i] = 0;
+        }
+        unique_characters = 0;
+        for (i = 0; i < text_fuzzy->text.length; i++) {
+            int c;
+            c = (unsigned char) text_fuzzy->text.text[i];
+            if (! text_fuzzy->alphabet[c]) {
+                unique_characters++;
+                text_fuzzy->alphabet[c] = 1;
+            }
+        }
+        if (unique_characters > max_unique_characters) {
+            text_fuzzy->no_alphabet_filter = 1;
+        }
+        else {
+            text_fuzzy->no_alphabet_filter = 0;
+        }
+    }
+    OK;
+}

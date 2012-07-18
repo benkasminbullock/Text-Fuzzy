@@ -1,0 +1,46 @@
+=head1 NAME
+
+Text::Fuzzy - match strings with errors
+
+=head1 SYNOPSIS
+
+    use Text::Fuzzy;
+    my $tf = Text::Fuzzy->new ('boboon');
+    print "Distance is ", $tf->distance ('babboon'), "\n";
+    my @words = qw/the quick brown fox jumped over the lazy dog/;
+    my $nearest = $tf->nearest (\@words);
+    print "Nearest array entry is ", $words[$nearest], "\n";
+
+=head1 DESCRIPTION
+
+Edit-distance methods for single words and arrays.
+
+=head1 METHODS
+
+=head2 new
+
+    my $tf = Text::Fuzzy->new ('bibbety bobbety boo');
+
+Create a new Text::Fuzzy object from the supplied word.
+
+=head2 distance
+
+    my $dist = $tf->distance ($word);
+
+Return the edit distance to C<$word> from the word used to create the
+object in L</new>.
+
+=head2 nearest
+
+    my $index = $tf->nearest (\@words);
+
+Return the index of the nearest element in the array to the argument.
+
+=head2 max_distance
+
+    print "The max distance is ", $tf->max_distance (), "\n";
+    $tf->max_distance (3);
+
+Set or get the maximum edit distance of C<$tf>.
+
+[% INCLUDE "author" %]
