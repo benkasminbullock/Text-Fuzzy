@@ -20,6 +20,5 @@ WriteMakefile (
             bugtracker => "$repo/issues",
         },
     },
-    CCFLAGS => '-Wall -g',
     OBJECT => 'Fuzzy.o text-fuzzy.o edit-distance-char.o edit-distance-int.o',
 );
