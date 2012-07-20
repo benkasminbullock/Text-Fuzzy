@@ -1,5 +1,7 @@
-edit-distance.c
-edit-distance.h
+edit-distance-char.c
+edit-distance-char.h
+edit-distance-int.c
+edit-distance-int.h
 Fuzzy.xs
 lib/Text/Fuzzy.pm
 lib/Text/Fuzzy.pod

@@ -1,6 +1,7 @@
+#include <string.h>
+#include <errno.h>
 #include "edit-distance-char.h"
 #include "edit-distance-int.h"
-#include "text-fuzzy.h"
 
 #ifdef HEADER
 
@@ -146,3 +147,67 @@ FUNC (set_search_term) (text_fuzzy_t * text_fuzzy)
     }
     OK;
 }
+
+#define SIZE 0x100
+
+FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
+                  char ** nearest_ptr)
+{
+    FILE * fh;
+    char nearest[SIZE];
+    int found;
+    int max_distance_holder;
+
+    max_distance_holder = text_fuzzy->max_distance;
+    
+    fh = fopen (file_name, "r");
+    FAIL_MSG (! fh, open_error, "failed to open %s: %s", file_name,
+              strerror (errno));
+    found = 0;
+    while (1) {
+        text_fuzzy_string_t b = {0};
+        char s[SIZE];
+        char * r;
+        int l;
+        r = fgets (s, SIZE - 1, fh);
+        if (! r) {
+            if (feof (fh)) {
+                break;
+            }
+            FAIL_MSG (! r, read_error, "Error reading %s: %s",
+                      file_name, strerror (errno));
+        }
+        l = strlen (s);
+        s[l - 1] = '\0';
+        b.text = s;
+        b.length = l - 1;
+        CALL (compare_single (text_fuzzy, & b));
+        if (text_fuzzy->found) {
+            found = 1;
+            if (text_fuzzy->distance < text_fuzzy->max_distance) {
+                text_fuzzy->max_distance = text_fuzzy->distance;
+                strncpy (nearest, s, SIZE);
+            }
+        }
+    }
+
+    FAIL (fclose (fh), close_error);
+    text_fuzzy->max_distance = max_distance_holder;
+    if (found) {
+        * nearest_ptr = strdup (nearest);
+    }
+    else {
+        * nearest_ptr = 0;
+    }
+    OK;
+}
+
+/* statuses:
+
+status: open_error
+
+status: close_error
+
+status: read_error
+
+*/

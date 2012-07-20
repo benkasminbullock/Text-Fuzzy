@@ -8,6 +8,9 @@
 #include "text-fuzzy.h"
 #include "text-fuzzy-perl.c"
 
+#undef FAIL_STATUS
+#define FAIL_STATUS
+
 typedef text_fuzzy_t * Text__Fuzzy;
 
 MODULE=Text::Fuzzy PACKAGE=Text::Fuzzy
@@ -85,3 +88,13 @@ DESTROY (tf)
 	Text::Fuzzy tf;
 CODE:
 	text_fuzzy_free (tf);
+
+char *
+scan_file (tf, file_name)
+	Text::Fuzzy tf;
+        char * file_name;
+CODE:
+        TEXT_FUZZY (scan_file (tf, file_name, & RETVAL));
+OUTPUT:
+        RETVAL
+

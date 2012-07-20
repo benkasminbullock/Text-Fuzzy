@@ -1,7 +1,7 @@
 #define get_memory(value, number, what) {                       \
         value = calloc (number, sizeof (what));                 \
         if (! value) {                                          \
-            Perl_croak ("%s:%d: Could not allocate memory",     \
+            croak ("%s:%d: Could not allocate memory",          \
                         __FILE__, __LINE__);                    \
         }                                                       \
         text_fuzzy->n_mallocs++;                                \
@@ -11,9 +11,9 @@ int perl_error_handler (const char * file_name, int line_number,
                         const char * format, ...)
 {
     va_list a;
-    Perl_warn ("%s:%d: ", file_name, line_number);
+    warn ("%s:%d: ", file_name, line_number);
     va_start (a, format);
-    Perl_vwarn (format, & a);
+    vwarn (format, & a);
     va_end (a);
     return 0;
 }
@@ -33,7 +33,7 @@ static int * sv_to_int_ptr (SV * text, int * ulength_ptr)
     ulength = sv_len_utf8 (text);
     unicode = calloc (ulength, sizeof (int));
     if (! unicode) {
-        Perl_croak ("%s:%d: %s", __FILE__, __LINE__, "Error allocating");
+        croak ("%s:%d: %s", __FILE__, __LINE__, "Error allocating");
     }
     utf = stuff;
     curlen = length;
@@ -89,7 +89,7 @@ static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
     free (text_fuzzy->text.text);
     text_fuzzy->n_mallocs--;
     if (text_fuzzy->n_mallocs != 1) {
-        Perl_warn ("memory leak: n_mallocs %d != 1", text_fuzzy->n_mallocs);
+        warn ("memory leak: n_mallocs %d != 1", text_fuzzy->n_mallocs);
     }
     free (text_fuzzy);
 }
@@ -143,7 +143,6 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
     for (i = 0; i < n_words; i++) {
         SV * word;
         text_fuzzy_string_t b;
-        STRLEN length;
         word = * av_fetch (words, i, 0);
         sv_to_text_fuzzy_string (word, & b);
         TEXT_FUZZY (compare_single (tf, & b));
@@ -160,3 +159,4 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
     tf->max_distance = max_distance_holder;
     return nearest;
 }
+

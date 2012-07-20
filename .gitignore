@@ -2,3 +2,8 @@
 Makefile
 edit-distance-*.[ch]
 edit-distance.c
+Fuzzy.bs
+Fuzzy.c
+lib/Text/Fuzzy.pod
+makeitfile
+text-fuzzy.[ch]

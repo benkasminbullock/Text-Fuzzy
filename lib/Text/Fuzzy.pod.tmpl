@@ -1,6 +1,6 @@
 =head1 NAME
 
-Text::Fuzzy - match strings with errors
+Text::Fuzzy - partial or fuzzy string matching using edit distances
 
 =head1 SYNOPSIS
 
@@ -13,7 +13,10 @@ Text::Fuzzy - match strings with errors
 
 =head1 DESCRIPTION
 
-Edit-distance methods for single words and arrays.
+This module calculates the edit-distance between words, and
+edit-distance-based searching of arrays and files. It can handle
+either byte strings or character strings (strings containing Unicode),
+treating each Unicode character as a single entity.
 
 =head1 METHODS
 
@@ -38,9 +41,23 @@ Return the index of the nearest element in the array to the argument.
 
 =head2 max_distance
 
+    # Get the maximum edit distance.
     print "The max distance is ", $tf->max_distance (), "\n";
+    # Set the max distance.
     $tf->max_distance (3);
 
-Set or get the maximum edit distance of C<$tf>.
+Set or get the maximum edit distance of C<$tf>. The default is set to 10.
+
+=head2 scan_file
+
+    $tf->scan_file ('/usr/share/dict/words');
+
+Scan a file to find the nearest match to the word used in
+L</new>. This assumes that the file contains lines of text separated
+by newlines and finds the closest match in the file.
+
+=head1 BUGS
+
+No way to turn off the maximum edit distance.
 
 [% INCLUDE "author" %]
