@@ -1,8 +1,9 @@
 #define get_memory(value, number, what) {                       \
-        value = calloc (number, sizeof (what));                 \
+        Newxz (value, number, what);                            \
         if (! value) {                                          \
-            croak ("%s:%d: Could not allocate memory",          \
-                        __FILE__, __LINE__);                    \
+            croak ("%s:%d: "                                    \
+                   "Could not allocate memory for %d %s",       \
+                   __FILE__, __LINE__, number, #what);          \
         }                                                       \
         text_fuzzy->n_mallocs++;                                \
     }
@@ -83,15 +84,15 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
     if (text_fuzzy->unicode) {
-        free (text_fuzzy->text.unicode);
+        Safefree (text_fuzzy->text.unicode);
         text_fuzzy->n_mallocs--;
     }
-    free (text_fuzzy->text.text);
+    Safefree (text_fuzzy->text.text);
     text_fuzzy->n_mallocs--;
     if (text_fuzzy->n_mallocs != 1) {
         warn ("memory leak: n_mallocs %d != 1", text_fuzzy->n_mallocs);
     }
-    free (text_fuzzy);
+    Safefree (text_fuzzy);
 }
 
 #undef FAIL_STATUS
