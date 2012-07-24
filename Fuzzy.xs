@@ -30,17 +30,31 @@ CODE:
 OUTPUT:
         RETVAL
 
-int
-max_distance (tf, max_distance = -1)
+SV *
+get_max_distance (tf)
 	Text::Fuzzy tf;
-        int max_distance;
 CODE:
-        if (max_distance >= 0) {
-        	tf->max_distance = max_distance;
+        if (tf->max_distance >= 0) {
+		RETVAL = newSViv (tf->max_distance);
 	}
-	RETVAL = tf->max_distance;
+	else {
+		RETVAL = &PL_sv_undef;
+	}
 OUTPUT:
 	RETVAL
+
+void
+set_max_distance (tf, max_distance = &PL_sv_undef)
+	Text::Fuzzy tf;
+	SV * max_distance;
+CODE:
+        if (SvOK (max_distance)) {
+		tf->max_distance = SvIV (max_distance);
+	}
+	else {
+        	tf->max_distance = NO_MAX_DISTANCE;
+	}
+
 
 int
 distance (tf, word)

@@ -39,14 +39,22 @@ object in L</new>.
 
 Return the index of the nearest element in the array to the argument.
 
-=head2 max_distance
+=head2 get_max_distance
 
     # Get the maximum edit distance.
-    print "The max distance is ", $tf->max_distance (), "\n";
-    # Set the max distance.
-    $tf->max_distance (3);
+    print "The max distance is ", $tf->getmax_distance (), "\n";
 
-Set or get the maximum edit distance of C<$tf>. The default is set to 10.
+
+Get the maximum edit distance of C<$tf>. The default is set to 10.
+
+=head2 set_max_distance
+
+    # Set the max distance.
+    $tf->set_max_distance (3);
+
+Set the maximum edit distance of C<$tf>. The default is set to 10. If
+this is called with an undefined value, the maximum edit distance is
+switched off.
 
 =head2 scan_file
 

@@ -1,3 +1,5 @@
+#define NO_MAX_DISTANCE -1
+
 #define get_memory(value, number, what) {                       \
         Newxz (value, number, what);                            \
         if (! value) {                                          \

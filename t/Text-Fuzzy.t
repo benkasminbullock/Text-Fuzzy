@@ -9,7 +9,7 @@ ok ($tf);
 ok (ref $tf eq 'Text::Fuzzy');
 my $d = $tf->distance ('biggles');
 is ($d, 1, "Distance between biggles and buggles is 1");
-is ($tf->max_distance (), 10, "Expected maximum distance");
+is ($tf->get_max_distance (), 10, "Expected maximum distance");
 my $word1 = 'bongos';
 is ($tf->distance ($word1), 4, "Distance between buggles and $word1 is 4");
 my $tf2 = Text::Fuzzy->new ('chuggles', 5);
@@ -47,6 +47,10 @@ my @uwords = qw/
 my $nearest4 = $tf4->nearest (\@uwords);
 is ($nearest4, 1);
 is ($tf4->last_distance (), 2);
+
+$tf->set_max_distance ();
+my $md = $tf->get_max_distance ();
+is ($md, undef, "max distance is undefined");
 done_testing ();
 
 # Local variables:
