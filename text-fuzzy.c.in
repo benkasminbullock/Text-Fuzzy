@@ -39,16 +39,16 @@ text_fuzzy_t;
 
 #endif /* HEADER */
 
-FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
+FUNC (compare_single) (text_fuzzy_t * tf,
                        text_fuzzy_string_t * b)
 {
-    /* The edit distance between "text_fuzzy->search_term" and the
-       truncated version of "text_fuzzy->buf". */
+    /* The edit distance between "tf->search_term" and the
+       truncated version of "tf->buf". */
     int d;
 
-    text_fuzzy->found = 0;
+    tf->found = 0;
 
-    if (text_fuzzy->unicode) {
+    if (tf->unicode) {
         int allocated;
 
         allocated = 0;
@@ -72,10 +72,16 @@ FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
             }
             b->ulength = b->length;
         }
+        /* If the distance in the length of the strings is greater
+           than the max distance, give up. */
+        if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
+            OK;
+        }
+
         d = distance_int (b->unicode, b->ulength,
-                          text_fuzzy->text.unicode,
-                          text_fuzzy->text.ulength,
-                          text_fuzzy->max_distance);
+                          tf->text.unicode,
+                          tf->text.ulength,
+                          tf->max_distance);
         if (allocated) {
             free (b->unicode);
             b->unicode = 0;
@@ -83,18 +89,24 @@ FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
     }
     else {
 
+        /* If the distance in the length of the strings is greater
+           than the max distance, give up. */
+        if (abs (tf->text.length - b->length) > tf->max_distance) {
+            OK;
+        }
+
         /* Alphabet filter: eliminate terms which cannot match. */
 
-        if (text_fuzzy->use_alphabet) {
+        if (tf->use_alphabet) {
             int alphabet_misses;
             int l;
 
             alphabet_misses = 0;
             for (l = 0; l < b->length; l++) {
                 int a = (unsigned char) b->text[l];
-                if (! text_fuzzy->alphabet[a]) {
+                if (! tf->alphabet[a]) {
                     alphabet_misses++;
-                    if (alphabet_misses > text_fuzzy->max_distance) {
+                    if (alphabet_misses > tf->max_distance) {
                         OK;
                     }
                 }
@@ -104,12 +116,12 @@ FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
         /* Calculate the edit distance. */
 
         d = distance_char (b->text, b->length,
-                           text_fuzzy->text.text, text_fuzzy->text.length,
-                           text_fuzzy->max_distance);
+                           tf->text.text, tf->text.length,
+                           tf->max_distance);
     }
-    if (d < text_fuzzy->max_distance) {
-        text_fuzzy->found = 1;
-        text_fuzzy->distance = d;
+    if (d < tf->max_distance) {
+        tf->found = 1;
+        tf->distance = d;
     }
     OK;
 }
