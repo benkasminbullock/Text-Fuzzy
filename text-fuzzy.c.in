@@ -199,24 +199,26 @@ STATIC FUNC (get_line) (fuzzy_file_t * ff)
 
     i = 0;
     while (1) {
+        char c;
         if (! ff->remaining) {
             CALL (more_bytes (ff));
         }
-        if (ff->buf[ff->offset] == '\n') {
+        c = ff->buf[ff->offset];
+        ff->offset++;
+        ff->remaining--;
+        if (c == '\n' || (ff->remaining == 0 && ff->eof)) {
             s[i] = '\0';
             break;
         }
         else {
-            s[i] = ff->buf[ff->offset];
+            s[i] = c;
         }
         i++;
         FAIL (i >= SIZE, line_too_long);
-        ff->offset++;
-        ff->remaining--;
     }
 
     ff->b.text = s;
-    ff->b.length = i - 1;
+    ff->b.length = i;
 
     OK;
 }
@@ -253,9 +255,6 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
     nearest = 0;
     while (1) {
         CALL (get_line (& ff));
-        if (ff.eof) {
-            break;
-        }
         CALL (compare_single (text_fuzzy, & ff.b));
         if (text_fuzzy->found) {
             found = 1;
@@ -268,8 +267,12 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
                     nearest = realloc (nearest, ff.b.length + 1);
                 }
                 FAIL (! nearest, memory_error);
-                strncpy (nearest, ff.b.text, ff.b.length + 1);
+                strncpy (nearest, ff.b.text, ff.b.length);
+                nearest[ff.b.length] = '\0';
             }
+        }
+        if (ff.eof && ff.remaining == 0) {
+            break;
         }
     }
 

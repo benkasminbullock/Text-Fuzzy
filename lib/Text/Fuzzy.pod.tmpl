@@ -1,3 +1,5 @@
+=encoding UTF-8
+
 =head1 NAME
 
 Text::Fuzzy - partial or fuzzy string matching using edit distances
@@ -7,16 +9,30 @@ Text::Fuzzy - partial or fuzzy string matching using edit distances
     use Text::Fuzzy;
     my $tf = Text::Fuzzy->new ('boboon');
     print "Distance is ", $tf->distance ('babboon'), "\n";
+    # Prints "Distance is 2"
     my @words = qw/the quick brown fox jumped over the lazy dog/;
     my $nearest = $tf->nearest (\@words);
     print "Nearest array entry is ", $words[$nearest], "\n";
+    # Prints "Nearest array entry is brown"
 
 =head1 DESCRIPTION
 
-This module calculates the edit-distance between words, and
-edit-distance-based searching of arrays and files. It can handle
-either byte strings or character strings (strings containing Unicode),
-treating each Unicode character as a single entity.
+This module calculates the Levenshtein edit distance between words,
+and does edit-distance-based searching of arrays and files to find the
+nearest entry. It can handle either byte strings or character strings
+(strings containing Unicode), treating each Unicode character as a
+single entity.
+
+It is designed for high performance in searching for the nearest to a
+particular search term over an array of words or a file, by reducing
+the number of calculations which needs to be performed.
+
+It supports either bytewise edit distances or Unicode-based edit distances:
+
+    use utf8;
+    my $tf = Text::Fuzzy->new ('あいうえお☺');
+    print $tf->distance ('うえお☺'), "\n";
+    # prints "2".
 
 =head1 METHODS
 
@@ -44,7 +60,6 @@ Return the index of the nearest element in the array to the argument.
     # Get the maximum edit distance.
     print "The max distance is ", $tf->getmax_distance (), "\n";
 
-
 Get the maximum edit distance of C<$tf>. The default is set to 10.
 
 =head2 set_max_distance
@@ -63,5 +78,7 @@ switched off.
 Scan a file to find the nearest match to the word used in
 L</new>. This assumes that the file contains lines of text separated
 by newlines and finds the closest match in the file.
+
+This does not currently support Unicode-encoded files.
 
 [% INCLUDE "author" %]

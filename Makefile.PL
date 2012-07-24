@@ -21,4 +21,5 @@ WriteMakefile (
         },
     },
     OBJECT => 'Fuzzy.o text-fuzzy.o edit-distance-char.o edit-distance-int.o',
+#    CCFLAGS => '-g -Wall',
 );
