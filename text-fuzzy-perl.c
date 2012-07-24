@@ -64,7 +64,7 @@ sv_to_text_fuzzy (SV * text, int max_distance,
     text_fuzzy->max_distance = max_distance;
     stuff = (unsigned char *) SvPV (text, length);
     text_fuzzy->text.length = length;
-    get_memory (text_fuzzy->text.text, length + 1, int);
+    get_memory (text_fuzzy->text.text, length + 1, char);
     for (i = 0; i < length; i++) {
         text_fuzzy->text.text[i] = stuff[i];
     }

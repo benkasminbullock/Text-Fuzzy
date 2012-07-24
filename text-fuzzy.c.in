@@ -49,7 +49,6 @@ FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
     text_fuzzy->found = 0;
 
     if (text_fuzzy->unicode) {
-        int d;
         int allocated;
 
         allocated = 0;
@@ -77,10 +76,6 @@ FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
                           text_fuzzy->text.unicode,
                           text_fuzzy->text.ulength,
                           text_fuzzy->max_distance);
-        if (d < text_fuzzy->max_distance) {
-            text_fuzzy->found = 1;
-            text_fuzzy->distance = d;
-        }
         if (allocated) {
             free (b->unicode);
             b->unicode = 0;
@@ -111,10 +106,10 @@ FUNC (compare_single) (text_fuzzy_t * text_fuzzy,
         d = distance_char (b->text, b->length,
                            text_fuzzy->text.text, text_fuzzy->text.length,
                            text_fuzzy->max_distance);
-        if (d < text_fuzzy->max_distance) {
-            text_fuzzy->found = 1;
-            text_fuzzy->distance = d;
-        }
+    }
+    if (d < text_fuzzy->max_distance) {
+        text_fuzzy->found = 1;
+        text_fuzzy->distance = d;
     }
     OK;
 }
