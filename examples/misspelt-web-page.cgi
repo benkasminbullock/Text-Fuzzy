@@ -39,6 +39,9 @@ else {
 }
 exit;
 
+# Read all the files under "$root/$dir". This is recursive. The return
+# value is an array containing all files found.
+
 sub get_all_files
 {
     my ($root, $dir) = @_;
@@ -63,6 +66,8 @@ sub get_all_files
     return @allfiles;
 }
 
+# Print a "permanent redirect" to the respelt name, then exit.
+
 sub redirect
 {
     my ($url) = @_;
@@ -74,15 +79,20 @@ EOF
     exit;
 }
 
+# Print an error message for the sake of the requester, and print a
+# message to the error log, then exit.
+
 sub fail
 {
     my ($error) = @_;
-    my $time = scalar gmtime ();
     print <<EOF;
 Content-Type: text/plain
 
 $error
 EOF
+    # Add the name of the program and the time to the error message,
+    # otherwise the error log will get awfully confusing-looking.
+    my $time = scalar gmtime ();
     print STDERR "$0: $time: $error\n";
     exit;
 }
