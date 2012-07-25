@@ -104,4 +104,9 @@ dictionary of words specified by a command-line option "-d":
 It prints out any words which look like spelling mistakes, using the
 dictionary.
 
+Because the usual Unix dictionary doesn't have plurals, it uses
+L<Lingua::EN::PluralToSingular>, to convert nouns into singular
+forms. Unfortunately it still misses past participles and past tenses
+of verbs.
+
 [% INCLUDE "author" %]
