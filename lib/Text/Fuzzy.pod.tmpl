@@ -94,4 +94,14 @@ See the file in the distribution for details. See also
 L<http://www.lemoda.net/perl/perl-mod-speling/> for how to set up
 F<.htaccess> to use the script.
 
+=head2 spell-check.pl
+
+The file F<examples/spell-check.pl> is a spell checker. It uses a
+dictionary of words specified by a command-line option "-d":
+
+    spell-check.pl -d /usr/dict/words file1.txt file2.txt
+
+It prints out any words which look like spelling mistakes, using the
+dictionary.
+
 [% INCLUDE "author" %]
