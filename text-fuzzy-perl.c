@@ -34,7 +34,7 @@ static int * sv_to_int_ptr (SV * text, int * ulength_ptr)
     stuff = (unsigned char *) SvPV (text, length);
 
     ulength = sv_len_utf8 (text);
-    unicode = calloc (ulength, sizeof (int));
+    Newxz (unicode, ulength, int);
     if (! unicode) {
         croak ("%s:%d: %s", __FILE__, __LINE__, "Error allocating");
     }
@@ -118,7 +118,7 @@ text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
     sv_to_text_fuzzy_string (word, & b);
     TEXT_FUZZY (compare_single (tf, & b));
     if (b.unicode) {
-        free (b.unicode);
+        Safefree (b.unicode);
     }
     if (tf->found) {
         return tf->distance;
