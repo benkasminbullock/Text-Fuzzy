@@ -19,7 +19,7 @@ my %known;
 for my $file (@ARGV) {
     open my $input, "<", $file or die "Can't open $file: $!";
     while (<$input>) {
-        my @line = split /[^a-z]+/i, $_;
+        my @line = split /[^a-z']+/i, $_;
         for my $word (@line) {
             my $clean_word = to_singular (lc $word);
             if ($words{$clean_word}) {
@@ -27,12 +27,15 @@ for my $file (@ARGV) {
                 next;
             }
             if (length $word < $min_length) {
+                # Very short words are ignored.
                 next;
             }
             if ($word eq uc $word) {
+                # Acronym like BBC, IRA, etc.
                 next;
             }
             if ($known{$clean_word}) {
+                # This word was already given to the user.
                 next;
             }
             my $tf = Text::Fuzzy->new ($clean_word);

@@ -15,6 +15,7 @@ my $tt = Template->new (
 my $file = 'edit-distance';
 
 my %vars;
+$vars{compare_c1_c2} = 'c1 == c2';
 for my $type (qw/char int/) {
     $vars{type} = $type;
     my $outfile = "$file-$type.c";

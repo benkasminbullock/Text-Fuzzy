@@ -85,15 +85,13 @@ int distance_[% type %] (const [% type %] * word1,
                 [% type %] c2;
 
                 c2 = word2[j-1];
-                if (c1 == c2) {
+                if ([% compare_c1_c2 %]) {
                     /* The character at position i in word1 is the same as
                        the character at position j in word2. */
                     matrix[next][j] = matrix[prev][j-1];
 
-                    //                    printf ("Same %d %d at %d %d\n", c1, c2, i, j);
                 }
                 else {
-                    //                    printf ("Not same %d %d at %d %d\n", c1, c2, i, j);
                     /* The character at position i in word1 is not the
                        same as the character at position j in word2, so
                        work out what the minimum cost for getting to cell
