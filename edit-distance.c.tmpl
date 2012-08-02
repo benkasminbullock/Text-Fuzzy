@@ -2,18 +2,42 @@
 #include <stdio.h>
 /* For INT_MAX */
 #include <limits.h>
-#include "edit-distance-[% type %].h"
+#include "text-fuzzy.h"
+#include "edit-distance-[% ed_type %].h"
 
-int distance_[% type %] (const [% type %] * word1,
-                         int len1,
-                         const [% type %] * word2,
-                         int len2,
-                         int max)
+int [% function %] (const [% type %] * word1,
+                    int len1,
+[%- IF use_text_fuzzy %]
+                    text_fuzzy_t * tf
+[%- ELSE %]
+                    const [% type %] * word2
+                    int len2,
+                    int max
+[%- END -%]
+)
 {
+[%- IF use_text_fuzzy %]
+    /* Pull the values from "tf". */
+[% IF ed_type == 'int' %]
+    const [% type %] * word2 = tf->text.unicode;
+    int len2 = tf->text.ulength;
+[% ELSIF ed_type == 'char' %]
+    const [% type %] * word2 = tf->text.text;
+    int len2 = tf->text.length;
+[% ELSE %]
+    fprintf (stderr, "Unhandled type [% type %].\n");
+    exit (1);
+[% END %]
+[%- END # use_text_fuzzy %]
     int matrix[2][len2 + 1];
     int i;
     int j;
     int large_value;
+[%- IF use_text_fuzzy %]
+    int max;
+
+    max = tf->max_distance;
+[%- END # use_text_fuzzy %]
 
     /*
       Initialize the 0 row of "matrix".
@@ -101,9 +125,9 @@ int distance_[% type %] (const [% type %] * word1,
                     int substitute;
                     int minimum;
 
-                    delete = matrix[prev][j] + 1;
-                    insert = matrix[next][j-1] + 1;
-                    substitute = matrix[prev][j-1] + 1;
+                    delete = matrix[prev][j] + [% delete_cost %];
+                    insert = matrix[next][j-1] + [% insert_cost %];
+                    substitute = matrix[prev][j-1] + [% substitute_cost %];
                     minimum = delete;
                     if (insert < minimum) {
                         minimum = insert;

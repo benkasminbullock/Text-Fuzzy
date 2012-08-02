@@ -53,7 +53,24 @@ object in L</new>.
 
     my $index = $tf->nearest (\@words);
 
-Return the index of the nearest element in the array to the argument.
+Return the index of the nearest element in the array to the argument
+to L</new>. If none of the elements are less than the maximum distance
+away from the word, C<$index> is the undefined value. It may
+legitimately also be zero, so check it using C<defined>:
+
+    if (defined $index) {
+        print "Found at $index.\n";
+    }
+
+and not using C<if ($index)>.
+
+=head2 last_distance
+
+    my $last_distance = $tf->last_distance ();
+
+The distance from the previous match. This is usually used in
+conjunction with C</nearest> to find the edit distance to the previous
+match.
 
 =head2 get_max_distance
 

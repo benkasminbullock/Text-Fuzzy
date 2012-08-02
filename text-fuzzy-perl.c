@@ -79,7 +79,9 @@ sv_to_text_fuzzy (SV * text, int max_distance,
                            & text_fuzzy->text.ulength);
         text_fuzzy->n_mallocs++;
     }
-    TEXT_FUZZY (set_search_term (text_fuzzy));
+    else {
+        TEXT_FUZZY (generate_alphabet (text_fuzzy));
+    }
     * text_fuzzy_ptr = text_fuzzy;
 }
 
