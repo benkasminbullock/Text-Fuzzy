@@ -15,3 +15,5 @@ Makefile$
 .*\.tmpl
 edit-distance-short\..*
 make-edit-distance-c\.pl
+Text-Fuzzy-[\.\d]+
+makeitfile
