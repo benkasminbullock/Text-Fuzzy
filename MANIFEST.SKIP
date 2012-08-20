@@ -1,0 +1,17 @@
+pm_to_blib
+Fuzzy\.(bs|c|o)
+edit-distance-.*\.o
+build\.pl
+cleanup\.pl
+MANIFEST\.bak
+.*\.~.*~
+#.*
+\.git
+blib
+MYMETA\.
+text-fuzzy\.o
+text-fuzzy\.c\.in
+Makefile$
+.*\.tmpl
+edit-distance-short\..*
+make-edit-distance-c\.pl

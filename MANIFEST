@@ -2,13 +2,18 @@ edit-distance-char.c
 edit-distance-char.h
 edit-distance-int.c
 edit-distance-int.h
+examples/misspelt-web-page.cgi
+examples/spell-check.pl
 Fuzzy.xs
 lib/Text/Fuzzy.pm
 lib/Text/Fuzzy.pod
 Makefile.PL
+makeitfile
 MANIFEST			This list of files
+MANIFEST.SKIP
 t/Text-Fuzzy.t
 text-fuzzy-perl.c
 text-fuzzy.c
 text-fuzzy.h
 typemap
+xt/usr-words.t
