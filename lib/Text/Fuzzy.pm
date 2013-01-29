@@ -4,7 +4,7 @@ require Exporter;
 @EXPORT_OK = qw//;
 use warnings;
 use strict;
-our $VERSION = 0.06;
+our $VERSION = 0.07;
 require XSLoader;
 XSLoader::load ('Text::Fuzzy', $VERSION);
 1;

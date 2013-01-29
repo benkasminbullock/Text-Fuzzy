@@ -103,12 +103,13 @@ static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 #define FAIL_STATUS -1
 
 static void
-sv_to_text_fuzzy_string (SV * word, text_fuzzy_string_t * b)
+sv_to_text_fuzzy_string (SV * word, text_fuzzy_string_t * b,
+                         int force_unicode)
 {
     STRLEN length;
     b->text = SvPV (word, length);
     b->length = length;
-    if (SvUTF8 (word)) {
+    if (SvUTF8 (word) || force_unicode) {
         b->unicode = sv_to_int_ptr (word, & b->ulength);
     }
 }
@@ -117,7 +118,7 @@ static int
 text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
 {
     text_fuzzy_string_t b = {0};
-    sv_to_text_fuzzy_string (word, & b);
+    sv_to_text_fuzzy_string (word, & b, tf->unicode);
     TEXT_FUZZY (compare_single (tf, & b));
     if (b.unicode) {
         Safefree (b.unicode);
@@ -149,7 +150,7 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
         SV * word;
         text_fuzzy_string_t b;
         word = * av_fetch (words, i, 0);
-        sv_to_text_fuzzy_string (word, & b);
+        sv_to_text_fuzzy_string (word, & b, tf->unicode);
         TEXT_FUZZY (compare_single (tf, & b));
         if (tf->found) {
             tf->max_distance = tf->distance;
