@@ -8,3 +8,5 @@ lib/Text/Fuzzy.pod
 makeitfile
 text-fuzzy.[ch]
 MANIFEST
+algorithm.dvi
+algorithm.log

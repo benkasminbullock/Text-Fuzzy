@@ -1,10 +1,16 @@
 package Text::Fuzzy;
 require Exporter;
-@ISA = qw(Exporter);
+require DynaLoader;
+@ISA = qw(Exporter DynaLoader);
 @EXPORT_OK = qw//;
 use warnings;
 use strict;
-our $VERSION = 0.07;
-require XSLoader;
-XSLoader::load ('Text::Fuzzy', $VERSION);
+our $VERSION = 0.08;
+__PACKAGE__->bootstrap ($VERSION);
+
+sub dl_load_flags
+{
+    return 0x01;
+}
+
 1;

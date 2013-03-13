@@ -6,6 +6,8 @@
 
 #ifdef HEADER
 
+/* This structure contains one string of whatever type. */
+
 typedef struct text_fuzzy_string {
     char * text;
     int length;
@@ -13,6 +15,10 @@ typedef struct text_fuzzy_string {
     int ulength;
 }
 text_fuzzy_string_t;
+
+/* This string contains one string plus additional paraphenalia used
+   in searching for the string, for example the alphabet of the
+   string. */
 
 typedef struct text_fuzzy {
     /* The string we are to match. */
@@ -41,11 +47,15 @@ text_fuzzy_t;
 
 #endif /* HEADER */
 
+/* Compare tf and b. */
+
 FUNC (compare_single) (text_fuzzy_t * tf,
                        text_fuzzy_string_t * b)
 {
+
     /* The edit distance between "tf->search_term" and the
        truncated version of "tf->buf". */
+
     int d;
 
     tf->found = 0;
@@ -75,11 +85,11 @@ FUNC (compare_single) (text_fuzzy_t * tf,
             b->ulength = b->length;
         }
         if (tf->max_distance >= 0) {
-        /* If the distance in the length of the strings is greater
-           than the max distance, give up. */
-        if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
-            OK;
-        }
+	    /* If the distance in the length of the strings is greater
+	       than the max distance, give up. */
+	    if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
+		OK;
+	    }
         }
         d = distance_int (b->unicode, b->ulength, tf);
         if (allocated) {
@@ -88,6 +98,8 @@ FUNC (compare_single) (text_fuzzy_t * tf,
         }
     }
     else {
+
+	/* This is not Unicode. */
 
         if (tf->max_distance >= 0) {
             /* If the distance in the length of the strings is greater
@@ -108,6 +120,9 @@ FUNC (compare_single) (text_fuzzy_t * tf,
                     if (! tf->alphabet[a]) {
                         alphabet_misses++;
                         if (alphabet_misses > tf->max_distance) {
+			    /* It is not possible that the two words
+			       are within the maximum edit distance of
+			       each other. */
                             OK;
                         }
                     }
@@ -124,6 +139,11 @@ FUNC (compare_single) (text_fuzzy_t * tf,
     }
     OK;
 }
+
+/* This is the threshold above which we do not bother computing the
+   alphabet of the string. If it has more than this number of unique
+   characters, the alphabet will not reduce the search time by
+   much. */
 
 static int max_unique_characters = 45;
 
@@ -155,6 +175,14 @@ FUNC (generate_alphabet) (text_fuzzy_t * text_fuzzy)
     }
     OK;
 }
+
+/*   __ _ _         __                  _   _                 
+    / _(_) | ___   / _|_   _ _ __   ___| |_(_) ___  _ __  ___ 
+   | |_| | |/ _ \ | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+   |  _| | |  __/ |  _| |_| | | | | (__| |_| | (_) | | | \__ \
+   |_| |_|_|\___| |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/ */
+                                                           
+
 
 #define BUF_SIZE 0x1000
 
@@ -236,6 +264,9 @@ STATIC FUNC (close) (fuzzy_file_t * ff)
     FAIL (fclose (ff->fh), close_error);
     OK;
 }
+
+/* Scan the file specified by "file_name" for our string. The nearest
+   string found is returned in "* nearest_ptr". */
 
 FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
                   char ** nearest_ptr)
