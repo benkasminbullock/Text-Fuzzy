@@ -55,14 +55,11 @@ object in L</new>.
 
 Return the index of the nearest element in the array to the argument
 to L</new>. If none of the elements are less than the maximum distance
-away from the word, C<$index> is the undefined value. It may
-legitimately also be zero, so check it using C<defined>:
+away from the word, C<$index> is -1.
 
-    if (defined $index) {
+    if ($index >= 0) {
         print "Found at $index.\n";
     }
-
-and not using C<if ($index)>.
 
 =head2 last_distance
 

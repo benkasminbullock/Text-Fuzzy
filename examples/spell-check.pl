@@ -40,7 +40,7 @@ for my $file (@ARGV) {
             }
             my $tf = Text::Fuzzy->new ($clean_word);
             my $nearest = $tf->nearest (\@words);
-            if (defined $nearest) {
+            if ($nearest >= 0) {
                 my $correction = $words[$nearest];
                 print "$file:$.: '$word' may be $correction.\n";
                 $known{$clean_word} = $correction;

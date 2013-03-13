@@ -31,7 +31,7 @@ my $tf = Text::Fuzzy->new ($path_info);
 
 my $nearest = $tf->nearest (\@allfiles);
 
-if (defined $nearest) {
+if ($nearest >= 0) {
     redirect ($allfiles[$nearest]);
 }
 else {
