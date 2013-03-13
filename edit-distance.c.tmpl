@@ -19,10 +19,10 @@ int [% function %] (const [% type %] * word1,
 [%- IF use_text_fuzzy %]
     /* Pull the values from "tf". */
 [% IF ed_type == 'int' %]
-    const [% type %] * word2 = tf->text.unicode;
+    const [% type %] * word2 = (const [% type %] *) tf->text.unicode;
     int len2 = tf->text.ulength;
 [% ELSIF ed_type == 'char' %]
-    const [% type %] * word2 = tf->text.text;
+    const [% type %] * word2 = (const [% type %] *) tf->text.text;
     int len2 = tf->text.length;
 [% ELSE %]
     fprintf (stderr, "Unhandled type [% type %].\n");
