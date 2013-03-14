@@ -31,14 +31,30 @@ for my $trans (0, 1) {
 	    $vars{function} .= "_trans";
 	    $vars{stem} .= "-trans";
 	}
-	my $outfile = "$file-$vars{stem}.c";
-	if (-f $outfile) {
-	    chmod 0777, $outfile;
-	    unlink $outfile;
-	}
-	$tt->process ("$file.c.tmpl", \%vars, $outfile)
-        or die '' . $tt->error ();
-	do_system ("cfunctions -inc $outfile");
-	chmod 0444, $outfile;
+	my $base = "$file-$vars{stem}";
+	# This is the macro used in the .h file as a double-inclusion
+	# guard.
+	my $wrapper = "$base-h";
+	$wrapper =~ s/-/_/g;
+	$wrapper = uc $wrapper;
+	$vars{wrapper} = $wrapper;
+	my $cfile = "$base.c";
+	do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
+	my $hfile = "$base.h";
+	do_file ($tt, "$file.h.tmpl", \%vars, $hfile);
     }
+}
+
+exit;
+
+sub do_file
+{
+    my ($tt, $infile, $vars, $outfile) = @_;
+    if (-f $outfile) {
+	chmod 0777, $outfile;
+	unlink $outfile;
+    }
+    $tt->process ($infile, $vars, $outfile)
+        or die '' . $tt->error ();
+    chmod 0444, $outfile;
 }

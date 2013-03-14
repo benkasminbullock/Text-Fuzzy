@@ -5,17 +5,11 @@
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
 
-int [% function %] (const [% type %] * word1,
-                    int len1,
-[%- IF use_text_fuzzy %]
-                    text_fuzzy_t * tf
-[%- ELSE %]
-                    const [% type %] * word2
-                    int len2,
-                    int max
-[%- END -%]
-)
+[% INCLUDE declaration %]
 {
+[%- IF trans %]
+    fprintf (stderr, "This is not implemented yet.\n");
+[%- ELSE # trans %]
 [%- IF use_text_fuzzy %]
     /* Pull the values from "tf". */
 [% IF ed_type == 'int' %]
@@ -29,6 +23,10 @@ int [% function %] (const [% type %] * word1,
     exit (1);
 [% END %]
 [%- END # use_text_fuzzy %]
+
+    /* Matrix is the dynamic programming matrix. We economize on space
+       by having only two columns. */
+
     int matrix[2][len2 + 1];
     int i;
     int j;
@@ -153,5 +151,6 @@ int [% function %] (const [% type %] * word1,
         }
     }
     return matrix[len1 % 2][len2];
+[%- END # trans %]
 }
 
