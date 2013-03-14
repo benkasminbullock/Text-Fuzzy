@@ -123,4 +123,12 @@ L<Lingua::EN::PluralToSingular>, to convert nouns into singular
 forms. Unfortunately it still misses past participles and past tenses
 of verbs.
 
+=head2 extract-kana.pl
+
+The file F<examples/extract-kana.pl> extracts the kana entries from
+"edict", a freely-available Japanese to English electronic dictionary,
+and does some fuzzy searches on them. It requires a local copy of the
+file to run. This script demonstrates the use of Unicode searches with
+Text::Fuzzy.
+
 [% INCLUDE "author" %]

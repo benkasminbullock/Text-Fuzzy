@@ -1,3 +1,8 @@
+0.09
+
+Error in documentation and examples regarding the return value of
+"nearest" (it should have said the return value is -1 for a miss).
+
 0.08
 
 Alterations for the benefit of unification with CPAN::Nearest.
