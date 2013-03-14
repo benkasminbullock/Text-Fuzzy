@@ -7,7 +7,7 @@ Ben Bullock
 2013-03-13
 
 In fuzzy text searching of a list of words for the closest match by
-Levenshtein edit distance.
+Levenshtein edit distance.@ref{lev65}@ref{lev66}
 
 Performance of 1/10 second for fuzzy text searching over about 120,000
 strings of average length twenty bytes each.
@@ -58,6 +58,8 @@ Implementation as \tt Text::Fuzzy\rm.
 Application as \tt CPAN::Nearest\rm.
 
 Applications to spell checker, misspelt web page detector.
+
+Original inspiration was the ``git'' code.
 
 \bf
 References

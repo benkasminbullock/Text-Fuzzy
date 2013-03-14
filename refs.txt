@@ -1,0 +1,15 @@
+name: navarro
+title: A guided tour to approximate string matching
+author1: Gonzalo Navarro
+author1_affil: Univ. of Chile, Santiago, Chile
+journal: ACM Computing Surveys
+volume: 33
+issue: 1
+date: March 2001 
+pages: 31 - 88
+
+
+name: lev66
+
+name: lev65
+
