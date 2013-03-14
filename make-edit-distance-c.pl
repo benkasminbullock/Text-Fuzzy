@@ -20,17 +20,25 @@ $vars{insert_cost} = 1;
 $vars{delete_cost} = 1;
 $vars{substitute_cost} = 1;
 $vars{use_text_fuzzy} = 1;
-for my $type (qw/char int/) {
-    $vars{type} = "unsigned $type";
-    $vars{function} = "distance_$type";
-    $vars{ed_type} = "$type";
-    my $outfile = "$file-$type.c";
-    if (-f $outfile) {
-        chmod 0777, $outfile;
-        unlink $outfile;
-    }
-    $tt->process ("$file.c.tmpl", \%vars, $outfile)
+for my $trans (0, 1) {
+    $vars{trans} = $trans;
+    for my $type (qw/char int/) {
+	$vars{type} = "unsigned $type";
+	$vars{function} = "distance_$type";
+	$vars{ed_type} = "$type";
+	$vars{stem} = "$type";
+	if ($trans) {
+	    $vars{function} .= "_trans";
+	    $vars{stem} .= "-trans";
+	}
+	my $outfile = "$file-$vars{stem}.c";
+	if (-f $outfile) {
+	    chmod 0777, $outfile;
+	    unlink $outfile;
+	}
+	$tt->process ("$file.c.tmpl", \%vars, $outfile)
         or die '' . $tt->error ();
-    do_system ("cfunctions -inc $outfile");
-    chmod 0444, $outfile;
+	do_system ("cfunctions -inc $outfile");
+	chmod 0444, $outfile;
+    }
 }
