@@ -95,6 +95,18 @@ by newlines and finds the closest match in the file.
 
 This does not currently support Unicode-encoded files.
 
+=head2 set_trans
+
+    $tf->set_trans (1);
+
+This changes the edit distance used to allow or disallow
+transpositions. Initially transpositions are not allowed.
+
+=head2 get_trans
+
+This returns a true or false value depending on whether transpositions
+are allowed or not.
+
 =head1 EXAMPLES
 
 =head2 misspelt-web-page.cgi
