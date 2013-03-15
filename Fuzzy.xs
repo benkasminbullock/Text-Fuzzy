@@ -56,6 +56,26 @@ CODE:
 	}
 
 
+void
+set_trans (tf, trans)
+	Text::Fuzzy tf;
+	int trans;
+CODE:
+	if (trans) {
+		tf->transpositions_ok = 1;
+	}
+	else {
+		tf->transpositions_ok = 0;
+	}
+
+int
+get_trans (tf)
+	Text::Fuzzy tf;
+CODE:
+	RETVAL = tf->transpositions_ok;
+OUTPUT:
+	RETVAL
+
 int
 distance (tf, word)
 	Text::Fuzzy tf;

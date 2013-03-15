@@ -36,7 +36,7 @@ typedef struct text_fuzzy {
     int use_alphabet : 1;
     /* Variable edit costs? */
     int variable_edit_costs : 1;
-    /* Do we account for transpositions? (Currently unused) */
+    /* Do we account for transpositions? */
     int transpositions_ok : 1;
     /* Did we find it? */
     int found : 1;
@@ -91,7 +91,12 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 		OK;
 	    }
         }
-        d = distance_int (b->unicode, b->ulength, tf);
+	if (tf->transpositions_ok) {
+	    d = distance_int_trans (b->unicode, b->ulength, tf);
+	}
+	else {
+	    d = distance_int (b->unicode, b->ulength, tf);
+	}
         if (allocated) {
             free (b->unicode);
             b->unicode = 0;
@@ -131,7 +136,12 @@ FUNC (compare_single) (text_fuzzy_t * tf,
         }
         /* Calculate the edit distance. */
 
-        d = distance_char (b->text, b->length, tf);
+	if (tf->transpositions_ok) {
+	    d = distance_char_trans (b->text, b->length, tf);
+	}
+	else {
+	    d = distance_char (b->text, b->length, tf);
+	}
     }
     if (d < tf->max_distance) {
         tf->found = 1;
