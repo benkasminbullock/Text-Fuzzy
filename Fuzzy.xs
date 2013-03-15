@@ -59,9 +59,9 @@ CODE:
 void
 set_trans (tf, trans)
 	Text::Fuzzy tf;
-	int trans;
+	SV * trans;
 CODE:
-	if (trans) {
+	if (SvTRUE (trans)) {
 		tf->transpositions_ok = 1;
 	}
 	else {
