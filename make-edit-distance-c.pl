@@ -4,7 +4,6 @@ use strict;
 use Template;
 use FindBin;
 use File::Compare;
-use Deploy 'do_system';
 
 my $tt = Template->new (
     ABSOLUTE => 1,
