@@ -78,21 +78,30 @@ sv_to_text_fuzzy (SV * text, int max_distance,
             sv_to_int_ptr (text,
                            & text_fuzzy->text.ulength);
         text_fuzzy->n_mallocs++;
+	TEXT_FUZZY (generate_ualphabet (text_fuzzy));
+	//text_fuzzy->ualphabet.valid = 0;
     }
     else {
-        TEXT_FUZZY (generate_alphabet (text_fuzzy));
+	TEXT_FUZZY (generate_alphabet (text_fuzzy));
     }
     * text_fuzzy_ptr = text_fuzzy;
 }
 
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
+    if (text_fuzzy->ualphabet.alphabet) {
+	free (text_fuzzy->ualphabet.alphabet);
+	text_fuzzy->n_mallocs--;
+    }
+
     if (text_fuzzy->unicode) {
         Safefree (text_fuzzy->text.unicode);
         text_fuzzy->n_mallocs--;
     }
+
     Safefree (text_fuzzy->text.text);
     text_fuzzy->n_mallocs--;
+
     if (text_fuzzy->n_mallocs != 1) {
         warn ("memory leak: n_mallocs %d != 1", text_fuzzy->n_mallocs);
     }
@@ -142,6 +151,30 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
     max_distance_holder = tf->max_distance;
     nearest = -1;
 
+    /* If the maximum distance is set to a value larger than the
+       number of characters in the string, set the maximum distance to
+       the number of characters in the string, regardless of what the
+       user might have requested. */
+
+    if (tf->unicode) {
+	if (tf->max_distance > tf->text.ulength) {
+#ifdef DEBUG
+	    fprintf (stderr, "Reducing max distance from %d to %d\n", tf->max_distance, tf->text.ulength);
+#endif
+	    tf->max_distance = tf->text.ulength;
+	}
+#ifdef DEBUG
+	else {
+	    fprintf (stderr, "boo to a goose\n");
+	}
+#endif
+    }
+    else {
+	if (tf->max_distance > tf->text.length) {
+	    tf->max_distance = tf->text.length;
+	}
+    }
+
     n_words = av_len (words) + 1;
     if (n_words == 0) {
         return -1;
@@ -162,7 +195,11 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
         }
     }
     * distance_ptr = tf->max_distance;
+    /* Set the maximum distance back to the user's value. */
     tf->max_distance = max_distance_holder;
+#ifdef DEBUG
+    fprintf (stderr, "Rejected using alphabet: %d\n", tf->ualphabet.rejected);
+#endif
     return nearest;
 }
 
