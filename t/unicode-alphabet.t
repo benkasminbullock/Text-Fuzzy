@@ -13,9 +13,7 @@ my @words = qw/
 /;
 my $tf = Text::Fuzzy->new ($agogo);
 my $is = $tf->nearest (\@words);
-if ($is >= 0) {
-    printf "$words[$is] %d\n", $tf->last_distance ();
-}
-print $tf->distance ('リヒテンシュタイン'), "\n";
-ok (1);
+cmp_ok ($is, '>=', 0, "Found in array");
+is ($words[$is], 'リヒテンシュタイン', "Found best match");
+is ($tf->last_distance, 7, "Found correct distance");
 done_testing ();
