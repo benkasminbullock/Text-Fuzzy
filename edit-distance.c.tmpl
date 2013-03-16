@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-/* For INT_MAX */
+/* For INT_MAX/INT_MIN */
 #include <limits.h>
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
@@ -8,7 +8,127 @@
 [% INCLUDE declaration %]
 {
 [%- IF trans %]
-    fprintf (stderr, "This is not implemented yet.\n");
+
+  /* Our unsorted dictionary linked list.       */
+  /* [% type %] key; should work as expected    */
+  /* probably want this in edit-distance.h.tmpl */
+  struct dictionary{
+    unsigned int key;    /* the character        */
+    unsigned int value;  /* character occurance  */
+    struct dictionary* next;
+  };
+  typedef struct dictionary item;
+
+  static __inline item* push(unsigned int key,item* curr){
+    item* head;
+    head = malloc(sizeof(item));   
+    head->key = key;
+    head->value = 0;
+    head->next = curr;
+    return head;
+  }
+
+  static __inline item* find(item* head,unsigned int key){
+    item* iterator = head;
+    while(iterator){
+      if(iterator->key == key){
+        return iterator;
+      }
+      iterator = iterator->next;
+    }
+ 
+    return NULL;
+  }
+
+  /* find & push in 1 function (sperg optimization) */
+  static __inline item* uniquePush(item* head,unsigned int key){
+    item* iterator = head;
+
+    while(iterator){
+      if(iterator->key == key){
+        return head;
+      }
+      iterator = iterator->next;
+    }
+ 
+    return push(key,head); 
+  }
+
+  static void dict_free(item* head){
+    item* iterator = head;
+    while(iterator){
+      item* temp = iterator;
+      iterator = iterator->next;
+      free(temp);
+    }
+
+    head = NULL;
+  }
+  /* End of Dictionary Stuff */
+  /* end of stuff you probably want in edit-distance.h.tmpl */
+  
+  
+  /* begining of original C function edistance */
+  /* src[] = word, tgt[] = word2               */
+  item *head = NULL; /* keep track of dictionary linked list position
+  unsigned int swapCount,swapScore,targetCharCount,i,j;
+  unsigned int matrix[x + 2][y + 2];
+  unsigned int score_ceil = x + y;
+ 
+  /* intialize matrix start values */
+  matrix[0] = score_ceil;  
+  matrix[1][0] = score_ceil;
+  matrix[0][1] = score_ceil;
+  matrix[1][1] = 0;
+  head = uniquePush(uniquePush(head,src[0]),tgt[0]);
+
+  /* work loops    */
+  /* i = src index */
+  /* j = tgt index */
+  for(i=1;i<=x;i++){ 
+    head = uniquePush(head,src[i]);
+    matrix[i+1][1] = i;
+    matrix[i+1][0] = score_ceil;
+
+    swapCount = 0;
+    for(j=1;j<=y;j++){
+      if(i == 1) {
+	      /* only initialize on the first pass     */
+		  /* optimized over 2 additional for loops */
+          head = uniquePush(head,tgt[j]);
+          matrix[1][j + 1] = j;
+          matrix[0][j + 1] = score_ceil;
+      }
+
+      targetCharCount = find(head,tgt[j-1])->value;
+      swapScore = matrix[targetCharCount][swapCount] + i - targetCharCount - 1 + j - swapCount;
+
+      if(src[i-1] != tgt[j-1]){      
+        matrix[i+1][j + 1] = INT_MIN(swapScore,(INT_MIN(matrix[i][j], INT_MIN(matrix[i+1][j], matrix[i][j + 1])) + 1));
+      }else{ 
+        swapCount = j;
+        matrix[i+1][j + 1] = INT_MIN(matrix[i][j], swapScore);
+      } 
+    }
+
+    /* We will return -1 here if the */
+    /* current score > maxDistance   */
+    if(maxDistance != 0 && maxDistance < matrix[i+1][y+1]) {
+      dict_free(head);
+      free(matrix);
+      return -1;
+    }
+
+    
+    find(head,src[i-1])->value = i;
+  }
+
+  {
+  unsigned int score = matrix[x+1][y + 1];
+  dict_free(head);
+  free(matrix);
+  return score;
+  } /* wait till last second to declare return value as it may not be required */
 [%- ELSE # trans %]
 [%- IF use_text_fuzzy %]
     /* Pull the values from "tf". */
