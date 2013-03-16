@@ -147,6 +147,7 @@ static int min (int a, int b)
 	    }
 
 	    targetCharCount = find (head, word2[j-1])->value;
+
 	    swapScore = matrix[targetCharCount][swapCount] + i - targetCharCount - 1 + j - swapCount;
 	    
 	    if(word1[i-1] != word2[j-1]){      
@@ -157,14 +158,6 @@ static int min (int a, int b)
 		matrix[i+1][j + 1] = min (matrix[i][j], swapScore);
 	    } 
 	}
-	
-	/* We will return a huge value here if the */
-	/* current score > maxDistance   */
-	if(tf->max_distance != 0 && tf->max_distance < matrix[i+1][len2+1]) {
-	    dict_free(head);
-	    return INT_MAX / 0x1000;
-	}
-	
 	
 	find (head, word1[i-1])->value = i;
     }

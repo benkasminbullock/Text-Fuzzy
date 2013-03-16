@@ -72,7 +72,6 @@ text_fuzzy_t;
 
 #endif /* HEADER */
 
-//#define DEBUG
 
 /* The maximum feasible size of the Unicode alphabet. */
 
@@ -96,9 +95,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     u = & tf->ualphabet;
     t = & tf->text;
 
-#ifdef DEBUG
-    printf ("Alphabetizing %s\n", t->text);
-#endif
+    MESSAGE ("Alphabetizing %s\n", t->text);
 
     /* Set the maximum to the smallest possible value and the minimum
        to the largest possible value. */
@@ -125,9 +122,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 	}
     }
 
-#ifdef DEBUG
-    printf ("Range is %X - %X\n", u->min, u->max);
-#endif
+    MESSAGE ("Range is %X - %X\n", u->min, u->max);
 
     /* The size of the alphabet. */
 
@@ -164,10 +159,8 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 	FAIL (c > u->max || c < u->min, max_min_miscalculation);
 
 	BYTE_BIT;
-#ifdef DEBUG
-	printf ("Accepting %X at ", c);
-	printf (" byte %X, bit %X.\n", byte, bit);
-#endif
+	MESSAGE ("Accepting %X at ", c);
+	MESSAGE (" byte %X, bit %X.\n", byte, bit);
 	FAIL_MSG (byte < 0 || byte >= u->size, max_min_miscalculation,
 		  "The value of byte is %d, not within 0 - %d", byte, u->size);
 
@@ -177,9 +170,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     /* We have succeeded. */
 
     tf->use_ualphabet = 1;
-#ifdef DEBUG
-    printf ("Size %d, min %d, max %d\n", u->size, u->min, u->max);
-#endif
+    MESSAGE ("Size %d, min %d, max %d\n", u->size, u->min, u->max);
     OK;
 }
 
@@ -203,9 +194,7 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 	int c;
 
 	c = b->unicode[i];
-#ifdef DEBUG
-	printf ("Looking for %X: ", c);
-#endif
+	MESSAGE ("Looking for %X: ", c);
 
 	if (c >= u->min && c <= u->max) {
 
@@ -216,31 +205,21 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 
 	    BYTE_BIT;
 
-#ifdef DEBUG
-	    printf (" byte %X, bit %X: ", byte, bit);
-#endif
+	    MESSAGE (" byte %X, bit %X: ", byte, bit);
 	    if (! (u->alphabet[byte] & bit)) {
-#ifdef DEBUG
-		printf ("not ");
-#endif
+		MESSAGE ("not ");
 		misses++;
 	    }
-#ifdef DEBUG
-	    printf ("there.\n");
-#endif
+	    MESSAGE ("there.\n");
 	}
 	else {
 	    misses++;
-#ifdef DEBUG
-	    printf (" out of bounds.\n");
-#endif
+	    MESSAGE (" out of bounds.\n");
 	}
 	/* If we have too many misses, stop searching. */
 	if (misses >= tf->max_distance) {
-#ifdef DEBUG
-	    printf ("%s:%s: %d misses over %d: ",
+	    MESSAGE ("%s:%s: %d misses over %d: ",
 		    tf->text.text, b->text, misses, tf->max_distance);
-#endif
 	    return 1;
 	}
     }
@@ -310,28 +289,26 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 		   up. */
 
 		if (ualphabet_miss (tf, b)) {
-#ifdef DEBUG
-		    printf ("Rejected.\n");
-#endif
+		    MESSAGE ("Rejected.\n");
 		    tf->ualphabet.rejected++;
 		    OK;
 		}
-#ifdef DEBUG
 		else {
-		    printf ("Accepted.\n");
+		    MESSAGE ("Accepted.\n");
 		}
-#endif
 	    }
-#ifdef DEBUG
 	    else {
-		printf ("%s: skip len %d <= max %d.\n", b->text, b->ulength, tf->max_distance);
+		MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
+			 __FILE__, __LINE__, b->text, b->ulength, tf->max_distance);
 	    }
-#endif
 	}
 	if (tf->transpositions_ok) {
+	    MESSAGE ("Transpositions OK.\n");
 	    d = distance_int_trans (b->unicode, b->ulength, tf);
+	    MESSAGE ("Distance = %d\n", d);
 	}
 	else {
+	    MESSAGE ("No transpositions.\n");
 	    d = distance_int (b->unicode, b->ulength, tf);
 	}
         if (allocated) {
