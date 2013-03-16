@@ -65,7 +65,8 @@ argument to L</new>. If none of the elements are less than the maximum
 distance away from the word, C<$index> is -1.
 
     if ($index >= 0) {
-        print "Found at $index.\n";
+        printf "Found at $index, distance was %d.\n",
+            $tf->last_distance ();
     }
 
 Use L</set_max_distance> to alter the maximum distance used.
@@ -74,7 +75,7 @@ Use L</set_max_distance> to alter the maximum distance used.
 
     my $last_distance = $tf->last_distance ();
 
-The distance from the previous match. This is usually used in
+The distance from the previous match closest match. This is used in
 conjunction with L</nearest> to find the edit distance to the previous
 match.
 
@@ -83,15 +84,14 @@ match.
     # Set the max distance.
     $tf->set_max_distance (3);
 
-Set the maximum edit distance of C<$tf>. The default is set to 10. If
-this is called with an undefined value, the maximum edit distance is
-switched off.
-
-This is a performance-related feature. Because the computation of edit
-distance is very expensive, and because large edit distance usually
-means that the strings are completely unrelated, you can set the
-maximum distance to a low value to improve the speed of searches over
-lists, via L</nearest>.
+Set the maximum edit distance of C<$tf>. The default maximum distance
+is 10. Set the maximum distance to a low value to improve the speed
+of searches over lists with L</nearest>, or to reject unlikely
+matches. When searching for a near match, anything with an edit
+distance of a value at least as high as the maximum is rejected
+without computing the exact distance. To compute exact distances, call
+this method with zero or undefined, the maximum edit distance is
+switched off, and whatever the nearest match is is accepted.
 
 =head2 get_max_distance
 
@@ -117,8 +117,9 @@ This does not currently support Unicode-encoded files.
 
 This changes the type of edit distance used to allow or disallow
 transpositions, such as C<clam> and C<calm>. Initially transpositions
-are not allowed, the Levenshtein edit distance. If transpositions are
-used, the edit distance becomes the Damerau-Levenshtein edit distance.
+are not allowed, giving the Levenshtein edit distance. If
+transpositions are used, the edit distance becomes the
+Damerau-Levenshtein edit distance.
 
 =head1 EXAMPLES
 

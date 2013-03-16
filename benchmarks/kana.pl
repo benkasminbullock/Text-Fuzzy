@@ -50,7 +50,7 @@ search (\@tests, 'アルベルトアインシュタイン');
 search (\@tests, 'バババブ');
 search (\@tests, 'バババブアルベルト');
 $result{tests} = \@tests;
-#print to_json (\%result, {pretty => 1});
+print to_json (\%result, {pretty => 1});
 my %ratios;
 for my $test (@tests) {
     my $input = $test->{input};

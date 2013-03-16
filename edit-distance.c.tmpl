@@ -1,3 +1,4 @@
+#line
 #include <string.h>
 #include <stdio.h>
 /* For INT_MAX/INT_MIN */
@@ -5,6 +6,7 @@
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
 [%- IF trans %]
+#line
 
 /* For malloc. */
 
@@ -81,22 +83,25 @@ static int min (int a, int b)
 
 
 [%- END %]
-
+#line 1 "declaration"
 [% INCLUDE declaration %]
 {
 [%- IF trans %]
-#line 85 "edit-distance.c.tmpl"
+#line
 [% IF ed_type == 'int' %]
+#line
     const [% type %] * word2 = (const [% type %] *) tf->text.unicode;
     int len2 = tf->text.ulength;
 [% ELSIF ed_type == 'char' %]
+#line
     const [% type %] * word2 = (const [% type %] *) tf->text.text;
     int len2 = tf->text.length;
 [% ELSE %]
+#line
     fprintf (stderr, "Unhandled type [% type %].\n");
     exit (1);
 [% END %]
-#line 96 "edit-distance.c.tmpl"
+#line
 
     /* keep track of dictionary linked list position */
 
@@ -169,19 +174,25 @@ static int min (int a, int b)
     return matrix[len1 + 1][len2 + 1];
 
 [%- ELSE # trans %]
+#line
 [%- IF use_text_fuzzy %]
+#line
     /* Pull the values from "tf". */
 [% IF ed_type == 'int' %]
+#line
     const [% type %] * word2 = (const [% type %] *) tf->text.unicode;
     int len2 = tf->text.ulength;
 [% ELSIF ed_type == 'char' %]
+#line
     const [% type %] * word2 = (const [% type %] *) tf->text.text;
     int len2 = tf->text.length;
 [% ELSE %]
+#line
     fprintf (stderr, "Unhandled type [% type %].\n");
     exit (1);
 [% END %]
 [%- END # use_text_fuzzy %]
+#line
 
     /* Matrix is the dynamic programming matrix. We economize on space
        by having only two columns. */
@@ -191,10 +202,12 @@ static int min (int a, int b)
     int j;
     int large_value;
 [%- IF use_text_fuzzy %]
+#line
     int max;
 
     max = tf->max_distance;
 [%- END # use_text_fuzzy %]
+#line
 
     /*
       Initialize the 0 row of "matrix".
@@ -311,5 +324,6 @@ static int min (int a, int b)
     }
     return matrix[len1 % 2][len2];
 [%- END # trans %]
+#line
 }
 

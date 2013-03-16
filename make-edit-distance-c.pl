@@ -53,7 +53,16 @@ sub do_file
 	chmod 0777, $outfile;
 	unlink $outfile;
     }
-    $tt->process ($infile, $vars, $outfile)
+    # Add line directives.
+    open my $in, "<", $infile or die $!;
+    my $text = '';
+    while (<$in>) {
+	my $n = $. + 1;
+	s/#line(\s*)$/#line $n "$infile"$1/;
+	$text .= $_;
+    }
+    close $in or die $!;
+    $tt->process (\$text, $vars, $outfile)
         or die '' . $tt->error ();
     chmod 0444, $outfile;
 }
