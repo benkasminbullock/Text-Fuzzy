@@ -34,6 +34,13 @@ It supports either bytewise edit distances or Unicode-based edit distances:
     print $tf->distance ('うえお☺'), "\n";
     # prints "2".
 
+The default edit distance is the Levenshtein edit distance, which
+applies an equal weight of one to additions (C<cat> -> C<cart>),
+substitutions (C<cat> -> C<cut>), and deletions (C<carp> ->
+C<cap>). Optionally, the Damerau-Levenshtein edit distance, which
+additionally allows transpositions (C<salt> -> C<slat>) may be
+selected using the method L<transpositions_ok>.
+
 =head1 METHODS
 
 =head2 new
