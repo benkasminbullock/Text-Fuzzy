@@ -21,3 +21,4 @@ makeitfile
 doc/.*
 # Benchmarking.
 benchmarks/.*
+MYMETA\..*

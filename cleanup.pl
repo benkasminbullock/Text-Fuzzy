@@ -1,6 +1,8 @@
 #!/home/ben/software/install/bin/perl
 use warnings;
 use strict;
+use Deploy 'do_system';
+
 my @types = qw/char int short/;
 my @suffixes = qw/c h/;
 my @files;
@@ -26,3 +28,5 @@ for my $file (@files) {
 	unlink $file;
     }
 }
+
+do_system ("rm -rf Text-Fuzzy-0.*");

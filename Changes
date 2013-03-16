@@ -1,3 +1,8 @@
+0.10_01
+
+* Transpositions (Damerau-Levenshtein edit distance)
+* Alphabetization of Unicode strings via bitmap
+
 0.09
 
 Error in documentation and examples regarding the return value of
