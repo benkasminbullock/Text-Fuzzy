@@ -49,7 +49,7 @@ set_max_distance (tf, max_distance = &PL_sv_undef)
 	SV * max_distance;
 CODE:
         if (SvOK (max_distance)) {
-		tf->max_distance = SvIV (max_distance);
+		tf->max_distance = (int) SvIV (max_distance);
 	}
 	else {
         	tf->max_distance = NO_MAX_DISTANCE;
@@ -90,9 +90,7 @@ nearest (tf, words)
 	Text::Fuzzy tf;
         AV * words;
 CODE:
-        int distance = -1;
-	RETVAL = text_fuzzy_av_distance (tf, words, & distance);
-        tf->distance = distance;
+	RETVAL = text_fuzzy_av_distance (tf, words);
 OUTPUT:
 	RETVAL
 

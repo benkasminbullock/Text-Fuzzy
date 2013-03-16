@@ -141,13 +141,14 @@ text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
 }
 
 static int
-text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
+text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
 {
     int i;
     int n_words;
     int max_distance_holder;
     int nearest;
 
+    tf->distance = -1;
     max_distance_holder = tf->max_distance;
     nearest = -1;
 
@@ -194,7 +195,7 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
             }
         }
     }
-    * distance_ptr = tf->max_distance;
+    tf->distance = tf->max_distance;
     /* Set the maximum distance back to the user's value. */
     tf->max_distance = max_distance_holder;
 #ifdef DEBUG

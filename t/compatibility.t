@@ -8,7 +8,6 @@ SKIP: {
 	require Text::Levenshtein::Damerau::XS;
     };
     if ($@) {
-	print "$@\n";
 	skip "Text::Levenshtein::Damerau not installed", 2;
     }
     compare ('ハルベルト', 'バババブアルベルト');
@@ -22,7 +21,7 @@ sub compare
     my $tld = Text::Levenshtein::Damerau::XS::xs_edistance ($left, $right);
     my $tf = Text::Fuzzy->new ($left);
     my $d = $tf->distance ($right);
-    is ($tld, $d, "Same values for $left and $right with tld and tf");
+    is ($tld, $d, "Same values with tld and tf");
 }
 
 
