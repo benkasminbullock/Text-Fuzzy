@@ -5,15 +5,15 @@ use Text::Fuzzy;
 use utf8;
 my $thing = Text::Fuzzy->new ('abc');
 eval {
-    $thing->set_trans (1);
-    $thing->set_trans (0);
+    $thing->transpositions_ok (1);
+    $thing->transpositions_ok (0);
 };
 ok (! $@, "No errors turning transpositions on and off");
 
-$thing->set_trans (0);
+$thing->transpositions_ok (0);
 is ($thing->distance ('bac'), 2, "correct distance without transpos");
 
-$thing->set_trans (1);
+$thing->transpositions_ok (1);
 is ($thing->distance ('bac'), 1, "correct distance with transpos");
 
 # Test using Unicode characters. The following string is set up to
@@ -22,9 +22,9 @@ is ($thing->distance ('bac'), 1, "correct distance with transpos");
 
 my $thing2 = Text::Fuzzy->new ('あいうかきえおくけこ');
 
-$thing2->set_trans (0);
+$thing2->transpositions_ok (0);
 is ($thing2->distance ('あういかきおえくけこ'), 4, "correct distance without transpos");
-$thing2->set_trans (1);
+$thing2->transpositions_ok (1);
 is ($thing2->distance ('あういかきおえくけこ'), 2, "correct distance with transpos");
 
 # From "Text-Levenshtein-Damerau-XS/t/02_xs_edistance.t"
@@ -55,7 +55,7 @@ sub xs_edistance
 {
     my ($left, $right) = @_;
     my $tf = Text::Fuzzy->new ($left);
-    $tf->set_trans (1);
+    $tf->transpositions_ok (1);
     my $d = $tf->distance ($right);
     return $d;
 }

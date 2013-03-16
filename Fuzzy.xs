@@ -57,7 +57,7 @@ CODE:
 
 
 void
-set_trans (tf, trans)
+transpositions_ok (tf, trans)
 	Text::Fuzzy tf;
 	SV * trans;
 CODE:

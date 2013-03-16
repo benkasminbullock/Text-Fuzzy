@@ -95,17 +95,12 @@ by newlines and finds the closest match in the file.
 
 This does not currently support Unicode-encoded files.
 
-=head2 set_trans
+=head2 transpositions_ok
 
-    $tf->set_trans (1);
+    $tf->transpositions_ok (1);
 
-This changes the edit distance used to allow or disallow
+This changes the type of edit distance used to allow or disallow
 transpositions. Initially transpositions are not allowed.
-
-=head2 get_trans
-
-This returns a true or false value depending on whether transpositions
-are allowed or not.
 
 =head1 EXAMPLES
 
@@ -142,5 +137,11 @@ The file F<examples/extract-kana.pl> extracts the kana entries from
 and does some fuzzy searches on them. It requires a local copy of the
 file to run. This script demonstrates the use of Unicode searches with
 Text::Fuzzy.
+
+=head1 ACKNOWLEDGEMENTS
+
+The edit distance including transpositions was contributed by Nick
+Logan (UGEXE). Some of the tests in F<t/trans.t> are taken from the
+L<Text::Levenshtein::Damerau::XS> module.
 
 [% INCLUDE "author" %]
