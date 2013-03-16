@@ -5,7 +5,7 @@ require DynaLoader;
 @EXPORT_OK = qw//;
 use warnings;
 use strict;
-our $VERSION = 0.09;
+our $VERSION = "0.10_01";
 __PACKAGE__->bootstrap ($VERSION);
 
 sub dl_load_flags

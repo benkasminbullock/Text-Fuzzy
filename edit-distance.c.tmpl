@@ -59,7 +59,7 @@ static __inline item * uniquePush (item * head, unsigned int key)
 
 /* Free the memory associated with "head". */
 
-static void dict_free(item * head)
+static void dict_free (item * head)
 {
     item * iterator = head;
     while(iterator){
@@ -105,6 +105,13 @@ static int min (int a, int b)
     unsigned int swapScore,targetCharCount,i;
     unsigned int matrix[len1 + 2][len2 + 2];
     unsigned int score_ceil = len1 + len2;
+
+    if (len1 == 0) {
+	return len2;
+    }
+    if (len2 == 0) {
+	return len1;
+    }
  
     /* intialize matrix start values */
 
@@ -158,6 +165,7 @@ static int min (int a, int b)
     }
 
     dict_free (head);
+    printf ("%d %d %d\n", len1 + 1, len2 + 1, matrix[len1 + 1][len2 + 1]);
     return matrix[len1 + 1][len2 + 1];
 
 [%- ELSE # trans %]
