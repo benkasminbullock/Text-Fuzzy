@@ -79,7 +79,7 @@ sub search
 	$result{no_alphabet} = $no_alphabet ? JSON::true : JSON::false;
 	$result{input} = $silly;
 	my $search = Text::Fuzzy->new ($silly);
-	$search->no_alphabet ($no_alphabet);
+	$search->set_trans ($no_alphabet);
 	my $start = time ();
 	my $n = $search->nearest (\@kana);
 	$result{nearest} = $n;
