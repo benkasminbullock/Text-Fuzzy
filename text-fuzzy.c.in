@@ -4,6 +4,8 @@
 #include <limits.h>
 
 #include "text-fuzzy.h"
+#include "edit-distance-char-trans.h"
+#include "edit-distance-int-trans.h"
 #include "edit-distance-char.h"
 #include "edit-distance-int.h"
 

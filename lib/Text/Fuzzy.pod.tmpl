@@ -39,7 +39,7 @@ applies an equal weight of one to additions (C<cat> -> C<cart>),
 substitutions (C<cat> -> C<cut>), and deletions (C<carp> ->
 C<cap>). Optionally, the Damerau-Levenshtein edit distance, which
 additionally allows transpositions (C<salt> -> C<slat>) may be
-selected using the method L<transpositions_ok>.
+selected using the method L</transpositions_ok>.
 
 =head1 METHODS
 
@@ -60,13 +60,15 @@ object in L</new>.
 
     my $index = $tf->nearest (\@words);
 
-Return the index of the nearest element in the array to the argument
-to L</new>. If none of the elements are less than the maximum distance
-away from the word, C<$index> is -1.
+This returns the index of the nearest element in the array to the
+argument to L</new>. If none of the elements are less than the maximum
+distance away from the word, C<$index> is -1.
 
     if ($index >= 0) {
         print "Found at $index.\n";
     }
+
+Use L</set_max_distance> to alter the maximum distance used.
 
 =head2 last_distance
 
@@ -76,13 +78,6 @@ The distance from the previous match. This is usually used in
 conjunction with L</nearest> to find the edit distance to the previous
 match.
 
-=head2 get_max_distance
-
-    # Get the maximum edit distance.
-    print "The max distance is ", $tf->get_max_distance (), "\n";
-
-Get the maximum edit distance of C<$tf>. The default is set to 10.
-
 =head2 set_max_distance
 
     # Set the max distance.
@@ -91,6 +86,20 @@ Get the maximum edit distance of C<$tf>. The default is set to 10.
 Set the maximum edit distance of C<$tf>. The default is set to 10. If
 this is called with an undefined value, the maximum edit distance is
 switched off.
+
+This is a performance-related feature. Because the computation of edit
+distance is very expensive, and because large edit distance usually
+means that the strings are completely unrelated, you can set the
+maximum distance to a low value to improve the speed of searches over
+lists, via L</nearest>.
+
+=head2 get_max_distance
+
+    # Get the maximum edit distance.
+    print "The max distance is ", $tf->get_max_distance (), "\n";
+
+Get the maximum edit distance of C<$tf>. The default is set to 10. The
+maximum distance may be set with L</set_max_distance>.
 
 =head2 scan_file
 
@@ -107,7 +116,9 @@ This does not currently support Unicode-encoded files.
     $tf->transpositions_ok (1);
 
 This changes the type of edit distance used to allow or disallow
-transpositions. Initially transpositions are not allowed.
+transpositions, such as C<clam> and C<calm>. Initially transpositions
+are not allowed, the Levenshtein edit distance. If transpositions are
+used, the edit distance becomes the Damerau-Levenshtein edit distance.
 
 =head1 EXAMPLES
 
