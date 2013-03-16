@@ -82,14 +82,14 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 	//text_fuzzy->ualphabet.valid = 0;
     }
     else {
-        TEXT_FUZZY (generate_alphabet (text_fuzzy));
+	TEXT_FUZZY (generate_alphabet (text_fuzzy));
     }
     * text_fuzzy_ptr = text_fuzzy;
 }
 
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
-    if (text_fuzzy->ualphabet.valid) {
+    if (text_fuzzy->ualphabet.alphabet) {
 	free (text_fuzzy->ualphabet.alphabet);
 	text_fuzzy->n_mallocs--;
     }

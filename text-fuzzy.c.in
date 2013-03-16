@@ -20,10 +20,6 @@ typedef struct ualphabet {
     unsigned char * alphabet;
 
     int rejected;
-
-    /* Is this valid? */
-
-    int valid : 1;
 }
 ualphabet_t;
 
@@ -53,9 +49,12 @@ typedef struct text_fuzzy {
     /* Unicode alphabet. */
     ualphabet_t ualphabet;
     int distance;
-    /* Use alphabet filter? */
-    int no_alphabet_filter : 1;
-
+    /* Does the user want to use alphabet filter? Default is yes, so
+       this must be set to a non-zero value to switch off use. */
+    int user_no_alphabet : 1;
+    /* Are we actually going to use it? (This may be false even if the
+       user wants to use it, for silly cases, but is not true if the
+       user does not want to use it.) */
     int use_alphabet : 1;
     int use_ualphabet : 1;
     /* Variable edit costs? */
@@ -175,7 +174,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 
     /* We have succeeded. */
 
-    u->valid = 1;
+    tf->use_ualphabet = 1;
 #ifdef DEBUG
     printf ("Size %d, min %d, max %d\n", u->size, u->min, u->max);
 #endif
@@ -296,7 +295,7 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 		OK;
 	    }
         }
-	if (tf->ualphabet.valid) {
+	if (tf->use_ualphabet) {
 
 	    /* Check that the number of Unicode characters in b is
 	       more than the maximum distance, otherwise this will not

@@ -44,6 +44,7 @@ sub search
     my ($silly) = @_;
     my $start = time ();
     my $search = Text::Fuzzy->new ($silly);
+    $search->no_alphabet (0);
 #    $search->set_max_distance (3);
     my $n = $search->nearest (\@kana);
     if ($n >= 0) {
