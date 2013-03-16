@@ -4,10 +4,9 @@
 #include <limits.h>
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
-
-[% INCLUDE declaration %]
-{
 [%- IF trans %]
+/* For malloc. */
+#include <stdlib.h>
 
   /* Our unsorted dictionary linked list.       */
   /* [% type %] key; should work as expected    */
@@ -64,6 +63,13 @@
 
     head = NULL;
   }
+
+[%- END %]
+
+[% INCLUDE declaration %]
+{
+[%- IF trans %]
+
   /* End of Dictionary Stuff */
   /* end of stuff you probably want in edit-distance.h.tmpl */
   
