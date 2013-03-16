@@ -10,3 +10,4 @@ text-fuzzy.[ch]
 MANIFEST
 algorithm.dvi
 algorithm.log
+Text-Fuzzy-*/*
