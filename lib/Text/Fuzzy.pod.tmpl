@@ -121,6 +121,45 @@ are not allowed, giving the Levenshtein edit distance. If
 transpositions are used, the edit distance becomes the
 Damerau-Levenshtein edit distance.
 
+=head1 PRIVATE METHODS
+
+These methods are not expected to be useful for the general user. They
+may be useful in benchmarking the module and checking its correctness.
+
+=head2 no_alphabet
+
+    $tf->no_alphabet (1);
+
+This turns off alphabetizing of the string. Alphabetizing is a filter
+where the intersection of all the characters in the two strings is
+computed. If the number of characters in the difference of the two
+strings is greater than the maximum distance, the match is rejected
+without applying the dynamic programming algorithm. This results in a
+speed increase due to the computational cost of the dynamic
+programming algorithm. The alphabetizing should not ever reject
+anything which is a legitimate match, and it should make the program
+run faster in almost every case. Thus this method is private, since
+the only envisaged uses of switching this check off are checking that
+the algorithm is working correctly, and benchmarking performance.
+
+=head2 get_trans
+
+This returns the value set by L</transpositions_ok>.
+
+=head2 unicode_length
+
+This returns the length in characters (not bytes) of the string used
+in L</new>. If the string is not marked as Unicode, it returns the
+undefined value.
+
+=head2 ualphabet_rejected
+
+    my $rejected = $tf->ualphabet_rejected ();
+
+After running L</nearest> over an array, this returns the number of
+entries of the array which were rejected using only the alphabet. Its
+value is reset to zero each time L</nearest> is called.
+
 =head1 EXAMPLES
 
 =head2 misspelt-web-page.cgi

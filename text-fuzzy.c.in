@@ -14,13 +14,21 @@
 /* Alphabet over unicode characters. */
 
 typedef struct ualphabet {
+
+    /* The smallest character in our alphabet. */
     int min;
+
+    /* The largest character in our alphabet. */
     int max;
+
     /* Number of chars allocated in the following array. */
     int size;
-    /* Array containing Unicode alphabet. */
+
+    /* Array containing Unicode alphabet, as a bitmap. */
     unsigned char * alphabet;
 
+    /* The number of characters which were rejected using the Unicode
+       alphabet. */
     int rejected;
 }
 ualphabet_t;
@@ -28,43 +36,73 @@ ualphabet_t;
 /* This structure contains one string of whatever type. */
 
 typedef struct text_fuzzy_string {
+
+    /* The text of the string. */
     char * text;
+
+    /* The length of "text". */
     int length;
+
+    /* The characters of "text" expanded out into unicode
+       characters. */
     int * unicode;
+
+    /* The length of "unicode". */
     int ulength;
 }
 text_fuzzy_string_t;
 
-/* This string contains one string plus additional paraphenalia used
-   in searching for the string, for example the alphabet of the
-   string. */
+/* The following structure contains one string plus additional
+   paraphenalia used in searching for the string, for example the
+   alphabet of the string. */
 
 typedef struct text_fuzzy {
+
     /* The string we are to match. */
     text_fuzzy_string_t text;
+
     /* The maximum edit distance we allow for. */
     int max_distance;
+
     /* The number of mallocs we are guilty of. */
     int n_mallocs;
-    /* Alphabet */
+
+    /* ASCII alphabet */
     int alphabet[0x100];
+
     /* Unicode alphabet. */
     ualphabet_t ualphabet;
+
+    /* The minimum distance we got in our most recent effort. */
     int distance;
-    /* Does the user want to use alphabet filter? Default is yes, so
-       this must be set to a non-zero value to switch off use. */
+
+    /* Fake "unicode" holder for the case of comparing a Unicode
+       string in "tf" with a non-unicode string. */
+    int * fake_unicode;
+
+    /* The number of bytes allocated for "fake_unicode". This is not
+       the string length. */
+    int fake_unicode_length;
+
+    /* Does the user want to use an alphabet filter? Default is yes,
+       so this must be set to a non-zero value to switch off use. */
     int user_no_alphabet : 1;
+
     /* Are we actually going to use it? (This may be false even if the
        user wants to use it, for silly cases, but is not true if the
        user does not want to use it.) */
     int use_alphabet : 1;
     int use_ualphabet : 1;
-    /* Variable edit costs? */
+
+    /* Variable edit costs? (currently unused) */
     int variable_edit_costs : 1;
+
     /* Do we account for transpositions? */
     int transpositions_ok : 1;
+
     /* Did we find it? */
     int found : 1;
+
     /* Is this Unicode? */
     int unicode : 1;
 }
@@ -72,25 +110,37 @@ text_fuzzy_t;
 
 #endif /* HEADER */
 
-
 /* The maximum feasible size of the Unicode alphabet. */
 
 #define UALPHABET_MAX_SIZE 0x10000
+
+/* The following calculations need to be done twice, first when
+   creating the alphabet and second when looking up a new character in
+   it. The macro saves us from exasperating bugs. */
 
 #define BYTE_BIT				\
     byte = ((c - u->min) / 8) ;			\
     bit = 1 << (c % 8);
 
+/* Generate the Unicode alphabet in "tf->ualphabet". */
 
 FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 {
     int i;
+
     /* "u" is a pointer to the alphabet in "tf". This saves repeatedly
        typing "tf->ualphabet". */
+
     ualphabet_t * u;
+
     /* "t" is a pointer to the string in "tf". This saves repeatedly
        typing "tf->text". */
+
     text_fuzzy_string_t * t;
+
+    /* Check this routine was not called by mistake. */
+
+    FAIL (! tf->unicode, ualphabet_on_non_unicode);
 
     u = & tf->ualphabet;
     t = & tf->text;
@@ -103,8 +153,6 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     u->min = INT_MAX;
     u->max = INT_MIN;
 
-    FAIL (! tf->unicode, ualphabet_on_non_unicode);
-
     /* Get the minimum and maximum values. */
 
     for (i = 0; i < t->ulength; i++) {
@@ -114,6 +162,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 	int c;
 
 	c = t->unicode[i];
+
 	if (c > u->max) {
 	    u->max = c;
 	}
@@ -124,7 +173,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 
     MESSAGE ("Range is %X - %X\n", u->min, u->max);
 
-    /* The size of the alphabet. */
+    /* The number of bytes we need to store the alphabet. */
 
     u->size = u->max /8 - u->min / 8 + 1;
 
@@ -159,8 +208,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 	FAIL (c > u->max || c < u->min, max_min_miscalculation);
 
 	BYTE_BIT;
-	MESSAGE ("Accepting %X at ", c);
-	MESSAGE (" byte %X, bit %X.\n", byte, bit);
+	MESSAGE ("Accepting %X at byte %X, bit %X.\n", c, byte, bit);
 	FAIL_MSG (byte < 0 || byte >= u->size, max_min_miscalculation,
 		  "The value of byte is %d, not within 0 - %d", byte, u->size);
 
@@ -170,9 +218,15 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     /* We have succeeded. */
 
     tf->use_ualphabet = 1;
+
     MESSAGE ("Size %d, min %d, max %d\n", u->size, u->min, u->max);
+
     OK;
 }
+
+/* This returns a true value if the difference between the alphabet of
+   "b" and the alphabet of "tf" is greater than the maximum distance
+   which "tf" will accept. */
 
 static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 {
@@ -182,6 +236,8 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
        typing "tf->ualphabet". */
 
     ualphabet_t * u;
+
+    /* The number of misses. */
 
     int misses;
 
@@ -196,6 +252,8 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 	c = b->unicode[i];
 	MESSAGE ("Looking for %X: ", c);
 
+	/* Eliminate too large or too small. */
+
 	if (c >= u->min && c <= u->max) {
 
 	    /* Byte and bit offset of c in u->alphabet. */
@@ -206,6 +264,9 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 	    BYTE_BIT;
 
 	    MESSAGE (" byte %X, bit %X: ", byte, bit);
+
+	    /* Exact check against the alphabet of "tf". */
+
 	    if (! (u->alphabet[byte] & bit)) {
 		MESSAGE ("not ");
 		misses++;
@@ -216,7 +277,9 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 	    misses++;
 	    MESSAGE (" out of bounds.\n");
 	}
+
 	/* If we have too many misses, stop searching. */
+
 	if (misses >= tf->max_distance) {
 	    MESSAGE ("%s:%s: %d misses over %d: ",
 		    tf->text.text, b->text, misses, tf->max_distance);
@@ -226,6 +289,45 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
     return 0;
 }
 
+#define SMALL 0x1000
+#define HUGE (SMALL * SMALL)
+
+STATIC FUNC (fake_length) (text_fuzzy_t * tf, int minimum)
+{
+    int r = SMALL;
+ again:
+    if (minimum < r) {
+	tf->fake_unicode_length = r;
+	OK;
+    }
+    r *= 2;
+    FAIL_MSG (r > HUGE, string_too_long,
+	      "String length %d longer than maximum allowed for, %d.\n",
+	      minimum, HUGE);
+    goto again;
+}
+
+/* If necessary, allocate a fake unicode string to put "b" into, so we
+   can make a comparison. */
+
+STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
+{
+
+    if (! tf->fake_unicode) {
+	CALL (fake_length (tf, b_length));
+	tf->fake_unicode =
+	    malloc (tf->fake_unicode_length * sizeof (int));
+	FAIL (! tf->fake_unicode, memory_error);
+	tf->n_mallocs++;
+    }
+    else if (b_length > tf->fake_unicode_length) {
+	CALL (fake_length (tf, b_length));
+	tf->fake_unicode =
+	    realloc (tf->fake_unicode,
+		     tf->fake_unicode_length * sizeof (int));
+	FAIL (! tf->fake_unicode, memory_error);
+    }
+}
 
 /* Compare tf and b. */
 
@@ -241,9 +343,14 @@ FUNC (compare_single) (text_fuzzy_t * tf,
     tf->found = 0;
 
     if (tf->unicode) {
-        int allocated;
 
-        allocated = 0;
+	/* This keeps a track on whether we have put fake values into
+	   the Unicode parts of "b". */
+
+	int allocated;
+
+	allocated = 0;
+
         if (! b->unicode) {
 
 	    /* If "b" is not unicode, then create an artificial
@@ -251,46 +358,65 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 	       unicode string in tf->text. */
 
             int i;
-            b->unicode = calloc (b->length, sizeof (int));
-            FAIL (! b->unicode, memory_error);
-            allocated = 1;
+
+	    CALL (allocate_fake_unicode (tf, b->length));
+
+            b->unicode = tf->fake_unicode;
+            b->ulength = b->length;
+
+	    allocated = 1;
+
             for (i = 0; i < b->length; i++) {
+
                 unsigned char c;
+
                 c = b->text[i];
                 if (c < 0x80) {
+
+		    /* ASCII is copied. */
                     b->unicode[i] = c;
                 }
                 else {
-                    /* Cannot be equivalent to any Unicode character &
-                       do not want to match it to 0x80 - 0x100
-                       unicodes, so put a "nothing" value in here. */
+
+                    /* A byte with these values cannot be equivalent
+                       to any Unicode character. We do not want to
+                       match it to 0x80 - 0x100 unicodes, so put a
+                       "nothing" value in here which will not match
+                       anything. */
                     b->unicode[i] = -1;
                 }
             }
-            b->ulength = b->length;
         }
         if (tf->max_distance >= 0) {
+
 	    /* If the distance in the length of the strings is greater
 	       than the max distance, give up. */
+
 	    if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
 		OK;
 	    }
         }
 	if (tf->use_ualphabet) {
 
-	    /* Check that the number of Unicode characters in b is
+	    /* Check that the number of Unicode characters in "b" is
 	       more than the maximum distance, otherwise this will not
 	       reject it regardless of the difference found. */
 
 	    if (b->ulength > tf->max_distance) {
 
-		/* If the number of characters in b which are not in
-		   tf->text is greater than the maximum distance, give
+		/* If the number of characters in "b" which are not in
+		   "tf->text" is greater than the maximum distance, give
 		   up. */
 
 		if (ualphabet_miss (tf, b)) {
 		    MESSAGE ("Rejected.\n");
 		    tf->ualphabet.rejected++;
+
+		    if (allocated) {
+			/* Remove wrong information, pointers into "tf". */
+			b->unicode = 0;
+			b->ulength = 0;
+		    }
 		    OK;
 		}
 		else {
@@ -299,21 +425,21 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 	    }
 	    else {
 		MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
-			 __FILE__, __LINE__, b->text, b->ulength, tf->max_distance);
+			 b->text, b->ulength, tf->max_distance);
 	    }
 	}
 	if (tf->transpositions_ok) {
 	    MESSAGE ("Transpositions OK.\n");
 	    d = distance_int_trans (b->unicode, b->ulength, tf);
-	    MESSAGE ("Distance = %d\n", d);
 	}
 	else {
 	    MESSAGE ("No transpositions.\n");
 	    d = distance_int (b->unicode, b->ulength, tf);
 	}
         if (allocated) {
-            free (b->unicode);
+	    /* Remove wrong information, pointers into "tf". */
             b->unicode = 0;
+	    b->ulength = 0;
         }
     }
     else {
@@ -557,5 +683,10 @@ There was an attempt to make a Unicode alphabet on a non-Unicode string.
 %%
 
 status: max_min_miscalculation
+
+status: string_too_long
+%%description:
+A string for comparison was larger than the value of HUGE defined in the code.
+%%
 
 */

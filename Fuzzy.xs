@@ -141,3 +141,12 @@ CODE:
         TEXT_FUZZY (scan_file (tf, file_name, & RETVAL));
 OUTPUT:
         RETVAL
+
+int
+ualphabet_rejected (tf)
+	Text::Fuzzy tf;
+CODE:
+	RETVAL = tf->ualphabet.rejected;
+OUTPUT:
+        RETVAL
+

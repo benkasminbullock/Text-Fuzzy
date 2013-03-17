@@ -89,6 +89,10 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
+    if (text_fuzzy->fake_unicode) {
+	free (text_fuzzy->fake_unicode);
+	text_fuzzy->n_mallocs--;
+    }
     if (text_fuzzy->ualphabet.alphabet) {
 	free (text_fuzzy->ualphabet.alphabet);
 	text_fuzzy->n_mallocs--;
@@ -107,6 +111,9 @@ static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
     }
     Safefree (text_fuzzy);
 }
+
+/* The following palaver is related to the macros "FAIL" and
+   "FAIL_MSG" in "text-fuzzy.c.in". */
 
 #undef FAIL_STATUS
 #define FAIL_STATUS -1
@@ -151,6 +158,7 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
     tf->distance = -1;
     max_distance_holder = tf->max_distance;
     nearest = -1;
+    tf->ualphabet.rejected = 0;
 
     /* If the maximum distance is set to a value larger than the
        number of characters in the string, set the maximum distance to
@@ -164,11 +172,6 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
 #endif
 	    tf->max_distance = tf->text.ulength;
 	}
-#ifdef DEBUG
-	else {
-	    fprintf (stderr, "boo to a goose\n");
-	}
-#endif
     }
     else {
 	if (tf->max_distance > tf->text.length) {
