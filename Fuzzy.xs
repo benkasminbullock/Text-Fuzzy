@@ -150,3 +150,12 @@ CODE:
 OUTPUT:
         RETVAL
 
+
+int
+length_rejections (tf)
+	Text::Fuzzy tf;
+CODE:
+	RETVAL = tf->length_rejections;
+OUTPUT:
+        RETVAL
+

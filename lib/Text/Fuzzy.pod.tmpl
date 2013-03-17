@@ -131,16 +131,17 @@ may be useful in benchmarking the module and checking its correctness.
     $tf->no_alphabet (1);
 
 This turns off alphabetizing of the string. Alphabetizing is a filter
-where the intersection of all the characters in the two strings is
-computed. If the number of characters in the difference of the two
-strings is greater than the maximum distance, the match is rejected
-without applying the dynamic programming algorithm. This results in a
-speed increase due to the computational cost of the dynamic
-programming algorithm. The alphabetizing should not ever reject
-anything which is a legitimate match, and it should make the program
-run faster in almost every case. Thus this method is private, since
-the only envisaged uses of switching this check off are checking that
-the algorithm is working correctly, and benchmarking performance.
+used in L</nearest> where the intersection of all the characters in
+the two strings is computed. If the number of characters in the
+difference of the two strings is greater than the maximum distance,
+the match is rejected without applying the dynamic programming
+algorithm. This results in a speed increase due to the computational
+cost of the dynamic programming algorithm. The alphabetizing should
+not ever reject anything which is a legitimate match, and it should
+make the program run faster in almost every case. Thus this method is
+private, since the only envisaged uses of switching this check off are
+checking that the algorithm is working correctly, and benchmarking
+performance.
 
 =head2 get_trans
 
@@ -159,6 +160,15 @@ undefined value.
 After running L</nearest> over an array, this returns the number of
 entries of the array which were rejected using only the alphabet. Its
 value is reset to zero each time L</nearest> is called.
+
+=head2 length_rejections
+
+    my $rejected = $tf->length_rejections ();
+
+After running L</nearest> over an array, this returns the number of
+entries of the array which were rejected because the length difference
+between them and the target string was larger than the maximum
+distance allowed.
 
 =head1 EXAMPLES
 

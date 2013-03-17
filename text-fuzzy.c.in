@@ -84,6 +84,10 @@ typedef struct text_fuzzy {
        the string length. */
     int fake_unicode_length;
 
+    /* The number of items which have been rejected because the length
+       difference is bigger than the maximum edit distance. */
+    int length_rejections;
+
     /* Does the user want to use an alphabet filter? Default is yes,
        so this must be set to a non-zero value to switch off use. */
     int user_no_alphabet : 1;
@@ -329,6 +333,167 @@ STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
     }
 }
 
+#define NOT_FOUND -1
+
+#define LENGTH_REJECT(x,y)						\
+    MESSAGE ("Length of %d can never match %d within %d edits",		\
+	     (x), (y), tf->max_distance);				\
+    tf->length_rejections++
+
+
+STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
+			       text_fuzzy_string_t * b,
+			       int * d_ptr)
+{
+    /* The edit distance. */
+
+    int d;
+
+    /* This keeps a track on whether we have put fake values into
+       the Unicode parts of "b". */
+
+    int allocated;
+
+    d = NOT_FOUND;
+
+    allocated = 0;
+
+    if (! b->unicode) {
+
+	int i;
+
+	/* Count the number of non-Unicode characters in "b". */
+
+	int not_unicode;
+
+	not_unicode = 0;
+
+	/* Check we are not wasting our time copying this string. */
+
+	if (abs (tf->text.ulength - b->length) > tf->max_distance) {
+
+	    LENGTH_REJECT (b->length, tf->text.ulength);
+
+	    goto giveup;
+	}
+
+	/* If "b" is not unicode, then create an artificial
+	   Unicode structure so that it can be compared with the
+	   unicode string in tf->text. */
+
+	CALL (allocate_fake_unicode (tf, b->length));
+
+	b->unicode = tf->fake_unicode;
+	b->ulength = b->length;
+
+	allocated = 1;
+
+	for (i = 0; i < b->length; i++) {
+
+	    unsigned char c;
+
+	    c = b->text[i];
+	    if (c < 0x80) {
+
+		/* ASCII is copied. */
+		b->unicode[i] = c;
+	    }
+	    else {
+
+		/* A byte with these values cannot be equivalent
+		   to any Unicode character. We do not want to
+		   match it to 0x80 - 0x100 unicodes, so put a
+		   "nothing" value in here which will not match
+		   anything. */
+		b->unicode[i] = -1;
+		not_unicode++;
+	    }
+	}
+
+	/* Filter on the number of non-Unicode characters found. If
+	   there are too many, a match is impossible. */
+
+	if (not_unicode > tf->max_distance) {
+
+	    MESSAGE ("Too many (%d) non-ASCII, non-Unicode characters",
+		     not_unicode);
+
+	    goto giveup;
+	}
+    }
+    if (tf->max_distance >= 0) {
+
+	/* Filter on distance: If the distance in the length of
+	   the strings is greater than the max distance, give up,
+	   since the number of additions necessary to make the
+	   strings identical is greater than the maximum distance
+	   we are allowed. */
+
+	if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
+
+	    LENGTH_REJECT (b->ulength, tf->text.ulength);
+
+	    goto giveup;
+	}
+	if (tf->use_ualphabet) {
+
+	    /*
+	      Check that the length of "b" is more than the maximum
+	      distance, otherwise the alphabet check will not reject
+	      "b" regardless of the alphabet difference found, since
+	      the largest possible value of "misses" in the alphabet
+	      check is the total number of characters in "b".
+	    */
+
+	    if (b->ulength > tf->max_distance) {
+
+		/* Filter using alphabet: If the number of
+		   characters in "b" which are not in "tf->text"
+		   is greater than the maximum distance, give
+		   up. */
+
+		if (ualphabet_miss (tf, b)) {
+
+		    MESSAGE ("Rejected.\n");
+
+		    tf->ualphabet.rejected++;
+
+		    goto giveup;
+		}
+		else {
+		    MESSAGE ("Accepted.\n");
+		}
+	    }
+	    else {
+		MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
+			 b->text, b->ulength, tf->max_distance);
+	    }
+	}
+    }
+
+    /* Calculate edit distances using the dynamic programming
+       algorithm for the integer Unicode strings. */
+
+    if (tf->transpositions_ok) {
+	MESSAGE ("Transpositions OK.\n");
+	d = distance_int_trans (b->unicode, b->ulength, tf);
+    }
+    else {
+	MESSAGE ("No transpositions.\n");
+	d = distance_int (b->unicode, b->ulength, tf);
+    }
+
+ giveup:
+
+    if (allocated) {
+	/* Remove wrong information, pointers into "tf". */
+	b->unicode = 0;
+	b->ulength = 0;
+    }
+    * d_ptr = d;
+    OK;
+}
+
 /* Compare tf and b. */
 
 FUNC (compare_single) (text_fuzzy_t * tf,
@@ -340,141 +505,63 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 
     int d;
 
+    d = NOT_FOUND;
+
     tf->found = 0;
 
     if (tf->unicode) {
 
-	/* This keeps a track on whether we have put fake values into
-	   the Unicode parts of "b". */
-
-	int allocated;
-
-	allocated = 0;
-
-        if (! b->unicode) {
-
-	    /* If "b" is not unicode, then create an artificial
-	       Unicode structure so that it can be compared with the
-	       unicode string in tf->text. */
-
-            int i;
-
-	    CALL (allocate_fake_unicode (tf, b->length));
-
-            b->unicode = tf->fake_unicode;
-            b->ulength = b->length;
-
-	    allocated = 1;
-
-            for (i = 0; i < b->length; i++) {
-
-                unsigned char c;
-
-                c = b->text[i];
-                if (c < 0x80) {
-
-		    /* ASCII is copied. */
-                    b->unicode[i] = c;
-                }
-                else {
-
-                    /* A byte with these values cannot be equivalent
-                       to any Unicode character. We do not want to
-                       match it to 0x80 - 0x100 unicodes, so put a
-                       "nothing" value in here which will not match
-                       anything. */
-                    b->unicode[i] = -1;
-                }
-            }
-        }
-        if (tf->max_distance >= 0) {
-
-	    /* If the distance in the length of the strings is greater
-	       than the max distance, give up. */
-
-	    if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
-		OK;
-	    }
-        }
-	if (tf->use_ualphabet) {
-
-	    /* Check that the number of Unicode characters in "b" is
-	       more than the maximum distance, otherwise this will not
-	       reject it regardless of the difference found. */
-
-	    if (b->ulength > tf->max_distance) {
-
-		/* If the number of characters in "b" which are not in
-		   "tf->text" is greater than the maximum distance, give
-		   up. */
-
-		if (ualphabet_miss (tf, b)) {
-		    MESSAGE ("Rejected.\n");
-		    tf->ualphabet.rejected++;
-
-		    if (allocated) {
-			/* Remove wrong information, pointers into "tf". */
-			b->unicode = 0;
-			b->ulength = 0;
-		    }
-		    OK;
-		}
-		else {
-		    MESSAGE ("Accepted.\n");
-		}
-	    }
-	    else {
-		MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
-			 b->text, b->ulength, tf->max_distance);
-	    }
-	}
-	if (tf->transpositions_ok) {
-	    MESSAGE ("Transpositions OK.\n");
-	    d = distance_int_trans (b->unicode, b->ulength, tf);
-	}
-	else {
-	    MESSAGE ("No transpositions.\n");
-	    d = distance_int (b->unicode, b->ulength, tf);
-	}
-        if (allocated) {
-	    /* Remove wrong information, pointers into "tf". */
-            b->unicode = 0;
-	    b->ulength = 0;
-        }
+	CALL (compare_unicode (tf, b, & d));
     }
     else {
 
 	/* This is not Unicode. */
 
         if (tf->max_distance >= 0) {
+
             /* If the distance in the length of the strings is greater
                than the max distance, give up. */
+
             if (abs (tf->text.length - b->length) > tf->max_distance) {
+
+		LENGTH_REJECT (b->length, tf->text.length);
+	    
                 OK;
             }
 
-            /* Alphabet filter: eliminate terms which cannot match. */
+	    /* See comment in the Unicode version, above. */
 
-            if (tf->use_alphabet) {
-                int alphabet_misses;
-                int l;
+	    if (b->length > tf->max_distance) {
 
-                alphabet_misses = 0;
-                for (l = 0; l < b->length; l++) {
-                    int a = (unsigned char) b->text[l];
-                    if (! tf->alphabet[a]) {
-                        alphabet_misses++;
-                        if (alphabet_misses > tf->max_distance) {
-			    /* It is not possible that the two words
-			       are within the maximum edit distance of
-			       each other. */
-                            OK;
-                        }
-                    }
-                }
-            }
+		/* Alphabet filter: eliminate terms which cannot match. */
+
+		if (tf->use_alphabet) {
+		    int alphabet_misses;
+		    int l;
+
+		    alphabet_misses = 0;
+
+		    for (l = 0; l < b->length; l++) {
+
+			int a = (unsigned char) b->text[l];
+
+			if (! tf->alphabet[a]) {
+			    alphabet_misses++;
+			    if (alphabet_misses > tf->max_distance) {
+
+				/* It is not possible that the two words
+				   are within the maximum edit distance of
+				   each other. */
+
+				OK;
+			    }
+			}
+		    }
+		}
+	    }
         }
-        /* Calculate the edit distance. */
+        /* Calculate the edit distance using the dynamic programming
+	   algorithm for "unsigned char". */
 
 	if (tf->transpositions_ok) {
 	    d = distance_char_trans (b->text, b->length, tf);
@@ -483,7 +570,7 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 	    d = distance_char (b->text, b->length, tf);
 	}
     }
-    if (d < tf->max_distance) {
+    if (d != NOT_FOUND && d < tf->max_distance) {
         tf->found = 1;
         tf->distance = d;
     }
