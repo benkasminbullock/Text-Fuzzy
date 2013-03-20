@@ -33,7 +33,7 @@ static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
     int r = SMALL;
  again:
     if (minimum < r) {
-	text_fuzzy->fake_unicode_length = r;
+	text_fuzzy->b_unicode_length = r;
 	return;
     }
     r *= 2;
@@ -44,25 +44,25 @@ static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
     goto again;
 }
 
-/* If necessary, allocate a fake unicode string to put "b" into, so we
-   can make a comparison. */
+/* Allocate the memory for b. */
 
-static void allocate_fake_unicode (text_fuzzy_t * text_fuzzy, int b_length)
+static void allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
 {
 
-    if (! text_fuzzy->fake_unicode) {
+    if (! text_fuzzy->b.unicode) {
 
 	/* We have not allocated any memory yet. */
 
 	fake_length (text_fuzzy, b_length);
-	get_memory (text_fuzzy->fake_unicode, text_fuzzy->fake_unicode_length, int);
+	get_memory (text_fuzzy->b.unicode,
+		    text_fuzzy->b_unicode_length, int);
     }
-    else if (b_length > text_fuzzy->fake_unicode_length) {
+    else if (b_length > text_fuzzy->b_unicode_length) {
 
 	/* "b" is bigger than what we allowed for. */
 
 	fake_length (text_fuzzy, b_length);
-	Renew (text_fuzzy->fake_unicode, text_fuzzy->fake_unicode_length, int);
+	Renew (text_fuzzy->b.unicode, text_fuzzy->b_unicode_length, int);
     }
 }
 
@@ -70,11 +70,9 @@ static void allocate_fake_unicode (text_fuzzy_t * text_fuzzy, int b_length)
    characters, use the Perl stuff to turn it into a string of
    integers. */
 
-static int * sv_to_int_ptr (SV * text, int * ulength_ptr)
+static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
 {
     int i;
-    int ulength;
-    int * unicode;
     U8 * utf;
     STRLEN curlen;
     STRLEN length;
@@ -82,21 +80,14 @@ static int * sv_to_int_ptr (SV * text, int * ulength_ptr)
 
     stuff = (unsigned char *) SvPV (text, length);
 
-    ulength = sv_len_utf8 (text);
-    Newxz (unicode, ulength, int);
-    if (! unicode) {
-        croak ("%s:%d: %s", __FILE__, __LINE__, "Error allocating");
-    }
     utf = stuff;
     curlen = length;
-    for (i = 0; i < ulength; i++) {
+    for (i = 0; i < tfs->ulength; i++) {
         STRLEN len;
-        unicode[i] = utf8n_to_uvuni (utf, curlen, & len, 0);
+        tfs->unicode[i] = utf8n_to_uvuni (utf, curlen, & len, 0);
         curlen -= len;
         utf += len;
     }
-    * ulength_ptr = ulength;
-    return unicode;
 }
 
 /* Convert a Perl SV into the text_fuzzy_t structure. */
@@ -111,8 +102,11 @@ sv_to_text_fuzzy (SV * text, int max_distance,
     int i;
     int is_utf8;
 
+    /* Allocate memory for "text_fuzzy". */
     get_memory (text_fuzzy, 1, text_fuzzy_t);
     text_fuzzy->max_distance = max_distance;
+
+    /* Copy the string in "text" into "text_fuzzy". */
     stuff = (unsigned char *) SvPV (text, length);
     text_fuzzy->text.length = length;
     get_memory (text_fuzzy->text.text, length + 1, char);
@@ -122,11 +116,17 @@ sv_to_text_fuzzy (SV * text, int max_distance,
     text_fuzzy->text.text[text_fuzzy->text.length] = '\0';
     is_utf8 = SvUTF8 (text);
     if (is_utf8) {
+
+	/* Put the Unicode version of the string into
+	   "text_fuzzy->text". */
+
         text_fuzzy->unicode = 1;
-        text_fuzzy->text.unicode =
-            sv_to_int_ptr (text,
-                           & text_fuzzy->text.ulength);
-        text_fuzzy->n_mallocs++;
+	text_fuzzy->text.ulength = sv_len_utf8 (text);
+	Newxz (text_fuzzy->text.unicode, text_fuzzy->text.ulength, int);
+	sv_to_int_ptr (text, & text_fuzzy->text);
+
+	/* Generate the Unicode alphabet. */
+
 	TEXT_FUZZY (generate_ualphabet (text_fuzzy));
     }
     else {
@@ -170,25 +170,26 @@ static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 #define FAIL_STATUS -1
 
 static void
-sv_to_text_fuzzy_string (SV * word, text_fuzzy_string_t * b,
-                         int force_unicode)
+sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * tf)
 {
     STRLEN length;
-    b->text = SvPV (word, length);
-    b->length = length;
-    if (SvUTF8 (word) || force_unicode) {
-        b->unicode = sv_to_int_ptr (word, & b->ulength);
+    tf->b.text = SvPV (word, length);
+    tf->b.length = length;
+    if (SvUTF8 (word) || tf->unicode) {
+
+	/* Make a Unicode version of b. */
+
+	tf->b.ulength = sv_len_utf8 (word);
+	allocate_b_unicode (tf, tf->b.ulength);
+	sv_to_int_ptr (word, & tf->b);
     }
 }
 
 static int
 text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
 {
-    sv_to_text_fuzzy_string (word, & tf->b, tf->unicode);
+    sv_to_text_fuzzy_string (word, tf);
     TEXT_FUZZY (compare_single (tf));
-    if (tf->b.unicode) {
-        Safefree (tf->b.unicode);
-    }
     if (tf->found) {
         return tf->distance;
     }
@@ -237,7 +238,7 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
     for (i = 0; i < n_words; i++) {
         SV * word;
         word = * av_fetch (words, i, 0);
-        sv_to_text_fuzzy_string (word, & tf->b, tf->unicode);
+        sv_to_text_fuzzy_string (word, tf);
         TEXT_FUZZY (compare_single (tf));
         if (tf->found) {
             tf->max_distance = tf->distance;
