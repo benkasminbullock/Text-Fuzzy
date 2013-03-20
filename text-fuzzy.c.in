@@ -262,11 +262,11 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 
     misses = 0;
 
-    for (i = 0; i < b->ulength; i++) {
+    for (i = 0; i < tf->b.ulength; i++) {
 
 	int c;
 
-	c = b->unicode[i];
+	c = tf->b.unicode[i];
 	MESSAGE ("Looking for %X: ", c);
 
 	/* Eliminate too large or too small. */
@@ -299,7 +299,7 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 
 	if (misses >= tf->max_distance) {
 	    MESSAGE ("%s:%s: %d misses over %d: ",
-		    tf->text.text, b->text, misses, tf->max_distance);
+		    tf->text.text, tf->b.text, misses, tf->max_distance);
 	    return 1;
 	}
     }
@@ -369,7 +369,6 @@ STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
    a Unicode string. */
 
 STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
-			       text_fuzzy_string_t * b,
 			       int * d_ptr)
 {
     /* The edit distance. */
@@ -385,7 +384,7 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
     allocated = 0;
 
-    if (! b->unicode) {
+    if (! tf->b.unicode) {
 
 	int i;
 
@@ -397,9 +396,9 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
 	/* Check we are not wasting our time copying this string. */
 
-	if (abs (tf->text.ulength - b->length) > tf->max_distance) {
+	if (abs (tf->text.ulength - tf->b.length) > tf->max_distance) {
 
-	    LENGTH_REJECT (b->length, tf->text.ulength);
+	    LENGTH_REJECT (tf->b.length, tf->text.ulength);
 
 	    goto giveup;
 	}
@@ -408,22 +407,22 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 	   Unicode structure so that it can be compared with the
 	   unicode string in tf->text. */
 
-	CALL (allocate_fake_unicode (tf, b->length));
+	CALL (allocate_fake_unicode (tf, tf->b.length));
 
-	b->unicode = tf->fake_unicode;
-	b->ulength = b->length;
+	tf->b.unicode = tf->fake_unicode;
+	tf->b.ulength = tf->b.length;
 
 	allocated = 1;
 
-	for (i = 0; i < b->length; i++) {
+	for (i = 0; i < tf->b.length; i++) {
 
 	    unsigned char c;
 
-	    c = b->text[i];
+	    c = tf->b.text[i];
 	    if (c < 0x80) {
 
 		/* ASCII is copied. */
-		b->unicode[i] = c;
+		tf->b.unicode[i] = c;
 	    }
 	    else {
 
@@ -432,7 +431,7 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 		   match it to 0x80 - 0x100 unicodes, so put a
 		   "nothing" value in here which will not match
 		   anything. */
-		b->unicode[i] = -1;
+		tf->b.unicode[i] = -1;
 		not_unicode++;
 	    }
 	}
@@ -456,9 +455,9 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 	   strings identical is greater than the maximum distance
 	   we are allowed. */
 
-	if (abs (tf->text.ulength - b->ulength) > tf->max_distance) {
+	if (abs (tf->text.ulength - tf->b.ulength) > tf->max_distance) {
 
-	    LENGTH_REJECT (b->ulength, tf->text.ulength);
+	    LENGTH_REJECT (tf->b.ulength, tf->text.ulength);
 
 	    goto giveup;
 	}
@@ -472,14 +471,14 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 	      check is the total number of characters in "b".
 	    */
 
-	    if (b->ulength > tf->max_distance) {
+	    if (tf->b.ulength > tf->max_distance) {
 
 		/* Filter using alphabet: If the number of
 		   characters in "b" which are not in "tf->text"
 		   is greater than the maximum distance, give
 		   up. */
 
-		if (ualphabet_miss (tf, b)) {
+		if (ualphabet_miss (tf, & tf->b)) {
 
 		    MESSAGE ("Rejected.\n");
 
@@ -493,7 +492,7 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 	    }
 	    else {
 		MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
-			 b->text, b->ulength, tf->max_distance);
+			 tf->b.text, tf->b.ulength, tf->max_distance);
 	    }
 	}
     }
@@ -503,19 +502,19 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
     if (tf->transpositions_ok) {
 	MESSAGE ("Transpositions OK.\n");
-	d = distance_int_trans (b->unicode, b->ulength, tf);
+	d = distance_int_trans (tf->b.unicode, tf->b.ulength, tf);
     }
     else {
 	MESSAGE ("No transpositions.\n");
-	d = distance_int (b->unicode, b->ulength, tf);
+	d = distance_int (tf->b.unicode, tf->b.ulength, tf);
     }
 
  giveup:
 
     if (allocated) {
 	/* Remove wrong information, pointers into "tf". */
-	b->unicode = 0;
-	b->ulength = 0;
+	tf->b.unicode = 0;
+	tf->b.ulength = 0;
     }
     * d_ptr = d;
     OK;
@@ -527,8 +526,7 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
    code for the dynamic programming algorithms is in
    "edit-distance.c.tmpl". */
 
-FUNC (compare_single) (text_fuzzy_t * tf,
-                       text_fuzzy_string_t * b)
+FUNC (compare_single) (text_fuzzy_t * tf)
 {
 
     /* The edit distance between "tf->search_term" and the
@@ -542,7 +540,7 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 
     if (tf->unicode) {
 
-	CALL (compare_unicode (tf, b, & d));
+	CALL (compare_unicode (tf, & d));
     }
     else {
 
@@ -553,16 +551,16 @@ FUNC (compare_single) (text_fuzzy_t * tf,
             /* If the distance in the length of the strings is greater
                than the max distance, give up. */
 
-            if (abs (tf->text.length - b->length) > tf->max_distance) {
+            if (abs (tf->text.length - tf->b.length) > tf->max_distance) {
 
-		LENGTH_REJECT (b->length, tf->text.length);
+		LENGTH_REJECT (tf->b.length, tf->text.length);
 	    
                 OK;
             }
 
 	    /* See comment in the Unicode version, above. */
 
-	    if (b->length > tf->max_distance) {
+	    if (tf->b.length > tf->max_distance) {
 
 		/* Alphabet filter: eliminate terms which cannot match. */
 
@@ -572,9 +570,9 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 
 		    alphabet_misses = 0;
 
-		    for (l = 0; l < b->length; l++) {
+		    for (l = 0; l < tf->b.length; l++) {
 
-			int a = (unsigned char) b->text[l];
+			int a = (unsigned char) tf->b.text[l];
 
 			if (! tf->alphabet[a]) {
 			    alphabet_misses++;
@@ -595,10 +593,10 @@ FUNC (compare_single) (text_fuzzy_t * tf,
 	   algorithm for "unsigned char". */
 
 	if (tf->transpositions_ok) {
-	    d = distance_char_trans (b->text, b->length, tf);
+	    d = distance_char_trans (tf->b.text, tf->b.length, tf);
 	}
 	else {
-	    d = distance_char (b->text, b->length, tf);
+	    d = distance_char (tf->b.text, tf->b.length, tf);
 	}
     }
     if (d != NOT_FOUND && d < tf->max_distance) {
@@ -752,7 +750,8 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
     nearest = 0;
     while (1) {
         CALL (get_line (& ff));
-        CALL (compare_single (text_fuzzy, & ff.b));
+	text_fuzzy->b = ff.b;
+        CALL (compare_single (text_fuzzy));
         if (text_fuzzy->found) {
             found = 1;
             if (text_fuzzy->distance < text_fuzzy->max_distance) {

@@ -141,11 +141,10 @@ sv_to_text_fuzzy_string (SV * word, text_fuzzy_string_t * b,
 static int
 text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
 {
-    text_fuzzy_string_t b = {0};
-    sv_to_text_fuzzy_string (word, & b, tf->unicode);
-    TEXT_FUZZY (compare_single (tf, & b));
-    if (b.unicode) {
-        Safefree (b.unicode);
+    sv_to_text_fuzzy_string (word, & tf->b, tf->unicode);
+    TEXT_FUZZY (compare_single (tf));
+    if (tf->b.unicode) {
+        Safefree (tf->b.unicode);
     }
     if (tf->found) {
         return tf->distance;
@@ -194,10 +193,9 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
     }
     for (i = 0; i < n_words; i++) {
         SV * word;
-        text_fuzzy_string_t b;
         word = * av_fetch (words, i, 0);
-        sv_to_text_fuzzy_string (word, & b, tf->unicode);
-        TEXT_FUZZY (compare_single (tf, & b));
+        sv_to_text_fuzzy_string (word, & tf->b, tf->unicode);
+        TEXT_FUZZY (compare_single (tf));
         if (tf->found) {
             tf->max_distance = tf->distance;
             nearest = i;
