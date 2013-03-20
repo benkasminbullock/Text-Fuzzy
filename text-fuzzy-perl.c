@@ -23,6 +23,49 @@ int perl_error_handler (const char * file_name, int line_number,
     return 0;
 }
 
+#define SMALL 0x1000
+#define HUGEBUGGY (SMALL * SMALL)
+
+/* Decide what length to make "tf->fake_unicode". */
+
+static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
+{
+    int r = SMALL;
+ again:
+    if (minimum < r) {
+	text_fuzzy->fake_unicode_length = r;
+	return;
+    }
+    r *= 2;
+    if (r > HUGEBUGGY) {
+	croak ("String length %d longer than maximum allowed for, %d.\n",
+	       minimum, HUGEBUGGY);
+    }
+    goto again;
+}
+
+/* If necessary, allocate a fake unicode string to put "b" into, so we
+   can make a comparison. */
+
+static void allocate_fake_unicode (text_fuzzy_t * text_fuzzy, int b_length)
+{
+
+    if (! text_fuzzy->fake_unicode) {
+
+	/* We have not allocated any memory yet. */
+
+	fake_length (text_fuzzy, b_length);
+	get_memory (text_fuzzy->fake_unicode, text_fuzzy->fake_unicode_length, int);
+    }
+    else if (b_length > text_fuzzy->fake_unicode_length) {
+
+	/* "b" is bigger than what we allowed for. */
+
+	fake_length (text_fuzzy, b_length);
+	Renew (text_fuzzy->fake_unicode, text_fuzzy->fake_unicode_length, int);
+    }
+}
+
 /* Given a Perl string in "text" which is marked as being Unicode
    characters, use the Perl stuff to turn it into a string of
    integers. */

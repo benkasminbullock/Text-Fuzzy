@@ -306,54 +306,6 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
     return 0;
 }
 
-#define SMALL 0x1000
-#define HUGE (SMALL * SMALL)
-
-/* Decide what length to make "tf->fake_unicode". */
-
-STATIC FUNC (fake_length) (text_fuzzy_t * tf, int minimum)
-{
-    int r = SMALL;
- again:
-    if (minimum < r) {
-	tf->fake_unicode_length = r;
-	OK;
-    }
-    r *= 2;
-    FAIL_MSG (r > HUGE, string_too_long,
-	      "String length %d longer than maximum allowed for, %d.\n",
-	      minimum, HUGE);
-    goto again;
-}
-
-/* If necessary, allocate a fake unicode string to put "b" into, so we
-   can make a comparison. */
-
-STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
-{
-
-    if (! tf->fake_unicode) {
-
-	/* We have not allocated any memory yet. */
-
-	CALL (fake_length (tf, b_length));
-	tf->fake_unicode =
-	    malloc (tf->fake_unicode_length * sizeof (int));
-	FAIL (! tf->fake_unicode, memory_error);
-	tf->n_mallocs++;
-    }
-    else if (b_length > tf->fake_unicode_length) {
-
-	/* "b" is bigger than what we allowed for. */
-
-	CALL (fake_length (tf, b_length));
-	tf->fake_unicode =
-	    realloc (tf->fake_unicode,
-		     tf->fake_unicode_length * sizeof (int));
-	FAIL (! tf->fake_unicode, memory_error);
-    }
-}
-
 /* This is a value for the edit distance which indicates complete
    failure to match. */
 
@@ -384,69 +336,6 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
     allocated = 0;
 
-    if (! tf->b.unicode) {
-
-	int i;
-
-	/* Count the number of non-Unicode characters in "b". */
-
-	int not_unicode;
-
-	not_unicode = 0;
-
-	/* Check we are not wasting our time copying this string. */
-
-	if (abs (tf->text.ulength - tf->b.length) > tf->max_distance) {
-
-	    LENGTH_REJECT (tf->b.length, tf->text.ulength);
-
-	    goto giveup;
-	}
-
-	/* If "b" is not unicode, then create an artificial
-	   Unicode structure so that it can be compared with the
-	   unicode string in tf->text. */
-
-	CALL (allocate_fake_unicode (tf, tf->b.length));
-
-	tf->b.unicode = tf->fake_unicode;
-	tf->b.ulength = tf->b.length;
-
-	allocated = 1;
-
-	for (i = 0; i < tf->b.length; i++) {
-
-	    unsigned char c;
-
-	    c = tf->b.text[i];
-	    if (c < 0x80) {
-
-		/* ASCII is copied. */
-		tf->b.unicode[i] = c;
-	    }
-	    else {
-
-		/* A byte with these values cannot be equivalent
-		   to any Unicode character. We do not want to
-		   match it to 0x80 - 0x100 unicodes, so put a
-		   "nothing" value in here which will not match
-		   anything. */
-		tf->b.unicode[i] = -1;
-		not_unicode++;
-	    }
-	}
-
-	/* Filter on the number of non-Unicode characters found. If
-	   there are too many, a match is impossible. */
-
-	if (not_unicode > tf->max_distance) {
-
-	    MESSAGE ("Too many (%d) non-ASCII, non-Unicode characters",
-		     not_unicode);
-
-	    goto giveup;
-	}
-    }
     if (tf->max_distance >= 0) {
 
 	/* Filter on distance: If the distance in the length of
