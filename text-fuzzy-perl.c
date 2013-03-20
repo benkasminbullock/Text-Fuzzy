@@ -85,13 +85,15 @@ sv_to_text_fuzzy (SV * text, int max_distance,
                            & text_fuzzy->text.ulength);
         text_fuzzy->n_mallocs++;
 	TEXT_FUZZY (generate_ualphabet (text_fuzzy));
-	//text_fuzzy->ualphabet.valid = 0;
     }
     else {
 	TEXT_FUZZY (generate_alphabet (text_fuzzy));
     }
     * text_fuzzy_ptr = text_fuzzy;
 }
+
+/* Free the memory allocated to "text_fuzzy" and check that there has
+   not been a memory leak. */
 
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {

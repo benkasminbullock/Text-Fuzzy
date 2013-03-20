@@ -69,6 +69,10 @@ typedef struct text_fuzzy {
     /* The string we are to match. */
     text_fuzzy_string_t text;
 
+    /* The matching string. */
+
+    text_fuzzy_string_t b;
+
     /* The maximum edit distance we allow for. */
     int max_distance;
 
