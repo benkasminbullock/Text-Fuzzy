@@ -1,0 +1,109 @@
+{
+   "tests" : [
+      {
+         "best_match" : "ウソウ",
+         "distance" : 2,
+         "input" : "ウオソウコ",
+         "time" : 0.129101991653442,
+         "no_alphabet" : false,
+         "found" : true,
+         "nearest" : 61741,
+         "max_distance" : 10
+      },
+      {
+         "best_match" : "ウウム",
+         "distance" : 3,
+         "input" : "ウオソウコ",
+         "time" : 0.161075115203857,
+         "no_alphabet" : true,
+         "found" : true,
+         "nearest" : 1638,
+         "max_distance" : 10
+      },
+      {
+         "input" : "アイウエオカキクケコバビブベボハヒフヘホ",
+         "time" : 0.154426097869873,
+         "nearest" : -1,
+         "no_alphabet" : false,
+         "found" : false,
+         "max_distance" : 10
+      },
+      {
+         "input" : "アイウエオカキクケコバビブベボハヒフヘホ",
+         "time" : 0.17788290977478,
+         "nearest" : -1,
+         "no_alphabet" : true,
+         "found" : false,
+         "max_distance" : 10
+      },
+      {
+         "best_match" : "リヒテンシュタイン",
+         "distance" : 7,
+         "input" : "アルベルトアインシュタイン",
+         "time" : 0.248332977294922,
+         "no_alphabet" : false,
+         "found" : true,
+         "nearest" : 52666,
+         "max_distance" : 10
+      },
+      {
+         "input" : "アルベルトアインシュタイン",
+         "time" : 0.609005928039551,
+         "nearest" : -1,
+         "no_alphabet" : true,
+         "found" : false,
+         "max_distance" : 10
+      },
+      {
+         "best_match" : "バオバブ",
+         "distance" : 1,
+         "input" : "バババブ",
+         "time" : 0.134980916976929,
+         "no_alphabet" : false,
+         "found" : true,
+         "nearest" : 38600,
+         "max_distance" : 10
+      },
+      {
+         "best_match" : "バクバク",
+         "distance" : 2,
+         "input" : "バババブ",
+         "time" : 0.144485950469971,
+         "no_alphabet" : true,
+         "found" : true,
+         "nearest" : 7054,
+         "max_distance" : 10
+      },
+      {
+         "best_match" : "ハルベルト",
+         "distance" : 5,
+         "input" : "バババブアルベルト",
+         "time" : 0.210870027542114,
+         "no_alphabet" : false,
+         "found" : true,
+         "nearest" : 38069,
+         "max_distance" : 10
+      },
+      {
+         "best_match" : "アル",
+         "distance" : 7,
+         "input" : "バババブアルベルト",
+         "time" : 0.437603950500488,
+         "no_alphabet" : true,
+         "found" : true,
+         "nearest" : 146,
+         "max_distance" : 10
+      }
+   ],
+   "lines" : 213359
+}
+バババブ:
+with: 0.134981 without: 0.144486 ratio: 0.9342148
+アルベルトアインシュタイン:
+with: 0.248333 without: 0.609006 ratio: 0.4077678
+バババブアルベルト:
+with: 0.21087 without: 0.437604 ratio: 0.4818741
+アイウエオカキクケコバビブベボハヒフヘホ:
+with: 0.154426 without: 0.177883 ratio: 0.8681334
+ウオソウコ:
+with: 0.129102 without: 0.161075 ratio: 0.8015018

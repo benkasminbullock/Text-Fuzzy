@@ -111,6 +111,8 @@ static int min (int a, int b)
     unsigned int matrix[len1 + 2][len2 + 2];
     unsigned int score_ceil = len1 + len2;
 
+    //    printf ("%s %d\n", "[% stem %]", tf->max_distance);
+
     if (len1 == 0) {
 	return len2;
     }
@@ -162,9 +164,9 @@ static int min (int a, int b)
 	/* current score > maxDistance   */
 	if(tf->max_distance != 0 && tf->max_distance < matrix[i+1][len2+1]) {
 	    dict_free(head);
+	    //	    printf ("tripped at %d %d\n", matrix[i+1][len2+1], tf->max_distance);
 	    return INT_MAX / 0x1000;
 	}
-	
 	
 	find (head, word1[i-1])->value = i;
     }

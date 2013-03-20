@@ -175,6 +175,9 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words, int * distance_ptr)
 	}
     }
 
+    printf ("The max distance is %d; length is %d.\n",
+	    tf->max_distance, tf->text.ulength );
+
     n_words = av_len (words) + 1;
     if (n_words == 0) {
         return -1;
