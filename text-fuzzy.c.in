@@ -80,8 +80,9 @@ typedef struct text_fuzzy {
        string in "tf" with a non-unicode string. */
     int * fake_unicode;
 
-    /* The number of bytes allocated for "fake_unicode". This is not
-       the string length. */
+    /* The number of units allocated for "fake_unicode". This is not
+       the string length. This is used when deciding whether there is
+       sufficient space to store a test string. */
     int fake_unicode_length;
 
     /* The number of items which have been rejected because the length

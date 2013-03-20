@@ -50,7 +50,7 @@ search (\@tests, 'アルベルトアインシュタイン');
 search (\@tests, 'バババブ');
 search (\@tests, 'バババブアルベルト');
 $result{tests} = \@tests;
-print to_json (\%result, {pretty => 1});
+#print to_json (\%result, {pretty => 1});
 my %ratios;
 for my $test (@tests) {
     my $input = $test->{input};
@@ -74,13 +74,14 @@ exit;
 sub search
 {
     my ($tests, $silly) = @_;
+    print "$silly\n";
     for my $no_alphabet (0, 1) {
 	my %result;
 	$result{no_alphabet} = $no_alphabet ? JSON::true : JSON::false;
 	$result{input} = $silly;
 	my $search = Text::Fuzzy->new ($silly);
-#	$search->no_alphabet ($no_alphabet);
-	$search->transpositions_ok ($no_alphabet);
+	$search->no_alphabet ($no_alphabet);
+#	$search->transpositions_ok ($no_alphabet);
 	my $start = time ();
 	my $n = $search->nearest (\@kana);
 	$result{nearest} = $n;
@@ -95,6 +96,9 @@ sub search
 	}
 	my $end = time ();
 	$result{time} = $end - $start;
+	print "Length rejections: ", $search->length_rejections (), "\n";
+	print "Alphabet rejections: ", $search->ualphabet_rejected (), "\n";
+	print "time: $result{time}\n";
 	push @$tests, \%result;
     }
 }
