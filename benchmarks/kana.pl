@@ -1,40 +1,18 @@
 #!/home/ben/software/install/bin/perl
 use warnings;
 use strict;
-use Lingua::JA::Moji ':all';
 use Text::Fuzzy;
 use Time::HiRes 'time';
 use JSON;
 use utf8;
 binmode STDOUT, ":utf8";
-my $infile = '/home/ben/data/edrdg/edict';
-open my $in, "<:encoding(EUC-JP)", $infile or die $!;
+use FindBin;
+my $infile = "$FindBin::Bin/kana.txt";
+open my $in, "<:encoding(UTF-8)", $infile or die $!;
 my @kana;
-my $count = 0;
-# In practice, "no_alphabet" only starts winning if we set $max < 30
-# or so here, in which case it is not really winning anything since
-# the times are so small anyway.
-#my $max = 100;
-my $max = 0;
-
 while (<$in>) {
-    if ($max) {
-	$count++;
-	if ($count > $max) {
-	    last;
-	}
-    }
-    my $kana;
-    if (/\[(\p{InKana}+)\]/) {
-	$kana = $1;
-    }
-    elsif (/^(\p{InKana}+)/) {
-	$kana = $1;
-    }
-    if ($kana) {
-	$kana = kana2katakana ($kana);
-	push @kana, $kana;
-    }
+    chomp;
+    push @kana, $_;
 }
 my %result;
 $result{lines} = scalar @kana;
@@ -45,7 +23,6 @@ my @discard;
 search (\@discard, 'ウオソウコ');
 search (\@tests, 'ウオソウコ');
 search (\@tests, 'アイウエオカキクケコバビブベボハヒフヘホ');
-#search (\@tests, 'アイウエオカキクケコバビブベボハヒフヘホアイウエオカキクケコバビブベボハヒフヘホアイウエオカキクケコバビブベボハヒフヘホアイウエオカキクケコバビブベボハヒフヘホアイウエオカキクケコバビブベボハヒフヘホ');
 search (\@tests, 'アルベルトアインシュタイン');
 search (\@tests, 'バババブ');
 search (\@tests, 'バババブアルベルト');

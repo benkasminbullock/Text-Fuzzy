@@ -1,5 +1,7 @@
 #define NO_MAX_DISTANCE -1
 
+/* Get memory via Perl. */
+
 #define get_memory(value, number, what) {                       \
         Newxz (value, number, what);                            \
         if (! value) {                                          \
@@ -20,6 +22,10 @@ int perl_error_handler (const char * file_name, int line_number,
     va_end (a);
     return 0;
 }
+
+/* Given a Perl string in "text" which is marked as being Unicode
+   characters, use the Perl stuff to turn it into a string of
+   integers. */
 
 static int * sv_to_int_ptr (SV * text, int * ulength_ptr)
 {

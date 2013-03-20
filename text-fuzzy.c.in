@@ -1,13 +1,21 @@
 #include <string.h>
+/* For error-handling for the file opening functions. */
 #include <errno.h>
 /* For INT_MAX, INT_MIN. */
 #include <limits.h>
 
 #include "text-fuzzy.h"
+
+/* All of the following are automatically generated from
+   "edit-distance.h.tmpl" by "make-edit-distance-c.pl". */
+
 #include "edit-distance-char-trans.h"
 #include "edit-distance-int-trans.h"
 #include "edit-distance-char.h"
 #include "edit-distance-int.h"
+
+/* The following starts off the header file. This is a tag which tells
+   "C::Maker" to start writing "text-fuzzy.h". */
 
 #ifdef HEADER
 
@@ -297,6 +305,8 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 #define SMALL 0x1000
 #define HUGE (SMALL * SMALL)
 
+/* Decide what length to make "tf->fake_unicode". */
+
 STATIC FUNC (fake_length) (text_fuzzy_t * tf, int minimum)
 {
     int r = SMALL;
@@ -319,6 +329,9 @@ STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
 {
 
     if (! tf->fake_unicode) {
+
+	/* We have not allocated any memory yet. */
+
 	CALL (fake_length (tf, b_length));
 	tf->fake_unicode =
 	    malloc (tf->fake_unicode_length * sizeof (int));
@@ -326,6 +339,9 @@ STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
 	tf->n_mallocs++;
     }
     else if (b_length > tf->fake_unicode_length) {
+
+	/* "b" is bigger than what we allowed for. */
+
 	CALL (fake_length (tf, b_length));
 	tf->fake_unicode =
 	    realloc (tf->fake_unicode,
@@ -334,6 +350,9 @@ STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
     }
 }
 
+/* This is a value for the edit distance which indicates complete
+   failure to match. */
+
 #define NOT_FOUND -1
 
 #define LENGTH_REJECT(x,y)						\
@@ -341,6 +360,9 @@ STATIC FUNC (allocate_fake_unicode) (text_fuzzy_t * tf, int b_length)
 	     (x), (y), tf->max_distance);				\
     tf->length_rejections++
 
+
+/* This is a helper for "compare_single" which is applied when "tf" is
+   a Unicode string. */
 
 STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 			       text_fuzzy_string_t * b,
@@ -495,7 +517,11 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
     OK;
 }
 
-/* Compare tf and b. */
+/* Compare tf and b. This goes through a series of filters which
+   reject impossible matches, and then if none of the filters applies,
+   it uses the dynamic programming algorithm to search. The source
+   code for the dynamic programming algorithms is in
+   "edit-distance.c.tmpl". */
 
 FUNC (compare_single) (text_fuzzy_t * tf,
                        text_fuzzy_string_t * b)
