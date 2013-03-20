@@ -1,0 +1,18 @@
+This module uses the following non-CPAN Perl modules. Each module is
+available for download at github. These modules are not intended for
+anyone except the author to use.
+
+Deploy
+
+https://github.com/benkasminbullock/Deploy
+
+C::Maker
+
+https://github.com/benkasminbullock/C-Maker
+
+Perl::Build
+
+https://github.com/benkasminbullock/Perl-Build
+
+(This is not the "Perl::Build" on CPAN).
+
