@@ -85,7 +85,7 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 	TEXT_FUZZY (generate_alphabet (text_fuzzy));
     }
     for (i = 0; i < 2; i++) {
-	get_memory (text_fuzzy->matrix[i], length, int);
+	get_memory (text_fuzzy->matrix[i], length + 1, int);
     }
     * text_fuzzy_ptr = text_fuzzy;
 }
