@@ -89,6 +89,10 @@ typedef struct text_fuzzy {
        difference is bigger than the maximum edit distance. */
     int length_rejections;
 
+    /* The matrix we use for the dynamic programming. */
+
+    int * matrix[2];
+
     /* Does the user want to use an alphabet filter? Default is yes,
        so this must be set to a non-zero value to switch off use. */
     int user_no_alphabet : 1;
