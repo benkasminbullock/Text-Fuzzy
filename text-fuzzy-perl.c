@@ -26,7 +26,8 @@ int perl_error_handler (const char * file_name, int line_number,
 #define SMALL 0x1000
 #define HUGEBUGGY (SMALL * SMALL)
 
-/* Decide what length to make "tf->fake_unicode". */
+/* Decide what length to make "text_fuzzy->b.unicode". It has to be
+   bigger than "minimum". */
 
 static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
 {
@@ -122,7 +123,9 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 
         text_fuzzy->unicode = 1;
 	text_fuzzy->text.ulength = sv_len_utf8 (text);
-	Newxz (text_fuzzy->text.unicode, text_fuzzy->text.ulength, int);
+
+	get_memory (text_fuzzy->text.unicode, text_fuzzy->text.ulength, int);
+
 	sv_to_int_ptr (text, & text_fuzzy->text);
 
 	/* Generate the Unicode alphabet. */
@@ -140,8 +143,8 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
-    if (text_fuzzy->fake_unicode) {
-	free (text_fuzzy->fake_unicode);
+    if (text_fuzzy->b.unicode) {
+	free (text_fuzzy->b.unicode);
 	text_fuzzy->n_mallocs--;
     }
     if (text_fuzzy->ualphabet.alphabet) {

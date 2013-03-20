@@ -88,10 +88,6 @@ typedef struct text_fuzzy {
     /* The minimum distance we got in our most recent effort. */
     int distance;
 
-    /* Fake "unicode" holder for the case of comparing a Unicode
-       string in "tf" with a non-unicode string. */
-    int * fake_unicode;
-
     /* The number of units allocated for "b.unicode". This is not the
        string length. This is used when deciding whether there is
        sufficient space to store a test string. */
