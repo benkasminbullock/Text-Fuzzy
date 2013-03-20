@@ -84,24 +84,11 @@ sv_to_text_fuzzy (SV * text, int max_distance,
     else {
 	TEXT_FUZZY (generate_alphabet (text_fuzzy));
     }
-    for (i = 0; i < 2; i++) {
-	get_memory (text_fuzzy->matrix[i], length + 1, int);
-    }
     * text_fuzzy_ptr = text_fuzzy;
 }
 
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
-    int i;
-
-    /* Free the matrices used in the dynamic programming algorithm. */
-
-    for (i = 0; i < 2; i++) {
-	if (text_fuzzy->matrix[i]) {
-	    free (text_fuzzy->matrix[i]);
-	    text_fuzzy->n_mallocs--;
-	}
-    }
     if (text_fuzzy->fake_unicode) {
 	free (text_fuzzy->fake_unicode);
 	text_fuzzy->n_mallocs--;

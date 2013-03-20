@@ -190,11 +190,7 @@ static int min (int a, int b)
     /* Matrix is the dynamic programming matrix. We economize on space
        by having only two columns. */
 
-[%- IF use_text_fuzzy %]
-    int ** matrix = tf->matrix;
-[%- ELSE %]
     int matrix[2][len2 + 1];
-[%- END %]
     int i;
     int j;
     int large_value;
