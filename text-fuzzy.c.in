@@ -639,6 +639,19 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
     OK;
 }
 
+/* Free non-Perl malloc memory using the C library "free". This is all
+   about "free to wrong pool". See
+   "http://www.perlmonks.org/?node_id=742205" */
+
+FUNC (free_memory) (text_fuzzy_t * text_fuzzy)
+{
+    if (text_fuzzy->ualphabet.alphabet) {
+	free (text_fuzzy->ualphabet.alphabet);
+	text_fuzzy->n_mallocs--;
+    }
+    OK;
+}
+
 /* statuses:
 
 status: open_error

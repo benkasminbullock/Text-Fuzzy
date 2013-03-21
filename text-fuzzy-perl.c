@@ -143,34 +143,6 @@ sv_to_text_fuzzy (SV * text, int max_distance,
     * text_fuzzy_ptr = text_fuzzy;
 }
 
-/* Free the memory allocated to "text_fuzzy" and check that there has
-   not been a memory leak. */
-
-static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
-{
-    if (text_fuzzy->b.unicode) {
-	Safefree (text_fuzzy->b.unicode);
-	text_fuzzy->n_mallocs--;
-    }
-    if (text_fuzzy->ualphabet.alphabet) {
-	free (text_fuzzy->ualphabet.alphabet);
-	text_fuzzy->n_mallocs--;
-    }
-
-    if (text_fuzzy->unicode) {
-        Safefree (text_fuzzy->text.unicode);
-        text_fuzzy->n_mallocs--;
-    }
-
-    Safefree (text_fuzzy->text.text);
-    text_fuzzy->n_mallocs--;
-
-    if (text_fuzzy->n_mallocs != 1) {
-        warn ("memory leak: n_mallocs %d != 1", text_fuzzy->n_mallocs);
-    }
-    Safefree (text_fuzzy);
-}
-
 /* The following palaver is related to the macros "FAIL" and
    "FAIL_MSG" in "text-fuzzy.c.in". */
 
@@ -264,5 +236,36 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
     fprintf (stderr, "Rejected using alphabet: %d\n", tf->ualphabet.rejected);
 #endif
     return nearest;
+}
+
+/* Free the memory allocated to "text_fuzzy" and check that there has
+   not been a memory leak. */
+
+static int text_fuzzy_free (text_fuzzy_t * text_fuzzy)
+{
+    if (text_fuzzy->b.unicode) {
+	Safefree (text_fuzzy->b.unicode);
+	text_fuzzy->n_mallocs--;
+    }
+
+    /* See the comments in "text-fuzzy.c.in" about why this is
+       necessary. */
+
+    TEXT_FUZZY (free_memory (text_fuzzy));
+
+    if (text_fuzzy->unicode) {
+        Safefree (text_fuzzy->text.unicode);
+        text_fuzzy->n_mallocs--;
+    }
+
+    Safefree (text_fuzzy->text.text);
+    text_fuzzy->n_mallocs--;
+
+    if (text_fuzzy->n_mallocs != 1) {
+        warn ("memory leak: n_mallocs %d != 1", text_fuzzy->n_mallocs);
+    }
+    Safefree (text_fuzzy);
+
+    return 0;
 }
 
