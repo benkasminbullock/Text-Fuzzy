@@ -73,7 +73,13 @@ Use L</set_max_distance> to alter the maximum distance used.
 
 If there is more than one word with the same edit distance in
 C<@words>, this returns the last one found, unless it is an exact
-match, in which case it returns the first one found.
+match, in which case it returns the first one found. To get all matches, call it in array context:
+
+    my @nearest = $tf->nearest (\@words);
+
+If there are no matches within minimum distance, it returns an empty
+list. If there is one or more match, it returns the array offset of
+it, not the value itself.
 
 =head2 last_distance
 

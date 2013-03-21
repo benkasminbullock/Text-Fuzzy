@@ -219,7 +219,7 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
     int n_words;
     int max_distance_holder;
     int nearest;
-    candidate_t first;
+    candidate_t first = {0};
     candidate_t * last;
 
     max_distance_holder = text_fuzzy->max_distance;
