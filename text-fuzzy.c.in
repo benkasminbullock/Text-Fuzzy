@@ -319,18 +319,7 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 			       int * d_ptr)
 {
-    /* The edit distance. */
-
-    int d;
-
-    /* This keeps a track on whether we have put fake values into
-       the Unicode parts of "b". */
-
-    int allocated;
-
-    d = NOT_FOUND;
-
-    allocated = 0;
+    * d_ptr = NOT_FOUND;
 
     if (tf->max_distance >= 0) {
 
@@ -344,7 +333,7 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
 	    LENGTH_REJECT (tf->b.ulength, tf->text.ulength);
 
-	    goto giveup;
+	    OK;
 	}
 	if (tf->use_ualphabet) {
 
@@ -369,7 +358,7 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
 		    tf->ualphabet.rejected++;
 
-		    goto giveup;
+		    OK;
 		}
 		else {
 		    MESSAGE ("Accepted.\n");
@@ -387,21 +376,12 @@ STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
 
     if (tf->transpositions_ok) {
 	MESSAGE ("Transpositions OK.\n");
-	d = distance_int_trans (tf->b.unicode, tf->b.ulength, tf);
+	* d_ptr = distance_int_trans (tf->b.unicode, tf->b.ulength, tf);
     }
     else {
 	MESSAGE ("No transpositions.\n");
-	d = distance_int (tf->b.unicode, tf->b.ulength, tf);
+	* d_ptr = distance_int (tf->b.unicode, tf->b.ulength, tf);
     }
-
- giveup:
-
-    if (allocated) {
-	/* Remove wrong information, pointers into "tf". */
-	tf->b.unicode = 0;
-	tf->b.ulength = 0;
-    }
-    * d_ptr = d;
     OK;
 }
 

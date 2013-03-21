@@ -144,7 +144,7 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 static void text_fuzzy_free (text_fuzzy_t * text_fuzzy)
 {
     if (text_fuzzy->b.unicode) {
-	free (text_fuzzy->b.unicode);
+	Safefree (text_fuzzy->b.unicode);
 	text_fuzzy->n_mallocs--;
     }
     if (text_fuzzy->ualphabet.alphabet) {
