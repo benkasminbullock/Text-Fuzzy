@@ -1,8 +1,9 @@
-int [% function %] (const [% type %] * word1,
-                    int len1,
+int [% function %] (
 [%- IF use_text_fuzzy %]
                     text_fuzzy_t * tf
 [%- ELSE %]
+                    const [% type %] * word1,
+                    int len1,
                     const [% type %] * word2
                     int len2,
                     int max

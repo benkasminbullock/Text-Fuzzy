@@ -390,11 +390,11 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 
 	if (tf->transpositions_ok) {
 	    MESSAGE ("Transpositions OK.\n");
-	    d = distance_int_trans (tf->b.unicode, tf->b.ulength, tf);
+	    d = distance_int_trans (tf);
 	}
 	else {
 	    MESSAGE ("No transpositions.\n");
-	    d = distance_int (tf->b.unicode, tf->b.ulength, tf);
+	    d = distance_int (tf);
 	}
     }
     else {
@@ -448,10 +448,10 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 	   algorithm for "unsigned char". */
 
 	if (tf->transpositions_ok) {
-	    d = distance_char_trans (tf->b.text, tf->b.length, tf);
+	    d = distance_char_trans (tf);
 	}
 	else {
-	    d = distance_char (tf->b.text, tf->b.length, tf);
+	    d = distance_char (tf);
 	}
     }
     if (d != NOT_FOUND && d < tf->max_distance) {
