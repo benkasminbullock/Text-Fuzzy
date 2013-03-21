@@ -85,6 +85,11 @@ static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
     curlen = length;
     for (i = 0; i < tfs->ulength; i++) {
         STRLEN len;
+
+	/* The documentation for "utf8n_to_uvuni" can be found in
+	   "perldoc perlapi". There is an online version here:
+	   "http://perldoc.perl.org/perlapi.html#Unicode-Support". */
+
         tfs->unicode[i] = utf8n_to_uvuni (utf, curlen, & len, 0);
         curlen -= len;
         utf += len;

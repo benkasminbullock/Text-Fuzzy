@@ -1,6 +1,8 @@
 0.10_02
 
 * Strip out max_distance testing code in transpositions (was faulty).
+* Performance improvement for Unicode
+* Document support options
 
 0.10_01
 
