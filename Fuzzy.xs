@@ -90,14 +90,34 @@ CODE:
 OUTPUT:
 	RETVAL
 
-int
+void
 nearest (tf, words)
 	Text::Fuzzy tf;
         AV * words;
-CODE:
-	RETVAL = text_fuzzy_av_distance (tf, words);
-OUTPUT:
-	RETVAL
+PPCODE:
+	int i;
+	int n;
+	AV * wantarray;
+
+	wantarray = 0;
+
+	if (GIMME_V == G_ARRAY) {
+		wantarray = newAV ();
+		n = text_fuzzy_av_distance (tf, words, wantarray);
+	}
+	else {
+		n = text_fuzzy_av_distance (tf, words, 0);
+	}
+	/* We could check for void context and return here I suppose ... */
+	if (wantarray) {
+		EXTEND (SP, av_len (wantarray));
+		for (i = 0; i <= av_len (wantarray); i++) {
+			PUSHs (sv_2mortal (*(av_fetch (wantarray, i, 0))));
+		}
+        }
+        else {
+            PUSHs (sv_2mortal (newSViv (n)));
+        }
 
 int
 last_distance (tf)

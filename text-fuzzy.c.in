@@ -454,7 +454,7 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 	    d = distance_char (tf);
 	}
     }
-    if (d != NOT_FOUND && d < tf->max_distance) {
+    if (d != NOT_FOUND && d <= tf->max_distance) {
         tf->found = 1;
         tf->distance = d;
     }

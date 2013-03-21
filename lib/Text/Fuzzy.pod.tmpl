@@ -71,8 +71,9 @@ distance away from the word, C<$index> is -1.
 
 Use L</set_max_distance> to alter the maximum distance used.
 
-If there is more than one word with the same distance in C<@words>,
-this returns the first of them.
+If there is more than one word with the same edit distance in
+C<@words>, this returns the last one found, unless it is an exact
+match, in which case it returns the first one found.
 
 =head2 last_distance
 

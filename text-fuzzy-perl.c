@@ -178,17 +178,12 @@ text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
     }
 }
 
-static int
-text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
-{
-    int i;
-    int n_words;
-    int max_distance_holder;
-    int nearest;
+/* Initialize tf for a search over an array. */
 
+static void
+initialize (text_fuzzy_t * tf)
+{
     tf->distance = -1;
-    max_distance_holder = tf->max_distance;
-    nearest = -1;
     tf->ualphabet.rejections = 0;
     tf->length_rejections = 0;
 
@@ -199,9 +194,6 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
 
     if (tf->unicode) {
 	if (tf->max_distance > tf->text.ulength) {
-#ifdef DEBUG
-	    fprintf (stderr, "Reducing max distance from %d to %d\n", tf->max_distance, tf->text.ulength);
-#endif
 	    tf->max_distance = tf->text.ulength;
 	}
     }
@@ -210,6 +202,35 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
 	    tf->max_distance = tf->text.length;
 	}
     }
+}
+
+typedef struct candidate candidate_t;
+
+struct candidate {
+    int distance;
+    int offset;
+    candidate_t * next;
+};
+
+static int
+text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
+{
+    int i;
+    int n_words;
+    int max_distance_holder;
+    int nearest;
+    candidate_t first;
+    candidate_t * last;
+
+    max_distance_holder = text_fuzzy->max_distance;
+
+    if (wantarray) {
+	last = & first;
+    }
+
+    nearest = -1;
+
+    initialize (text_fuzzy);
 
     n_words = av_len (words) + 1;
     if (n_words == 0) {
@@ -218,25 +239,57 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
     for (i = 0; i < n_words; i++) {
         SV * word;
         word = * av_fetch (words, i, 0);
-        sv_to_text_fuzzy_string (word, tf);
-        TEXT_FUZZY (compare_single (tf));
-        if (tf->found) {
-            tf->max_distance = tf->distance;
+        sv_to_text_fuzzy_string (word, text_fuzzy);
+        TEXT_FUZZY (compare_single (text_fuzzy));
+        if (text_fuzzy->found) {
+            text_fuzzy->max_distance = text_fuzzy->distance;
             nearest = i;
-            if (tf->distance == 0) {
-                /* Stop the search if there is an exact match. */
-                break;
-            }
-        }
+	    if (wantarray) {
+		candidate_t * c;
+		get_memory (c, 1, candidate_t);
+		c->distance = text_fuzzy->distance;
+		c->offset = i;
+		c->next = 0;
+		last->next = c;
+		last = c;
+	    }
+	    else {
+		if (text_fuzzy->distance == 0) {
+		    /* Stop the search if there is an exact match. */
+		    break;
+		}
+	    }
+	}
     }
-    tf->distance = tf->max_distance;
+    text_fuzzy->distance = text_fuzzy->max_distance;
+
     /* Set the maximum distance back to the user's value. */
-    tf->max_distance = max_distance_holder;
-#ifdef DEBUG
-    fprintf (stderr, "Rejected using alphabet: %d\n", tf->ualphabet.rejected);
-#endif
+
+    text_fuzzy->max_distance = max_distance_holder;
+
+    /* Go through the linked list and sort the wheat from the chaf. */
+
+    if (wantarray) {
+	candidate_t * c;
+	last = first.next;
+	while (last) {
+	    c = last;
+	    /* Set "last" to the next one here so that we do not
+	       access freed memory. */
+	    last = last->next;
+	    if (c->distance == text_fuzzy->distance) {
+		SV * offset;
+
+		offset = newSViv (c->offset);
+		av_push (wantarray, offset);
+	    }
+	    Safefree (c);
+	    text_fuzzy->n_mallocs--;
+	}
+    }
     return nearest;
 }
+
 
 /* Free the memory allocated to "text_fuzzy" and check that there has
    not been a memory leak. */
