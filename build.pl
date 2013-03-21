@@ -4,9 +4,7 @@ use strict;
 use Perl::Build;
 perl_build (
     pre => './make-edit-distance-c.pl',
-    pod => [
-        'lib/Text/Fuzzy.pod',
-    ],
+    make_pod => './doc/make-pod.pl',
     cmaker => [
         'text-fuzzy',
     ],

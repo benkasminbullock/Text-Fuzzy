@@ -7,9 +7,8 @@ use Text::Fuzzy;
 
 my $web_root = '/usr/local/www/data';
 
-# If the query is something like
-# "http://www.sljfaq.org/afaq/infults.html", the value of $path_info
-# is "afaq/infults.html".
+# If the query is "http://www.example.com/abc/xyz.html", $path_info is
+# "abc/xyz.html".
 
 my $path_info = $ENV{REQUEST_URI};
 

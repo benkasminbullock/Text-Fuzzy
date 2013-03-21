@@ -81,6 +81,8 @@ If there are no matches within minimum distance, it returns an empty
 list. If there is one or more match, it returns the array offset of
 it, not the value itself.
 
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/list-context.pl" | xtidy %]
+
 =head2 last_distance
 
     my $last_distance = $tf->last_distance ();
@@ -143,7 +145,7 @@ script which does something similar to the Apache mod_speling module,
 offering spelling corrections for mistyped URLs and sending the user
 to a correct page.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/misspelt-web-page.cgi" | indent (4) %]
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/misspelt-web-page.cgi" | xtidy %]
 
 See also L<http://www.lemoda.net/perl/perl-mod-speling/> for how to
 set up F<.htaccess> to use the script.
@@ -158,7 +160,7 @@ dictionary of words specified by a command-line option "-d":
 It prints out any words which look like spelling mistakes, using the
 dictionary.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/spell-check.pl" | indent (4) %]
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/spell-check.pl" | xtidy %]
 
 Because the usual Unix dictionary doesn't have plurals, it uses
 L<Lingua::EN::PluralToSingular>, to convert nouns into singular
@@ -173,7 +175,7 @@ and does some fuzzy searches on them. It requires a local copy of the
 file to run. This script demonstrates the use of Unicode searches with
 Text::Fuzzy.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/extract-kana.pl" | indent (4) %]
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/extract-kana.pl" | xtidy %]
 
 =head1 SUPPORT
 
