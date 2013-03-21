@@ -313,78 +313,6 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
     tf->length_rejections++
 
 
-/* This is a helper for "compare_single" which is applied when "tf" is
-   a Unicode string. */
-
-STATIC FUNC (compare_unicode) (text_fuzzy_t * tf,
-			       int * d_ptr)
-{
-    * d_ptr = NOT_FOUND;
-
-    if (tf->max_distance >= 0) {
-
-	/* Filter on distance: If the distance in the length of
-	   the strings is greater than the max distance, give up,
-	   since the number of additions necessary to make the
-	   strings identical is greater than the maximum distance
-	   we are allowed. */
-
-	if (abs (tf->text.ulength - tf->b.ulength) > tf->max_distance) {
-
-	    LENGTH_REJECT (tf->b.ulength, tf->text.ulength);
-
-	    OK;
-	}
-	if (tf->use_ualphabet) {
-
-	    /*
-	      Check that the length of "b" is more than the maximum
-	      distance, otherwise the alphabet check will not reject
-	      "b" regardless of the alphabet difference found, since
-	      the largest possible value of "misses" in the alphabet
-	      check is the total number of characters in "b".
-	    */
-
-	    if (tf->b.ulength > tf->max_distance) {
-
-		/* Filter using alphabet: If the number of
-		   characters in "b" which are not in "tf->text"
-		   is greater than the maximum distance, give
-		   up. */
-
-		if (ualphabet_miss (tf, & tf->b)) {
-
-		    MESSAGE ("Rejected.\n");
-
-		    tf->ualphabet.rejected++;
-
-		    OK;
-		}
-		else {
-		    MESSAGE ("Accepted.\n");
-		}
-	    }
-	    else {
-		MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
-			 tf->b.text, tf->b.ulength, tf->max_distance);
-	    }
-	}
-    }
-
-    /* Calculate edit distances using the dynamic programming
-       algorithm for the integer Unicode strings. */
-
-    if (tf->transpositions_ok) {
-	MESSAGE ("Transpositions OK.\n");
-	* d_ptr = distance_int_trans (tf->b.unicode, tf->b.ulength, tf);
-    }
-    else {
-	MESSAGE ("No transpositions.\n");
-	* d_ptr = distance_int (tf->b.unicode, tf->b.ulength, tf);
-    }
-    OK;
-}
-
 /* Compare tf and b. This goes through a series of filters which
    reject impossible matches, and then if none of the filters applies,
    it uses the dynamic programming algorithm to search. The source
@@ -405,7 +333,67 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 
     if (tf->unicode) {
 
-	CALL (compare_unicode (tf, & d));
+	if (tf->max_distance >= 0) {
+
+	    /* Filter on distance: If the distance in the length of
+	       the strings is greater than the max distance, give up,
+	       since the number of additions necessary to make the
+	       strings identical is greater than the maximum distance
+	       we are allowed. */
+
+	    if (abs (tf->text.ulength - tf->b.ulength) > tf->max_distance) {
+
+		LENGTH_REJECT (tf->b.ulength, tf->text.ulength);
+
+		OK;
+	    }
+	    if (tf->use_ualphabet) {
+
+		/*
+		  Check that the length of "b" is more than the maximum
+		  distance, otherwise the alphabet check will not reject
+		  "b" regardless of the alphabet difference found, since
+		  the largest possible value of "misses" in the alphabet
+		  check is the total number of characters in "b".
+		*/
+
+		if (tf->b.ulength > tf->max_distance) {
+
+		    /* Filter using alphabet: If the number of
+		       characters in "b" which are not in "tf->text"
+		       is greater than the maximum distance, give
+		       up. */
+
+		    if (ualphabet_miss (tf, & tf->b)) {
+
+			MESSAGE ("Rejected.\n");
+
+			tf->ualphabet.rejected++;
+
+			OK;
+		    }
+		    else {
+			MESSAGE ("Accepted.\n");
+		    }
+		}
+		else {
+		    MESSAGE ("%s: skipping alphabet check because len %d <= max %d.\n",
+			     tf->b.text, tf->b.ulength, tf->max_distance);
+		}
+	    }
+	}
+
+	/* Calculate edit distances using the dynamic programming
+	   algorithm for the integer Unicode strings. */
+
+	if (tf->transpositions_ok) {
+	    MESSAGE ("Transpositions OK.\n");
+	    d = distance_int_trans (tf->b.unicode, tf->b.ulength, tf);
+	}
+	else {
+	    MESSAGE ("No transpositions.\n");
+	    d = distance_int (tf->b.unicode, tf->b.ulength, tf);
+	}
     }
     else {
 
