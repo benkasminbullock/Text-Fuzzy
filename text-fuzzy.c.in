@@ -37,7 +37,7 @@ typedef struct ualphabet {
 
     /* The number of characters which were rejected using the Unicode
        alphabet. */
-    int rejected;
+    int rejections;
 }
 ualphabet_t;
 
@@ -210,6 +210,8 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 
 	/* Character at position "i". */
 
+
+
 	int c;
 
 	/* Byte and bit offset of c in u->alphabet. */
@@ -368,7 +370,7 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 
 			MESSAGE ("Rejected.\n");
 
-			tf->ualphabet.rejected++;
+			tf->ualphabet.rejections++;
 
 			OK;
 		    }

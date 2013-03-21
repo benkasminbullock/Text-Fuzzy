@@ -71,6 +71,9 @@ distance away from the word, C<$index> is -1.
 
 Use L</set_max_distance> to alter the maximum distance used.
 
+If there is more than one word with the same distance in C<@words>,
+this returns the first of them.
+
 =head2 last_distance
 
     my $last_distance = $tf->last_distance ();
@@ -115,60 +118,14 @@ This does not currently support Unicode-encoded files.
 
     $tf->transpositions_ok (1);
 
-This changes the type of edit distance used to allow or disallow
-transpositions, such as C<clam> and C<calm>. Initially transpositions
-are not allowed, giving the Levenshtein edit distance. If
-transpositions are used, the edit distance becomes the
-Damerau-Levenshtein edit distance.
+A true value in the argument changes the type of edit distance used to
+allow transpositions, such as C<clam> and C<calm>. Initially
+transpositions are not allowed, giving the Levenshtein edit
+distance. If transpositions are used, the edit distance becomes the
+Damerau-Levenshtein edit distance. A false value disallows
+transpositions:
 
-=head1 PRIVATE METHODS
-
-These methods are not expected to be useful for the general user. They
-may be useful in benchmarking the module and checking its correctness.
-
-=head2 no_alphabet
-
-    $tf->no_alphabet (1);
-
-This turns off alphabetizing of the string. Alphabetizing is a filter
-used in L</nearest> where the intersection of all the characters in
-the two strings is computed. If the number of characters in the
-difference of the two strings is greater than the maximum distance,
-the match is rejected without applying the dynamic programming
-algorithm. This results in a speed increase due to the computational
-cost of the dynamic programming algorithm. The alphabetizing should
-not ever reject anything which is a legitimate match, and it should
-make the program run faster in almost every case. Thus this method is
-private, since the only envisaged uses of switching this check off are
-checking that the algorithm is working correctly, and benchmarking
-performance.
-
-=head2 get_trans
-
-This returns the value set by L</transpositions_ok>.
-
-=head2 unicode_length
-
-This returns the length in characters (not bytes) of the string used
-in L</new>. If the string is not marked as Unicode, it returns the
-undefined value.
-
-=head2 ualphabet_rejected
-
-    my $rejected = $tf->ualphabet_rejected ();
-
-After running L</nearest> over an array, this returns the number of
-entries of the array which were rejected using only the alphabet. Its
-value is reset to zero each time L</nearest> is called.
-
-=head2 length_rejections
-
-    my $rejected = $tf->length_rejections ();
-
-After running L</nearest> over an array, this returns the number of
-entries of the array which were rejected because the length difference
-between them and the target string was larger than the maximum
-distance allowed.
+    $tf->transpositions_ok (0);
 
 =head1 EXAMPLES
 
@@ -179,9 +136,10 @@ script which does something similar to the Apache mod_speling module,
 offering spelling corrections for mistyped URLs and sending the user
 to a correct page.
 
-See the file in the distribution for details. See also
-L<http://www.lemoda.net/perl/perl-mod-speling/> for how to set up
-F<.htaccess> to use the script.
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/misspelt-web-page.cgi" | indent (4) %]
+
+See also L<http://www.lemoda.net/perl/perl-mod-speling/> for how to
+set up F<.htaccess> to use the script.
 
 =head2 spell-check.pl
 
@@ -192,6 +150,8 @@ dictionary of words specified by a command-line option "-d":
 
 It prints out any words which look like spelling mistakes, using the
 dictionary.
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/spell-check.pl" | indent (4) %]
 
 Because the usual Unix dictionary doesn't have plurals, it uses
 L<Lingua::EN::PluralToSingular>, to convert nouns into singular
@@ -205,6 +165,8 @@ The file F<examples/extract-kana.pl> extracts the kana entries from
 and does some fuzzy searches on them. It requires a local copy of the
 file to run. This script demonstrates the use of Unicode searches with
 Text::Fuzzy.
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/extract-kana.pl" | indent (4) %]
 
 =head1 SUPPORT
 
@@ -224,6 +186,65 @@ The CPAN tester results are at
 L<http://www.cpantesters.org/distro/T/Text-Fuzzy.html>. The
 ActiveState tester results are at
 L<http://code.activestate.com/ppm/Text-Fuzzy/>.
+
+=head1 PRIVATE METHODS
+
+These methods are not expected to be useful for the general user. They
+may be useful in benchmarking the module and checking its correctness.
+
+=head2 no_alphabet
+
+    $tf->no_alphabet (1);
+
+This turns off alphabetizing of the string. Alphabetizing is a filter
+used in L</nearest> where the intersection of all the characters in
+the two strings is computed, and if the alphabetical difference of the
+two strings is greater than the maximum distance, the match is
+rejected without applying the dynamic programming algorithm. This
+increases speed, because the dynamic programming algorithm is
+slow. 
+
+The alphabetizing should not ever reject anything which is a
+legitimate match, and it should make the program run faster in almost
+every case. The only envisaged uses of switching this off are checking
+that the algorithm is working correctly, and benchmarking performance.
+
+=head2 get_trans
+
+    my $trans_ok = $tf->get_trans ();
+
+This returns the value set by L</transpositions_ok>.
+
+=head2 unicode_length
+
+    my $length = $tf->unicode_length ();
+
+This returns the length in characters (not bytes) of the string used
+in L</new>. If the string is not marked as Unicode, it returns the
+undefined value. In the following, C<$l1> should be equal to C<$l2>.
+
+    use utf8;
+    my $word = 'ⅅⅆⅇⅈⅉ';
+    my $l1 = length $word;
+    my $tf = Text::Fuzzy->new ($word);
+    my $l2 = $tf->unicode_length ();
+
+=head2 ualphabet_rejections
+
+    my $rejected = $tf->ualphabet_rejections ();
+
+After running L</nearest> over an array, this returns the number of
+entries of the array which were rejected using only the alphabet. Its
+value is reset to zero each time L</nearest> is called.
+
+=head2 length_rejections
+
+    my $rejected = $tf->length_rejections ();
+
+After running L</nearest> over an array, this returns the number of
+entries of the array which were rejected because the length difference
+between them and the target string was larger than the maximum
+distance allowed.
 
 =head1 ACKNOWLEDGEMENTS
 

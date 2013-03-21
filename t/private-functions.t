@@ -22,7 +22,7 @@ $tf->nearest (\@stuff);
 # them all to be rejected at the stage of length comparisons.
 
 cmp_ok ($tf->length_rejections, '==', scalar @stuff);
-cmp_ok ($tf->ualphabet_rejected, '==', 0);
+cmp_ok ($tf->ualphabet_rejections, '==', 0);
 
 my $tf2 = Text::Fuzzy->new ('あいうえ');
 
@@ -38,7 +38,7 @@ cmp_ok ($tf2->length_rejections, '==', 0);
 # $tf2, so we expect all of them to be rejected by the Unicode
 # alphabet test.
 
-cmp_ok ($tf2->ualphabet_rejected, '==', scalar @stuff, "alphabet rejections");
+cmp_ok ($tf2->ualphabet_rejections, '==', scalar @stuff, "alphabet rejections");
 
 is ($tf2->unicode_length (), 4);
 

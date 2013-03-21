@@ -217,7 +217,7 @@ text_fuzzy_av_distance (text_fuzzy_t * tf, AV * words)
     tf->distance = -1;
     max_distance_holder = tf->max_distance;
     nearest = -1;
-    tf->ualphabet.rejected = 0;
+    tf->ualphabet.rejections = 0;
     tf->length_rejections = 0;
 
     /* If the maximum distance is set to a value larger than the

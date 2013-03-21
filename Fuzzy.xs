@@ -23,9 +23,14 @@ new (class, search_term, max_distance = 10)
 	SV * search_term;
 	int max_distance;
 CODE:
+	/* Set the error handler in "text-fuzzy.c" to be the error
+	   handler defined in "text-fuzzy-perl.c". */
+	text_fuzzy_error_handler = perl_error_handler;
+
 	sv_to_text_fuzzy (search_term, max_distance, & RETVAL);
+
         if (! RETVAL) {
-        	printf ("error making %s.\n", class);
+        	croak ("error making %s.\n", class);
 	}
 OUTPUT:
         RETVAL
@@ -127,6 +132,24 @@ CODE:
 		tf->use_ualphabet = 0;
 	}
 
+int
+ualphabet_rejections (tf)
+	Text::Fuzzy tf;
+CODE:
+	RETVAL = tf->ualphabet.rejections;
+OUTPUT:
+        RETVAL
+
+
+int
+length_rejections (tf)
+	Text::Fuzzy tf;
+CODE:
+	RETVAL = tf->length_rejections;
+OUTPUT:
+        RETVAL
+
+
 void
 DESTROY (tf)
 	Text::Fuzzy tf;
@@ -139,23 +162,6 @@ scan_file (tf, file_name)
         char * file_name;
 CODE:
         TEXT_FUZZY (scan_file (tf, file_name, & RETVAL));
-OUTPUT:
-        RETVAL
-
-int
-ualphabet_rejected (tf)
-	Text::Fuzzy tf;
-CODE:
-	RETVAL = tf->ualphabet.rejected;
-OUTPUT:
-        RETVAL
-
-
-int
-length_rejections (tf)
-	Text::Fuzzy tf;
-CODE:
-	RETVAL = tf->length_rejections;
 OUTPUT:
         RETVAL
 

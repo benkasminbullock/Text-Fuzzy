@@ -57,8 +57,8 @@ sub search
 	$result{no_alphabet} = $no_alphabet ? JSON::true : JSON::false;
 	$result{input} = $silly;
 	my $search = Text::Fuzzy->new ($silly);
-	$search->no_alphabet ($no_alphabet);
-#	$search->transpositions_ok ($no_alphabet);
+#	$search->no_alphabet ($no_alphabet);
+	$search->transpositions_ok ($no_alphabet);
 	my $start = time ();
 	my $n = $search->nearest (\@kana);
 	$result{nearest} = $n;
@@ -74,7 +74,7 @@ sub search
 	my $end = time ();
 	$result{time} = $end - $start;
 	print "Length rejections: ", $search->length_rejections (), "\n";
-	print "Alphabet rejections: ", $search->ualphabet_rejected (), "\n";
+	print "Alphabet rejections: ", $search->ualphabet_rejections (), "\n";
 	print "time: $result{time}\n";
 	push @$tests, \%result;
     }
