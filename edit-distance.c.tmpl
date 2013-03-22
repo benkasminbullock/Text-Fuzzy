@@ -159,7 +159,7 @@ static int min (int a, int b)
 	    } 
 	}
 	
-	if(tf->max_distance != 0 && tf->max_distance <= matrix[i+1][len2+1]) {
+	if(tf->max_distance != 0 && tf->max_distance < matrix[i+1][len2+1]) {
 	    dict_free(head);
 	    //	    printf ("tripped at %d %d\n", matrix[i+1][len2+1], tf->max_distance);
 	    return INT_MAX / 0x1000;

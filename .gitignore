@@ -6,7 +6,8 @@ Fuzzy.bs
 Fuzzy.c
 lib/Text/Fuzzy.pod
 makeitfile
-text-fuzzy.[ch]
+# These are in the repo for people who want to build from the repo.
+#text-fuzzy.[ch]
 MANIFEST
 algorithm.dvi
 algorithm.log

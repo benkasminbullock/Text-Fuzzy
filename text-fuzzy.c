@@ -1,18 +1,160 @@
 #include <string.h>
-/* For error-handling for the file opening functions. */
 #include <errno.h>
-/* For INT_MAX, INT_MIN. */
 #include <limits.h>
-
 #include "text-fuzzy.h"
-
-/* All of the following are automatically generated from
-   "edit-distance.h.tmpl" by "make-edit-distance-c.pl". */
-
 #include "edit-distance-char-trans.h"
 #include "edit-distance-int-trans.h"
 #include "edit-distance-char.h"
 #include "edit-distance-int.h"
+
+#ifndef ERROR_HANDLER
+#define ERROR_HANDLER text_fuzzy_error_handler;
+#endif /* undef ERROR_HANDLER */
+#include "text-fuzzy.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
+#ifndef ERROR_HANDLER_H
+#define ERROR_HANDLER_H
+typedef int (* error_handler_t) (const char * source_file,
+                                 int source_line_number,
+                                 const char * message, ...)
+#ifdef __GNUC__
+    __attribute__((format (printf, 3, 4)))
+#endif /* __GNUC__ */
+;
+#endif /* ndef ERROR_HANDLER_H */
+
+extern error_handler_t text_fuzzy_error_handler;
+
+
+/* This is the default error handler for this namespace. */
+
+static int
+text_fuzzy_default_error_handler (const char * source_file,
+                                        int source_line_number,
+                                        const char * message, ...)
+{
+    va_list args;
+
+    fprintf (stderr, "%s:%d: ", source_file, source_line_number);
+    va_start (args, message);
+    vfprintf (stderr, message, args);
+    exit (EXIT_FAILURE);
+}
+
+/* This global variable is the error handler for this namespace. */
+
+error_handler_t text_fuzzy_error_handler =
+    text_fuzzy_default_error_handler;
+
+
+/* Print an error message for a failed condition "condition" at the
+   appropriate line. */
+
+#define LINE_ERROR(condition, status)                                   \
+    if (text_fuzzy_error_handler) {                               \
+        (* text_fuzzy_error_handler)                              \
+            (__FILE__, __LINE__,                                        \
+             "Failed test '%s', returning status '%s': %s",             \
+             #condition, #status,                                       \
+             text_fuzzy_statuses                                  \
+             [text_fuzzy_status_ ## status]);                     \
+    }                                                               
+
+/* Fail a test, without message. */
+
+#define FAIL(condition, status)                                         \
+    if (condition) {                                                    \
+        LINE_ERROR (condition, status);                                 \
+        return text_fuzzy_status_ ## status;                      \
+    }
+
+/* Fail a test, with message. */
+
+#define FAIL_MSG(condition, status, msg, args...)                       \
+    if (condition) {                                                    \
+        LINE_ERROR (condition, status);                                 \
+        if (text_fuzzy_error_handler) {                           \
+            (* text_fuzzy_error_handler)                          \
+                (__FILE__, __LINE__,                                    \
+                 msg, ## args);                                         \
+        }                                                               \
+        return text_fuzzy_status_ ## status;                      \
+    }
+
+#define OK return text_fuzzy_status_ok;
+
+/* Call a function and print an error message and return if the
+   function returns an error value. */
+
+#define CALL(x) {                                                       \
+	text_fuzzy_status_t _status = text_fuzzy_ ## x;     \
+	if (_status != text_fuzzy_status_ok) {                    \
+            if (text_fuzzy_error_handler) {                       \
+                (* text_fuzzy_error_handler)                      \
+                    (__FILE__, __LINE__,                                \
+                     "Call 'text_fuzzy_%s' "                      \
+                     "failed with status '%d': %s",                     \
+                     #x, _status,                                       \
+                     text_fuzzy_statuses[_status]);       \
+            }                                                           \
+            return _status;                                             \
+        }                                                               \
+    }
+
+/*
+Local variables:
+mode: c
+End:
+*/
+
+const char * text_fuzzy_statuses[] = {
+    "normal operation",
+    "out of memory",
+    "open error",
+    "close error",
+    "read error",
+    "line too long",
+    "There was an attempt to make a Unicode alphabet on a non-Unicode string.",
+    "max min miscalculation",
+    "A string for comparison was larger than the value of HUGE defined in the code.",
+};
+
+#define STATIC static
+#define FUNC(name) text_fuzzy_status_t text_fuzzy_ ## name
+
+#ifdef VERBOSE
+#define MESSAGE(format, args...) {              \
+        printf ("%s:%d: ", __FILE__, __LINE__); \
+        printf (format, ## args);               \
+}
+#else /* VERBOSE */
+#define MESSAGE(format, args...)
+#endif /* VERBOSE */
+
+/* Local variables:
+mode: c
+End:
+*/
+
+#line 1 "/usr/home/ben/projects/Text-Fuzzy/text-fuzzy.c.in"
+
+/* For error-handling for the file opening functions. */
+
+/* For INT_MAX, INT_MIN. */
+
+
+
+
+/* All of the following are automatically generated from
+   "edit-distance.h.tmpl" by "make-edit-distance-c.pl". */
+
+
+
+
+
 
 /* The following starts off the header file. This is a tag which tells
    "C::Maker" to start writing "text-fuzzy.h". */
@@ -662,3 +804,4 @@ A string for comparison was larger than the value of HUGE defined in the code.
 %%
 
 */
+
