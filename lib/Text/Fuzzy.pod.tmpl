@@ -136,6 +136,18 @@ transpositions:
 
     $tf->transpositions_ok (0);
 
+=head2 no_exact
+
+    $tf->no_exact (1);
+
+Use this to make L</nearest> ignore exact matches. For example,
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact.pl" | xtidy %]
+
+This prints
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact-out.txt" | xtidy %]
+
 =head1 EXAMPLES
 
 =head2 misspelt-web-page.cgi

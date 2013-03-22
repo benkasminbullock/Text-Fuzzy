@@ -186,22 +186,6 @@ initialize (text_fuzzy_t * tf)
     tf->distance = -1;
     tf->ualphabet.rejections = 0;
     tf->length_rejections = 0;
-
-    /* If the maximum distance is set to a value larger than the
-       number of characters in the string, set the maximum distance to
-       the number of characters in the string, regardless of what the
-       user might have requested. */
-
-    if (tf->unicode) {
-	if (tf->max_distance > tf->text.ulength) {
-	    tf->max_distance = tf->text.ulength;
-	}
-    }
-    else {
-	if (tf->max_distance > tf->text.length) {
-	    tf->max_distance = tf->text.length;
-	}
-    }
 }
 
 typedef struct candidate candidate_t;

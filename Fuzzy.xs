@@ -185,3 +185,9 @@ CODE:
 OUTPUT:
         RETVAL
 
+void
+no_exact (tf, yes_no)
+	Text::Fuzzy tf;
+	SV * yes_no;
+CODE:
+	tf->no_exact = SvTRUE (yes_no);

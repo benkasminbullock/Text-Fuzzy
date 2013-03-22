@@ -51,6 +51,13 @@ is ($tf4->last_distance (), 2);
 $tf->set_max_distance ();
 my $md = $tf->get_max_distance ();
 is ($md, undef, "max distance is undefined");
+
+my $short_word = 'boo';
+my @long_words = ('bibbity');
+my $tfboo = Text::Fuzzy->new ($short_word);
+is ($tfboo->nearest (\@long_words), 0,
+    "Do not truncate distance to word's length");
+
 done_testing ();
 
 # Local variables:
