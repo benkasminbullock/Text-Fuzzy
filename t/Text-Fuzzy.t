@@ -56,7 +56,7 @@ my $short_word = 'boo';
 my @long_words = ('bibbity');
 my $tfboo = Text::Fuzzy->new ($short_word);
 is ($tfboo->nearest (\@long_words), 0,
-    "Do not truncate distance to word's length");
+    "Do not truncate maximum distance to word's length");
 
 done_testing ();
 
