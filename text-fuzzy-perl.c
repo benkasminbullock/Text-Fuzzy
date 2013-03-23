@@ -96,11 +96,12 @@ static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
     }
 }
 
+#define DEFAULT_MAX_DISTANCE 10
+
 /* Convert a Perl SV into the text_fuzzy_t structure. */
 
 static void
-sv_to_text_fuzzy (SV * text, int max_distance,
-                  text_fuzzy_t ** text_fuzzy_ptr)
+sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 {
     STRLEN length;
     unsigned char * stuff;
@@ -110,7 +111,7 @@ sv_to_text_fuzzy (SV * text, int max_distance,
 
     /* Allocate memory for "text_fuzzy". */
     get_memory (text_fuzzy, 1, text_fuzzy_t);
-    text_fuzzy->max_distance = max_distance;
+    text_fuzzy->max_distance = DEFAULT_MAX_DISTANCE;
 
     /* Copy the string in "text" into "text_fuzzy". */
     stuff = (unsigned char *) SvPV (text, length);

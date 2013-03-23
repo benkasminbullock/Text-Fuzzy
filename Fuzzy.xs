@@ -20,20 +20,54 @@ MODULE=Text::Fuzzy PACKAGE=Text::Fuzzy
 PROTOTYPES: ENABLE
 
 Text::Fuzzy
-new (class, search_term, max_distance = 10)
+new (class, search_term, ...)
 	const char * class;
 	SV * search_term;
-	int max_distance;
 CODE:
+	int i;
+	text_fuzzy_t * r;
+
 	/* Set the error handler in "text-fuzzy.c" to be the error
-	   handler defined in "text-fuzzy-perl.c". */
+	   handler defined in "text-fuzzy-perl.c". This should be in
+	   the "boot" routine rather than in the class initialization
+	   routine. */
+
 	text_fuzzy_error_handler = perl_error_handler;
 
-	sv_to_text_fuzzy (search_term, max_distance, & RETVAL);
+	sv_to_text_fuzzy (search_term, & r);
 
-        if (! RETVAL) {
+        if (! r) {
         	croak ("error making %s.\n", class);
 	}
+
+	for (i = 2; i < items; i++) {
+		SV * x;
+		char * p;
+		int len;
+
+		if (i >= items - 1) {
+			warn ("Odd number of parameters %d of %d", i, items);
+			break;
+		}
+
+		/* Read in parameters in the "form max => 22",
+		"no_exact => 1", etc. */
+
+		x = ST (i);
+		p = SvPV (x, len);
+		if (strncmp (p, "max", strlen ("max")) == 0) {
+			r->max_distance = SvIV (ST (i + 1));
+		}
+		else if (strncmp (p, "no_exact", strlen ("no_exact"))) {
+			r->no_exact = SvTRUE (ST (i + 1));
+		}
+		else {
+			warn ("Unknown parameter %s", p);
+		}
+		/* Plan to throw one away; you will anyway. */
+		i++;
+	}
+	RETVAL = r;
 OUTPUT:
         RETVAL
 

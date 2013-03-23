@@ -49,6 +49,15 @@ selected using the method L</transpositions_ok>.
 
 Create a new Text::Fuzzy object from the supplied word.
 
+The following parameters may be supplied:
+
+    my $tf = Text::Fuzzy->new ('Cinderella', max => 3);
+
+This sets the maximum edit distance, in the same way as
+
+    my $tf = Text::Fuzzy->new ('Cinderella');
+    $tf->set_max_distance (3);
+
 =head2 distance
 
     my $dist = $tf->distance ($word);
