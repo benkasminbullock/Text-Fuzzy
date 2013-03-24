@@ -532,13 +532,13 @@ FUNC (generate_alphabet) (text_fuzzy_t * text_fuzzy)
     OK;
 }
 
-/* Even if the user does not want to set a maximum distance, set one
-   anyway so that we can reject stuff without going into the dynamic
-   programming algorithm. Keep the user's value in
-   "text_fuzzy->max_distance_holder". */
-    
 FUNC (begin_scanning) (text_fuzzy_t * text_fuzzy)
 {
+    /* Even if the user does not want to set a maximum distance, set
+       one anyway so that we can reject stuff without going into the
+       dynamic programming algorithm. Keep the user's value in
+       "text_fuzzy->max_distance_holder". */
+    
     text_fuzzy->max_distance_holder = text_fuzzy->max_distance;
 
     if (text_fuzzy->max_distance == NO_MAX_DISTANCE) {
@@ -547,6 +547,12 @@ FUNC (begin_scanning) (text_fuzzy_t * text_fuzzy)
 	text_fuzzy->max_distance = INT_MAX / 2;
     }
     text_fuzzy->scanning = 1;
+
+    /* Set per-scan variables. */
+
+    text_fuzzy->distance = -1;
+    text_fuzzy->ualphabet.rejections = 0;
+    text_fuzzy->length_rejections = 0;
 
     OK;
 }

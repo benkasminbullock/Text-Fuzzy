@@ -199,16 +199,6 @@ text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
     }
 }
 
-/* Initialize tf for a search over an array. */
-
-static void
-initialize (text_fuzzy_t * tf)
-{
-    tf->distance = -1;
-    tf->ualphabet.rejections = 0;
-    tf->length_rejections = 0;
-}
-
 typedef struct candidate candidate_t;
 
 struct candidate {
@@ -233,8 +223,6 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
     }
 
     nearest = -1;
-
-    initialize (text_fuzzy);
 
     n_words = av_len (words) + 1;
 
