@@ -1,10 +1,12 @@
-\bf
-Faster fuzzy text search of a list
+\documentclass{article}
+\title{Faster fuzzy text search of a list}
+\author{Ben Bullock}
+\date{March 2013}
+\usepackage[pdftex]{graphicx}
+\begin{document}
 
-\rm
-Ben Bullock
+\maketitle
 
-2013-03-13
 
 In fuzzy text searching of a list of words for the closest match by
 Levenshtein edit distance.
@@ -17,6 +19,8 @@ distance of ten, $M=10$. This is large enough to accommodate almost
 any kind of spelling mistake. Having a maximum distance allows us to
 sidestep the highly computationally expensive dynamic programming
 algorithm.
+
+\includegraphics{output.png}
 
 As the list is searched, we keep a track of the lowest distance found
 and continually reduce the maximum distance to search for. This means
@@ -63,5 +67,5 @@ Applications to spell checker, misspelt web page detector.
 References
 \rm
 
-\end
+\end{document}
 

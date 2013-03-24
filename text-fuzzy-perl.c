@@ -1,5 +1,3 @@
-#define NO_MAX_DISTANCE -1
-
 /* Get memory via Perl. */
 
 #define get_memory(value, number, what) {                       \
@@ -26,8 +24,10 @@ int perl_error_handler (const char * file_name, int line_number,
 #define SMALL 0x1000
 #define HUGEBUGGY (SMALL * SMALL)
 
-/* Decide what length to make "text_fuzzy->b.unicode". It has to be
-   bigger than "minimum". */
+/* Decide how many ints to allocate for "text_fuzzy->b.unicode". It
+   has to be bigger than "minimum", the actual length of the
+   string. Also, we don't want to keep reallocating it, so make it
+   large enough for most of the cases (SMALL). */
 
 static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
 {
@@ -39,6 +39,9 @@ static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
     }
     r *= 2;
     if (r > HUGEBUGGY) {
+
+	/* Stupid value. */
+
 	croak ("String length %d longer than maximum allowed for, %d.\n",
 	       minimum, HUGEBUGGY);
     }
@@ -207,7 +210,7 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
     candidate_t first = {0};
     candidate_t * last;
 
-    max_distance_holder = text_fuzzy->max_distance;
+    TEXT_FUZZY (save_max_distance (text_fuzzy));
 
     if (wantarray) {
 	last = & first;
@@ -218,9 +221,13 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
     initialize (text_fuzzy);
 
     n_words = av_len (words) + 1;
+
+    /* Check for empty array. */
+
     if (n_words == 0) {
         return -1;
     }
+
     for (i = 0; i < n_words; i++) {
         SV * word;
         word = * av_fetch (words, i, 0);
@@ -240,7 +247,10 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
 	    }
 	    else {
 		if (text_fuzzy->distance == 0) {
-		    /* Stop the search if there is an exact match. */
+		    /* Stop the search if there is an exact
+		       match. Note that "no_exact" is checked in
+		       "compare_single", so we don't need to check it
+		       here. */
 		    break;
 		}
 	    }
@@ -250,18 +260,27 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
 
     /* Set the maximum distance back to the user's value. */
 
-    text_fuzzy->max_distance = max_distance_holder;
+    TEXT_FUZZY (restore_max_distance (text_fuzzy));
 
-    /* Go through the linked list and sort the wheat from the chaf. */
+    /* If the user wants an array of values, we go through the linked
+       list and sort the wheat from the chaf. */
 
     if (wantarray) {
 	candidate_t * c;
 	last = first.next;
 	while (last) {
 	    c = last;
+
 	    /* Set "last" to the next one here so that we do not
 	       access freed memory. */
 	    last = last->next;
+
+	    /* Some of the entries might be things which had a lower
+	       distance initially but then were beaten by later
+	       entries, so here we check that the entry actually does
+	       have the lowest distance, and only if so do we keep
+	       it. */
+
 	    if (c->distance == text_fuzzy->distance) {
 		SV * offset;
 

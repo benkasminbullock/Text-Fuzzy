@@ -1,0 +1,17 @@
+This is a test.
+This is a test.
+.p
+.Fb
+.ps 20
+this is another test.
+\s8UNIX\s10 runs on a \s8PDP-\s1011/45
+.sp
+Fandabidozi.
+.ft B
+Fandabizodi.
+.ft R
+this monkey
+\fBmonkey
+business
+that moneky
+\(*S(\(*a\(mu\(*b)\(->\(if

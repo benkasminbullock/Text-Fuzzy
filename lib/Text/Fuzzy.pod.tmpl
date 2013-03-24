@@ -51,12 +51,29 @@ Create a new Text::Fuzzy object from the supplied word.
 
 The following parameters may be supplied:
 
+=over
+
+=item max
+
     my $tf = Text::Fuzzy->new ('Cinderella', max => 3);
 
 This sets the maximum edit distance, in the same way as
+L</set_max_distance>.
 
     my $tf = Text::Fuzzy->new ('Cinderella');
     $tf->set_max_distance (3);
+
+=item no_exact
+
+    my $tf = Text::Fuzzy->new ('slipper', no_exact => 1);
+
+This switches on rejection of exact matches, in the same way as
+L</no_exact>:
+
+    my $tf = Text::Fuzzy->new ('slipper');
+    $tf->no_exact (1);
+
+=back
 
 =head2 distance
 
@@ -106,13 +123,17 @@ match.
     $tf->set_max_distance (3);
 
 Set the maximum edit distance of C<$tf>. The default maximum distance
-is 10. Set the maximum distance to a low value to improve the speed
-of searches over lists with L</nearest>, or to reject unlikely
+is 10. Set the maximum distance to a low value to improve the speed of
+searches over lists with L</nearest>, or to reject unlikely
 matches. When searching for a near match, anything with an edit
-distance of a value at least as high as the maximum is rejected
-without computing the exact distance. To compute exact distances, call
-this method with zero or undefined, the maximum edit distance is
-switched off, and whatever the nearest match is is accepted.
+distance of a value over the maximum is rejected without computing the
+exact distance. To compute exact distances, call this method without
+an argument:
+
+    $tf->set_max_distance ();
+
+The maximum edit distance is switched off, and whatever the nearest
+match is is accepted.
 
 =head2 get_max_distance
 

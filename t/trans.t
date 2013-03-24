@@ -20,7 +20,9 @@ is ($thing->distance ('bac'), 1, "correct distance with transpos");
 # have an edit distance of 2 using transposition edit distance, but 4
 # using the Levenshtein edit distance.
 
-my $thing2 = Text::Fuzzy->new ('あいうかきえおくけこ');
+my $thing2 = Text::Fuzzy->new (
+    'あいうかきえおくけこ',
+);
 
 $thing2->transpositions_ok (0);
 is ($thing2->distance ('あういかきおえくけこ'), 4, "correct distance without transpos");
@@ -54,8 +56,11 @@ done_testing ();
 sub xs_edistance
 {
     my ($left, $right) = @_;
-    my $tf = Text::Fuzzy->new ($left);
-    $tf->transpositions_ok (1);
+    my $tf = Text::Fuzzy->new (
+	$left,
+	trans => 1,
+    );
+
     my $d = $tf->distance ($right);
     return $d;
 }

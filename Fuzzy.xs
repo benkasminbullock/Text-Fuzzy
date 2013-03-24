@@ -58,8 +58,11 @@ CODE:
 		if (strncmp (p, "max", strlen ("max")) == 0) {
 			r->max_distance = SvIV (ST (i + 1));
 		}
-		else if (strncmp (p, "no_exact", strlen ("no_exact"))) {
-			r->no_exact = SvTRUE (ST (i + 1));
+		else if (strncmp (p, "no_exact", strlen ("no_exact")) == 0) {
+			r->no_exact = SvTRUE (ST (i + 1)) ? 1 : 0;
+		}
+		else if (strncmp (p, "trans", strlen ("trans")) == 0) {
+			r->transpositions_ok = SvTRUE (ST (i + 1)) ? 1 : 0;
 		}
 		else {
 			warn ("Unknown parameter %s", p);

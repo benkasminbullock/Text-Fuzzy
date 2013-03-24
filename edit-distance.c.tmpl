@@ -88,23 +88,20 @@ static int min (int a, int b)
 {
 #line
 [% IF ed_type == 'int' %]
-#line
-    const [% type %] * word1 = (const [% type %] *) tf->b.unicode;
-    int len1 = tf->b.ulength;
-    const [% type %] * word2 = (const [% type %] *) tf->text.unicode;
-    int len2 = tf->text.ulength;
+[% length = 'ulength' %]
+[% value = 'unicode' %]
 [% ELSIF ed_type == 'char' %]
-#line
-    const [% type %] * word1 = (const [% type %] *) tf->b.text;
-    int len1 = tf->b.length;
-    const [% type %] * word2 = (const [% type %] *) tf->text.text;
-    int len2 = tf->text.length;
+[% length = 'length' %]
+[% value = 'text' %]
 [% ELSE %]
-#line
     fprintf (stderr, "Unhandled type [% type %].\n");
     exit (1);
-[% END %]
+[% END # ed_type %]
 #line
+    const [% type %] * word1 = (const [% type %] *) tf->b.[% value %];
+    int len1 = tf->b.[% length %];
+    const [% type %] * word2 = (const [% type %] *) tf->text.[% value %];
+    int len2 = tf->text.[% length %];
 
 [%- IF trans %]
 
@@ -199,7 +196,7 @@ static int min (int a, int b)
 
      */
 
-    if (max >= 0) {
+    if (max != NO_MAX_DISTANCE) {
         large_value = max + 1;
     }
     else {
@@ -232,7 +229,7 @@ static int min (int a, int b)
         c1 = word1[i-1];
         min_j = 1;
         max_j = len2;
-        if (max >= 0) {
+        if (max != NO_MAX_DISTANCE) {
             if (i > max) {
                 min_j = i - max;
             }
@@ -293,7 +290,7 @@ static int min (int a, int b)
                 col_min = matrix[next][j];
             }
         }
-        if (max >= 0) {
+        if (max != NO_MAX_DISTANCE) {
             if (col_min > max) {
                 /* All the elements of the ith column are greater than the
                    maximum, so no match less than or equal to max can be
