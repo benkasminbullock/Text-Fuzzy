@@ -73,6 +73,13 @@ L</no_exact>:
     my $tf = Text::Fuzzy->new ('slipper');
     $tf->no_exact (1);
 
+=item trans
+
+    my $tf = Text::Fuzzy->new ('glass', trans => 1);
+
+This switches on transpositions, in the same way as
+L</transpositions_ok>.
+
 =back
 
 =head2 distance
@@ -145,13 +152,13 @@ maximum distance may be set with L</set_max_distance>.
 
 =head2 scan_file
 
-    $tf->scan_file ('/usr/share/dict/words');
+    my $nearest = $tf->scan_file ('/usr/share/dict/words');
 
 Scan a file to find the nearest match to the word used in
 L</new>. This assumes that the file contains lines of text separated
-by newlines and finds the closest match in the file.
-
-This does not currently support Unicode-encoded files.
+by newlines, and finds the closest match in the file. Its return value
+is a string rather than a line number. It cannot return an array of
+values. It does not currently support Unicode-encoded files.
 
 =head2 transpositions_ok
 
@@ -177,6 +184,24 @@ Use this to make L</nearest> ignore exact matches. For example,
 This prints
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact-out.txt" | xtidy %]
+
+=head1 FUNCTIONS
+
+=head2 fuzzy_index
+
+    my ($distance, $edits) = fuzzy_index ('piece', 'peace', 1);
+
+This returns the distance between the two arguments, and the edits
+necessary to transform the first one into the second one. C<$Edits> is
+a string containing the four letters I<k>, I<r>, I<d>, and I<i>, for
+"keep", "replace", "delete", and "insert" respectively. For example,
+for "piece" and "peace", C<$edits> contains "krrkk" for "keep,
+replace, replace, keep, keep".
+
+This does not handle transpositions.
+
+The third argument should be set to 1, otherwise it does a fuzzy
+search rather than calculating the distance.
 
 =head1 EXAMPLES
 

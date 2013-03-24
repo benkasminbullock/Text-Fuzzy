@@ -1,3 +1,8 @@
+/* This file is included into "Fuzzy.xs". The reason for having it as
+   a separate file from "Fuzzy.xs" is so that this file can easily be
+   edited in C mode without the C mode causing problems when editing
+   "Fuzzy.xs". */
+
 /* Get memory via Perl. */
 
 #define get_memory(value, number, what) {                       \
@@ -10,13 +15,19 @@
         text_fuzzy->n_mallocs++;                                \
     }
 
+/* Send a bad return value from one of the C routines in
+   "text-fuzzy.c" back to the user via Perl's error handlers. The
+   parameters "file_name" and "line_number" are the name of the C file
+   and the line number where the error occurred in the C file. These
+   are discarded by this error handler. */
+
 int perl_error_handler (const char * file_name, int line_number,
                         const char * format, ...)
 {
     va_list a;
-    warn ("%s:%d: ", file_name, line_number);
+    //    warn ("%s:%d: ", file_name, line_number);
     va_start (a, format);
-    vwarn (format, & a);
+    vcroak (format, & a);
     va_end (a);
     return 0;
 }
@@ -66,12 +77,15 @@ static void allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
 	/* "b" is bigger than what we allowed for. */
 
 	fake_length (text_fuzzy, b_length);
+
+	/* "Renew" is "realloc" for Perl. See "perldoc perlapi". */
+
 	Renew (text_fuzzy->b.unicode, text_fuzzy->b_unicode_length, int);
     }
 }
 
 /* Given a Perl string in "text" which is marked as being Unicode
-   characters, use the Perl stuff to turn it into a string of
+   characters, use Perl's Unicode handlers to turn it into a string of
    integers. */
 
 static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
@@ -98,6 +112,9 @@ static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
         utf += len;
     }
 }
+
+/* This is the default maximum distance which we use if the user does
+   not specify one. */
 
 #define DEFAULT_MAX_DISTANCE 10
 
@@ -263,7 +280,10 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
     TEXT_FUZZY (restore_max_distance (text_fuzzy));
 
     /* If the user wants an array of values, we go through the linked
-       list and sort the wheat from the chaf. */
+       list and collect them into "wantarray". Because we went through
+       the list of words from the top to the bottom, gathering
+       whatever was the minimum value at that point in the progress,
+       our list may contain false hits which must be discarded. */
 
     if (wantarray) {
 	candidate_t * c;
@@ -276,7 +296,7 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
 	    last = last->next;
 
 	    /* Some of the entries might be things which had a lower
-	       distance initially but then were beaten by later
+	       distance initially, but then were beaten by later
 	       entries, so here we check that the entry actually does
 	       have the lowest distance, and only if so do we keep
 	       it. */

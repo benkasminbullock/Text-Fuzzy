@@ -1,3 +1,7 @@
+0.10_04
+
+* new (max => 1, trans => 1, no_exact => 1)
+
 0.10_02
 
 * Strip out max_distance testing code in transpositions (was faulty).

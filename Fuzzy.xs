@@ -19,6 +19,13 @@ MODULE=Text::Fuzzy PACKAGE=Text::Fuzzy
 
 PROTOTYPES: ENABLE
 
+BOOT:
+	/* Set the error handler in "text-fuzzy.c" to be the error
+	   handler defined in "text-fuzzy-perl.c". */
+
+	text_fuzzy_error_handler = perl_error_handler;
+
+
 Text::Fuzzy
 new (class, search_term, ...)
 	const char * class;
@@ -27,18 +34,14 @@ CODE:
 	int i;
 	text_fuzzy_t * r;
 
-	/* Set the error handler in "text-fuzzy.c" to be the error
-	   handler defined in "text-fuzzy-perl.c". This should be in
-	   the "boot" routine rather than in the class initialization
-	   routine. */
-
-	text_fuzzy_error_handler = perl_error_handler;
-
 	sv_to_text_fuzzy (search_term, & r);
 
         if (! r) {
         	croak ("error making %s.\n", class);
 	}
+
+	/* Loop over the parameters in "...". The first two terms are
+	   "class" and "search_term", so we start from 2 here. */
 
 	for (i = 2; i < items; i++) {
 		SV * x;
@@ -129,6 +132,7 @@ CODE:
 OUTPUT:
 	RETVAL
 
+
 void
 nearest (tf, words)
 	Text::Fuzzy tf;
@@ -141,13 +145,21 @@ PPCODE:
 	wantarray = 0;
 
 	if (GIMME_V == G_ARRAY) {
+
+	   	/* The user wants an array containing all of the
+	   	nearest values. */
+
 		wantarray = newAV ();
 		n = text_fuzzy_av_distance (tf, words, wantarray);
 	}
 	else {
+		/* Even in void context, we still do the search, in
+		   case the user just wants to know the minimum
+		   distance and ignores the actual values. */
+
 		n = text_fuzzy_av_distance (tf, words, 0);
 	}
-	/* We could check for void context and return here I suppose ... */
+
 	if (wantarray) {
 		EXTEND (SP, av_len (wantarray));
 		for (i = 0; i <= av_len (wantarray); i++) {
@@ -158,6 +170,7 @@ PPCODE:
             PUSHs (sv_2mortal (newSViv (n)));
         }
 
+
 int
 last_distance (tf)
 	Text::Fuzzy tf;
@@ -165,6 +178,7 @@ CODE:
 	RETVAL = tf->distance;
 OUTPUT:
 	RETVAL
+
 
 SV *
 unicode_length (tf)
@@ -191,6 +205,7 @@ CODE:
 		tf->use_ualphabet = 0;
 	}
 
+
 int
 ualphabet_rejections (tf)
 	Text::Fuzzy tf;
@@ -209,12 +224,6 @@ OUTPUT:
         RETVAL
 
 
-void
-DESTROY (tf)
-	Text::Fuzzy tf;
-CODE:
-	text_fuzzy_free (tf);
-
 char *
 scan_file (tf, file_name)
 	Text::Fuzzy tf;
@@ -224,9 +233,18 @@ CODE:
 OUTPUT:
         RETVAL
 
+
 void
 no_exact (tf, yes_no)
 	Text::Fuzzy tf;
 	SV * yes_no;
 CODE:
 	tf->no_exact = SvTRUE (yes_no);
+
+
+void
+DESTROY (tf)
+	Text::Fuzzy tf;
+CODE:
+	text_fuzzy_free (tf);
+
