@@ -222,12 +222,11 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
 {
     int i;
     int n_words;
-    int max_distance_holder;
     int nearest;
     candidate_t first = {0};
     candidate_t * last;
 
-    TEXT_FUZZY (save_max_distance (text_fuzzy));
+    TEXT_FUZZY (begin_scanning (text_fuzzy));
 
     if (wantarray) {
 	last = & first;
@@ -251,7 +250,6 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
         sv_to_text_fuzzy_string (word, text_fuzzy);
         TEXT_FUZZY (compare_single (text_fuzzy));
         if (text_fuzzy->found) {
-            text_fuzzy->max_distance = text_fuzzy->distance;
             nearest = i;
 	    if (wantarray) {
 		candidate_t * c;
@@ -277,7 +275,7 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
 
     /* Set the maximum distance back to the user's value. */
 
-    TEXT_FUZZY (restore_max_distance (text_fuzzy));
+    TEXT_FUZZY (end_scanning (text_fuzzy));
 
     /* If the user wants an array of values, we go through the linked
        list and collect them into "wantarray". Because we went through

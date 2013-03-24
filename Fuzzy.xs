@@ -34,6 +34,8 @@ CODE:
 	int i;
 	text_fuzzy_t * r;
 
+	r = 0;
+
 	sv_to_text_fuzzy (search_term, & r);
 
         if (! r) {
@@ -46,10 +48,11 @@ CODE:
 	for (i = 2; i < items; i++) {
 		SV * x;
 		char * p;
-		int len;
+		unsigned int len;
 
 		if (i >= items - 1) {
-			warn ("Odd number of parameters %d of %d", i, items);
+			warn ("Odd number of parameters %d of %d",
+			      i, (int) items);
 			break;
 		}
 
@@ -57,7 +60,7 @@ CODE:
 		"no_exact => 1", etc. */
 
 		x = ST (i);
-		p = SvPV (x, len);
+		p = (char *) SvPV (x, len);
 		if (strncmp (p, "max", strlen ("max")) == 0) {
 			r->max_distance = SvIV (ST (i + 1));
 		}
