@@ -164,12 +164,16 @@ static int min (int a, int b)
 	    //	    printf ("tripped at %d %d\n", matrix[i+1][len2+1], tf->max_distance);
 	    return INT_MAX / 0x1000;
 	}
+	else {
+	    printf ("NOT tripped at %d %d\n", matrix[i+1][len2+1], tf->max_distance);
+	}
 
 	find (head, word1[i-1])->value = i;
     }
 
     dict_free (head);
 
+    printf ("Final return value %d\n", matrix[len1+1][len2+1]);
     return matrix[len1 + 1][len2 + 1];
 
 [%- ELSE # trans %]
