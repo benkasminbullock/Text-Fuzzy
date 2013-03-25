@@ -11,3 +11,4 @@ MANIFEST
 algorithm.dvi
 algorithm.log
 Text-Fuzzy-*/*
+ppport.h

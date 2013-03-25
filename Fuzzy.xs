@@ -1,6 +1,7 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include "ppport.h"
 
 #define FAIL_STATUS
 #define ERROR_HANDLER perl_error_handler
@@ -162,13 +163,17 @@ PPCODE:
 	}
 
 	if (wantarray) {
+		SV * e;
 		EXTEND (SP, av_len (wantarray));
 		for (i = 0; i <= av_len (wantarray); i++) {
-			PUSHs (sv_2mortal (*(av_fetch (wantarray, i, 0))));
+			e = * av_fetch (wantarray, i, 0);
+			SvREFCNT_inc_simple_void_NN (e);
+			PUSHs (sv_2mortal (e));
 		}
+		av_undef (wantarray);
         }
         else {
-            PUSHs (sv_2mortal (newSViv (n)));
+            	PUSHs (sv_2mortal (newSViv (n)));
         }
 
 
