@@ -34,11 +34,6 @@ int perl_error_handler (const char * file_name, int line_number,
 
 #define SMALL 0x1000
 
-/* This should be documented and it should be in a configuration
-   file. */
-
-#define HUGEBUGGY (SMALL * SMALL)
-
 /* Decide how many ints to allocate for "text_fuzzy->b.unicode". It
    has to be bigger than "minimum", the actual length of the
    string. Also, we don't want to keep reallocating it, so make it
@@ -53,12 +48,12 @@ static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
 	return;
     }
     r *= 2;
-    if (r > HUGEBUGGY) {
+    if (r > STRING_MAX_CHARS) {
 
 	/* Stupid value. */
 
 	croak ("String length %d longer than maximum allowed for, %d.\n",
-	       minimum, HUGEBUGGY);
+	       minimum, STRING_MAX_CHARS);
     }
     goto again;
 }
@@ -116,23 +111,6 @@ static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
         utf += len;
     }
 }
-
-/* This is the default maximum distance which we use if the user does
-   not specify one. */
-
-/*  _                           
-   | |__   ___   __ _ _   _ ___ 
-   | '_ \ / _ \ / _` | | | / __|
-   | |_) | (_) | (_| | |_| \__ \
-   |_.__/ \___/ \__, |\__,_|___/
-                |___/            */
-
-/* Having this value here is a bug waiting to happen. The value should
-   be in a single configuation file somewhere, and it should be copied
-   from the configuration file into here, and into the documentation,
-   and into the relevant test file. */
-
-#define DEFAULT_MAX_DISTANCE 10
 
 /* Convert a Perl SV into the text_fuzzy_t structure. */
 

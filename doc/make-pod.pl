@@ -14,9 +14,25 @@ my $pod = 'Fuzzy.pod';
 my $input = "$FindBin::Bin/../lib/Text/$pod.tmpl";
 my $output = "$FindBin::Bin/../lib/Text/$pod";
 
+open my $config, "<", "$FindBin::Bin/../config" or die $!;
+my %config;
+while (<$config>) {
+    if (/^\s*#/ || /^\s*$/) {
+	next;
+    }
+    if (! /([A-Z_]+)\s+(.*)/) {
+	die "$.: Bad line $_";
+    }
+    my ($key, $value) = ($1, $2);
+    $config{$key} = $value;
+}
+
+close $config or die $!;
+
 # Template toolkit variable holder
 
 my %vars;
+$vars{config} = \%config;
 
 my $tt = Template->new (
     ABSOLUTE => 1,

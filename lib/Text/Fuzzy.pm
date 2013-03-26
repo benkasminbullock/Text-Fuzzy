@@ -29,6 +29,11 @@ sub dl_load_flags
 
 my $verbose = undef;
 
+sub distance_edits
+{
+    return fuzzy_index (@_, 1);
+}
+
 sub fuzzy_index
 {
     my ($needle, $haystack, $distance) = @_;

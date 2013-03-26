@@ -3,18 +3,8 @@ use warnings;
 use strict;
 use Text::Fuzzy;
 
-my @funky_words = qw/
-nice
-funky
-rice
-gibbon
-lice
-graham
-garden
-/;
-
+my @funky_words = qw/nice funky rice gibbon lice graeme garden/;
 my $tf = Text::Fuzzy->new ('dice');
-
 my @nearest = $tf->nearest (\@funky_words);
 
 print "The nearest words are ";

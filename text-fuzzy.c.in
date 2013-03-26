@@ -4,6 +4,7 @@
 /* For INT_MAX, INT_MIN. */
 #include <limits.h>
 
+#include "config.h"
 #include "text-fuzzy.h"
 
 /* All of the following are automatically generated from
@@ -18,11 +19,6 @@
    "C::Maker" to start writing "text-fuzzy.h". */
 
 #ifdef HEADER
-
-/* If tf->max_distance is set to this value, no maximum distance is
-   used. */
-
-#define NO_MAX_DISTANCE -1
 
 /* Alphabet over unicode characters. */
 
@@ -137,10 +133,6 @@ typedef struct text_fuzzy {
 text_fuzzy_t;
 
 #endif /* HEADER */
-
-/* The maximum feasible size of the Unicode alphabet. */
-
-#define UALPHABET_MAX_SIZE 0x10000
 
 /* The following calculations need to be done twice, first when
    creating the alphabet and second when looking up a new character in

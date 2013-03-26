@@ -1,0 +1,20 @@
+# This file contains configuration parameters for Text::Fuzzy.
+
+# If tf->max_distance is set to this value, no maximum distance is
+# used.
+
+NO_MAX_DISTANCE -1
+
+# This is the default maximum distance which we use if the user does
+# not specify one.
+
+DEFAULT_MAX_DISTANCE 10
+
+# This is the largest we will allow a string to be. It limits the
+# allocation of memory for the Unicode value of tf.b.unicode.
+
+STRING_MAX_CHARS (0x1000 * 0x1000)
+
+# The maximum feasible size of the Unicode alphabet.
+
+UALPHABET_MAX_SIZE 0x10000

@@ -20,13 +20,17 @@ for my $trans (0, 1) {
 }
 
 for my $suffix (qw/log dvi/) {
-    push @files, "algorithm.$suffix";
+    push @files, "doc/algorithm.$suffix";
 }
 
 for my $file (@files) {
     if (-f $file) {
 	unlink $file;
     }
+}
+my $cfgh = "config.h";
+if (-f $cfgh) {
+unlink ($cfgh);
 }
 
 do_system ("rm -rf Text-Fuzzy-0.*");

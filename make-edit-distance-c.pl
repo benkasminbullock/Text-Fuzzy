@@ -44,6 +44,37 @@ for my $trans (0, 1) {
     }
 }
 
+# Write "config.h" from "config".
+
+open my $config, "<", "$FindBin::Bin/config" or die $!;
+my %config;
+while (<$config>) {
+    if (/^\s*#/ || /^\s*$/) {
+	next;
+    }
+    if (! /([A-Z_]+)\s+(.*)/) {
+	die "$.: Bad line $_";
+    }
+    my ($key, $value) = ($1, $2);
+    $config{$key} = $value;
+}
+
+close $config or die $!;
+
+open my $cfgh, ">", "$FindBin::Bin/config.h" or die $!;
+my $w = 'TEXT_FUZZY_CONFIG';
+print $cfgh <<EOF;
+#ifndef $w
+#define $w
+EOF
+for my $key (sort keys %config) {
+    print $cfgh "#define $key $config{$key}\n";
+}
+print $cfgh <<EOF;
+#endif /* ndef $w */
+EOF
+close $cfgh or die $!;
+
 exit;
 
 sub do_file

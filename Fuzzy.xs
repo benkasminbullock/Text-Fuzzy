@@ -6,6 +6,7 @@
 #define FAIL_STATUS
 #define ERROR_HANDLER perl_error_handler
 
+#include "config.h"
 #include "text-fuzzy.h"
 #include "text-fuzzy-perl.c"
 
@@ -152,6 +153,8 @@ PPCODE:
 	   	nearest values. */
 
 		wantarray = newAV ();
+		/* Free the array */
+		sv_2mortal ((SV *) wantarray);
 		n = text_fuzzy_av_distance (tf, words, wantarray);
 	}
 	else {
@@ -170,7 +173,6 @@ PPCODE:
 			SvREFCNT_inc_simple_void_NN (e);
 			PUSHs (sv_2mortal (e));
 		}
-		av_undef (wantarray);
         }
         else {
             	PUSHs (sv_2mortal (newSViv (n)));

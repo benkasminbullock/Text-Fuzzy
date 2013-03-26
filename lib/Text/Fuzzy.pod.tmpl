@@ -23,9 +23,8 @@ nearest entry. It can handle either byte strings or character strings
 (strings containing Unicode), treating each Unicode character as a
 single entity.
 
-It is designed for high performance in searching for the nearest to a
-particular search term over an array of words or a file, by reducing
-the number of calculations which needs to be performed.
+The module offers high performance search for the nearest to a
+particular search term over an array of words or a file.
 
 It supports either bytewise edit distances or Unicode-based edit distances:
 
@@ -130,12 +129,12 @@ match.
     $tf->set_max_distance (3);
 
 Set the maximum edit distance of C<$tf>. The default maximum distance
-is 10. Set the maximum distance to a low value to improve the speed of
-searches over lists with L</nearest>, or to reject unlikely
-matches. When searching for a near match, anything with an edit
-distance of a value over the maximum is rejected without computing the
-exact distance. To compute exact distances, call this method without
-an argument:
+is [% config.DEFAULT_MAX_DISTANCE %]. Set the maximum distance to a
+low value to improve the speed of searches over lists with
+L</nearest>, or to reject unlikely matches. When searching for a near
+match, anything with an edit distance of a value over the maximum is
+rejected without computing the exact distance. To compute exact
+distances, call this method without an argument:
 
     $tf->set_max_distance ();
 
@@ -147,8 +146,9 @@ match is is accepted.
     # Get the maximum edit distance.
     print "The max distance is ", $tf->get_max_distance (), "\n";
 
-Get the maximum edit distance of C<$tf>. The default is set to 10. The
-maximum distance may be set with L</set_max_distance>.
+Get the maximum edit distance of C<$tf>. The default is set to 
+[% config.DEFAULT_MAX_DISTANCE %]. The maximum distance may be set with
+L</set_max_distance>.
 
 =head2 scan_file
 
@@ -177,7 +177,8 @@ transpositions:
 
     $tf->no_exact (1);
 
-Use this to make L</nearest> ignore exact matches. For example,
+This is a flag to L</nearest> which makes it ignore exact matches. For
+example,
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact.pl" | xtidy %]
 
@@ -185,23 +186,23 @@ This prints
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact-out.txt" | xtidy %]
 
+This is for the case of searching over an array which contains the
+searched-for item itself.
+
 =head1 FUNCTIONS
 
-=head2 fuzzy_index
+=head2 distance_edits
 
-    my ($distance, $edits) = fuzzy_index ('piece', 'peace', 1);
+    my ($distance, $edits) = distance_edits ('piece', 'peace');
 
-This returns the distance between the two arguments, and the edits
-necessary to transform the first one into the second one. C<$Edits> is
-a string containing the four letters I<k>, I<r>, I<d>, and I<i>, for
-"keep", "replace", "delete", and "insert" respectively. For example,
-for "piece" and "peace", C<$edits> contains "krrkk" for "keep,
-replace, replace, keep, keep".
+This returns the edit distance between the two arguments, and the
+edits necessary to transform the first one into the second
+one. C<$Edits> is a string containing the four letters I<k>, I<r>,
+I<d>, and I<i>, for "keep", "replace", "delete", and "insert"
+respectively. For example, for "piece" and "peace", C<$edits> contains
+"krrkk" for "keep, replace, replace, keep, keep".
 
 This does not handle transpositions.
-
-The third argument should be set to 1, otherwise it does a fuzzy
-search rather than calculating the distance.
 
 =head1 EXAMPLES
 
@@ -265,8 +266,9 @@ L<http://code.activestate.com/ppm/Text-Fuzzy/>.
 
 =head1 PRIVATE METHODS
 
-These methods are not expected to be useful for the general user. They
-may be useful in benchmarking the module and checking its correctness.
+The general user should not need any of these methods. They are not
+expected to be useful for the general user. They may be useful in
+benchmarking the module and checking its correctness.
 
 =head2 no_alphabet
 
