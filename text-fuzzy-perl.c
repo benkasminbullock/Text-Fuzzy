@@ -33,6 +33,10 @@ int perl_error_handler (const char * file_name, int line_number,
 }
 
 #define SMALL 0x1000
+
+/* This should be documented and it should be in a configuration
+   file. */
+
 #define HUGEBUGGY (SMALL * SMALL)
 
 /* Decide how many ints to allocate for "text_fuzzy->b.unicode". It
@@ -115,6 +119,18 @@ static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
 
 /* This is the default maximum distance which we use if the user does
    not specify one. */
+
+/*  _                           
+   | |__   ___   __ _ _   _ ___ 
+   | '_ \ / _ \ / _` | | | / __|
+   | |_) | (_) | (_| | |_| \__ \
+   |_.__/ \___/ \__, |\__,_|___/
+                |___/            */
+
+/* Having this value here is a bug waiting to happen. The value should
+   be in a single configuation file somewhere, and it should be copied
+   from the configuration file into here, and into the documentation,
+   and into the relevant test file. */
 
 #define DEFAULT_MAX_DISTANCE 10
 

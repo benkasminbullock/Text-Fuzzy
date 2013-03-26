@@ -26,6 +26,8 @@ ok ($nearest == 3, "Scalar context gives last value");
 $tf->set_max_distance (1);
 $nearest = $tf->nearest (\@words);
 cmp_ok ($nearest, '>=', 0, "Find word when maximum distance = distance");
+my $md = $tf->get_max_distance ();
+is ($md, 1, "max distance is one");
 
 my @nearest = $tf->nearest (\@words);
 
@@ -55,5 +57,12 @@ $tf2->set_max_distance (1);
 @nearest = $tf2->nearest (\@funky_words);
 
 cmp_ok (scalar @nearest, '==', 0, "Empty list returned for non-matching");
+
+my $md2 = $tf2->get_max_distance ();
+is ($md2, 1, "max distance is one");
+
+$tf2->set_max_distance (3);
+$tf2->nearest (\@funky_words);
+is ($tf2->get_max_distance (), 3, "Test value of max distance");
 
 done_testing ();

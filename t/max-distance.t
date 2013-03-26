@@ -17,13 +17,14 @@ $tf->set_max_distance ();
 $d = $tf->distance ($notmatch);
 is ($d, length ($notmatch));
 
+my $md = $tf->get_max_distance ();
+ok (! defined $md, "max distance is undefined");
+
 # Test whether we found it in the list.
 
 my @list = ($notmatch);
 my $found = $tf->nearest (\@list);
 is ($found, 0);
 is ($tf->last_distance (), length ($notmatch));
-
-
 
 done_testing ();

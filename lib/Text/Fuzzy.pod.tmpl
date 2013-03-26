@@ -322,6 +322,16 @@ entries of the array which were rejected because the length difference
 between them and the target string was larger than the maximum
 distance allowed.
 
+=head2 get_max_distance
+
+    my $max_distance = $tf->get_max_distance ();
+
+This returns the value set by L</set_max_distance> or by the C<max>
+parameter in L</new>. Its value should never be any different from the
+user's value, so this is only useful for checking. The maximum
+Levenshtein distance is altered within L</nearest> and this checks it
+has been reset.
+
 =head1 ACKNOWLEDGEMENTS
 
 The edit distance including transpositions was contributed by Nick
