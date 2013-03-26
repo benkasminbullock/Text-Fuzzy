@@ -135,16 +135,6 @@ The default is to switch off the maximum distance.
 Get the maximum edit distance of C<$tf>. The maximum distance may be
 set with L</set_max_distance>.
 
-=head2 scan_file
-
-    my $nearest = $tf->scan_file ('/usr/share/dict/words');
-
-Scan a file to find the nearest match to the word used in
-L</new>. This assumes that the file contains lines of text separated
-by newlines, and finds the closest match in the file. Its return value
-is a string rather than a line number. It cannot return an array of
-values. It does not currently support Unicode-encoded files.
-
 =head2 transpositions_ok
 
     $tf->transpositions_ok (1);
@@ -173,6 +163,16 @@ This prints
 
 This is for the case of searching over an array which contains the
 searched-for item itself.
+
+=head2 scan_file
+
+    my $nearest = $tf->scan_file ('/usr/share/dict/words');
+
+Scan a file to find the nearest match to the word used in
+L</new>. This assumes that the file contains lines of text separated
+by newlines, and finds the closest match in the file. Its return value
+is a string rather than a line number. It cannot return an array of
+values. It does not currently support Unicode-encoded files.
 
 =head1 FUNCTIONS
 
