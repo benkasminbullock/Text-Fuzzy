@@ -177,6 +177,27 @@ sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * tf)
 	tf->b.ulength = sv_len_utf8 (word);
 	allocate_b_unicode (tf, tf->b.ulength);
 	sv_to_int_ptr (word, & tf->b);
+	if (! tf->unicode) {
+
+	    /* Make a non-Unicode version of b. */
+
+	    int i;
+
+	    tf->b.length = tf->b.ulength;
+	    for (i = 0; i < tf->b.ulength; i++) {
+		int c;
+
+		c = tf->b.unicode[i];
+		if (c <= 0x80) {
+		    tf->b.text[i] = c;
+		}
+		else {
+		    /* Put a non-matching character in there. */
+
+		    tf->b.text[i] = tf->invalid_char;
+		}
+	    }
+	}
     }
 }
 

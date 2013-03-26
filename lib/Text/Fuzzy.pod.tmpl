@@ -71,6 +71,10 @@ L</transpositions_ok>.
 The return value is the edit distance to C<$word> from the word used
 to create the object in L</new>.
 
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/distance.pl" | xtidy %]
+
+If you also want to get which edits are used to convert the words
+
 =head2 nearest
 
     my $index = $tf->nearest (\@words);
