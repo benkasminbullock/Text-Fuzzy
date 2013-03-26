@@ -32,7 +32,7 @@ my $nearest = $tf->nearest (\@titles);
 is ($nearest, 1, "test unicode versus non-unicode");
 
 my $md = $tf->get_max_distance ();
-is ($md, 10, "max distance is default");
+is ($md, undef, "max distance is default");
 
 
 done_testing ();

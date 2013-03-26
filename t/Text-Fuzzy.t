@@ -9,7 +9,7 @@ ok ($tf);
 ok (ref $tf eq 'Text::Fuzzy');
 my $d = $tf->distance ('biggles');
 is ($d, 1, "Distance between biggles and buggles is 1");
-is ($tf->get_max_distance (), 10, "Expected maximum distance");
+is ($tf->get_max_distance (), undef, "Expected maximum distance");
 my $word1 = 'bongos';
 is ($tf->distance ($word1), 4, "Distance between buggles and $word1 is 4");
 my $tf2 = Text::Fuzzy->new ('chuggles', max => 5);

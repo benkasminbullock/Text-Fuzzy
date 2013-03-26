@@ -63,6 +63,9 @@ CODE:
 		p = (char *) SvPV (x, len);
 		if (strncmp (p, "max", strlen ("max")) == 0) {
 			r->max_distance = SvIV (ST (i + 1));
+			if (r->max_distance < 0) {
+				r->max_distance = NO_MAX_DISTANCE;
+			}
 		}
 		else if (strncmp (p, "no_exact", strlen ("no_exact")) == 0) {
 			r->no_exact = SvTRUE (ST (i + 1)) ? 1 : 0;

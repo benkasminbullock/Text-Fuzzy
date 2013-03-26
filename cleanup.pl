@@ -23,14 +23,13 @@ for my $suffix (qw/log dvi/) {
     push @files, "doc/algorithm.$suffix";
 }
 
+my $cfgh = "config.h";
+push @files, $cfgh;
+
 for my $file (@files) {
     if (-f $file) {
 	unlink $file;
     }
-}
-my $cfgh = "config.h";
-if (-f $cfgh) {
-unlink ($cfgh);
 }
 
 do_system ("rm -rf Text-Fuzzy-0.*");

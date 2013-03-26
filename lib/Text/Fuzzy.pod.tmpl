@@ -6,39 +6,22 @@ Text::Fuzzy - partial or fuzzy string matching using edit distances
 
 =head1 SYNOPSIS
 
-    use Text::Fuzzy;
-    my $tf = Text::Fuzzy->new ('boboon');
-    print "Distance is ", $tf->distance ('babboon'), "\n";
-    # Prints "Distance is 2"
-    my @words = qw/the quick brown fox jumped over the lazy dog/;
-    my $nearest = $tf->nearest (\@words);
-    print "Nearest array entry is ", $words[$nearest], "\n";
-    # Prints "Nearest array entry is brown"
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/synopsis.pl" | xtidy %]
 
 =head1 DESCRIPTION
 
-This module calculates the Levenshtein edit distance between words,
-and does edit-distance-based searching of arrays and files to find the
-nearest entry. It can handle either byte strings or character strings
-(strings containing Unicode), treating each Unicode character as a
-single entity.
+This module calculates edit distances between words, and searches
+arrays and files to find the nearest entry by edit distance. It
+handles both byte strings and character strings (strings containing
+Unicode), treating each Unicode character as a single entity.
 
-The module offers high performance search for the nearest to a
-particular search term over an array of words or a file.
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/unicode.pl" | xtidy %]
 
-It supports either bytewise edit distances or Unicode-based edit distances:
-
-    use utf8;
-    my $tf = Text::Fuzzy->new ('あいうえお☺');
-    print $tf->distance ('うえお☺'), "\n";
-    # prints "2".
-
-The default edit distance is the Levenshtein edit distance, which
-applies an equal weight of one to additions (C<cat> -> C<cart>),
-substitutions (C<cat> -> C<cut>), and deletions (C<carp> ->
-C<cap>). Optionally, the Damerau-Levenshtein edit distance, which
-additionally allows transpositions (C<salt> -> C<slat>) may be
-selected using the method L</transpositions_ok>.
+The default is the Levenshtein edit distance, which applies an equal
+weight of one to additions (C<cat> -> C<cart>), substitutions (C<cat>
+-> C<cut>), and deletions (C<carp> -> C<cap>). The Damerau-Levenshtein
+edit distance, which allows transpositions (C<salt> -> C<slat>) may
+also be selected.
 
 =head1 METHODS
 
@@ -56,7 +39,7 @@ The following parameters may be supplied:
 
     my $tf = Text::Fuzzy->new ('Cinderella', max => 3);
 
-This sets the maximum edit distance, in the same way as
+This sets the maximum edit distance allowed, in the same way as
 L</set_max_distance>.
 
     my $tf = Text::Fuzzy->new ('Cinderella');
@@ -85,8 +68,8 @@ L</transpositions_ok>.
 
     my $dist = $tf->distance ($word);
 
-Return the edit distance to C<$word> from the word used to create the
-object in L</new>.
+The return value is the edit distance to C<$word> from the word used
+to create the object in L</new>.
 
 =head2 nearest
 
@@ -128,8 +111,7 @@ match.
     # Set the max distance.
     $tf->set_max_distance (3);
 
-Set the maximum edit distance of C<$tf>. The default maximum distance
-is [% config.DEFAULT_MAX_DISTANCE %]. Set the maximum distance to a
+Set the maximum edit distance of C<$tf>. Set the maximum distance to a
 low value to improve the speed of searches over lists with
 L</nearest>, or to reject unlikely matches. When searching for a near
 match, anything with an edit distance of a value over the maximum is
@@ -141,14 +123,17 @@ distances, call this method without an argument:
 The maximum edit distance is switched off, and whatever the nearest
 match is is accepted.
 
+The default is to switch off the maximum distance.
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/max-dist.pl" | xtidy %]
+
 =head2 get_max_distance
 
     # Get the maximum edit distance.
     print "The max distance is ", $tf->get_max_distance (), "\n";
 
-Get the maximum edit distance of C<$tf>. The default is set to 
-[% config.DEFAULT_MAX_DISTANCE %]. The maximum distance may be set with
-L</set_max_distance>.
+Get the maximum edit distance of C<$tf>. The maximum distance may be
+set with L</set_max_distance>.
 
 =head2 scan_file
 
@@ -323,16 +308,6 @@ After running L</nearest> over an array, this returns the number of
 entries of the array which were rejected because the length difference
 between them and the target string was larger than the maximum
 distance allowed.
-
-=head2 get_max_distance
-
-    my $max_distance = $tf->get_max_distance ();
-
-This returns the value set by L</set_max_distance> or by the C<max>
-parameter in L</new>. Its value should never be any different from the
-user's value, so this is only useful for checking. The maximum
-Levenshtein distance is altered within L</nearest> and this checks it
-has been reset.
 
 =head1 ACKNOWLEDGEMENTS
 

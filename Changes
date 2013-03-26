@@ -1,17 +1,10 @@
-0.10_04
+0.11
 
-* new (max => 1, trans => 1, no_exact => 1)
-
-0.10_02
-
-* Strip out max_distance testing code in transpositions (was faulty).
-* Performance improvement for Unicode
-* Document support options
-
-0.10_01
-
-* Transpositions (Damerau-Levenshtein edit distance)
-* Alphabetization of Unicode strings via bitmap
+* New syntax for "new", with parameters such as max => 1, trans => 1,
+  or no_exact => 1.
+* Improved performance for Unicode searches.
+* Transposition support
+* Maximum edit distance is now switched off by default.
 
 0.09
 

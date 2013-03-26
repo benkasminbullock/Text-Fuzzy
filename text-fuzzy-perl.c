@@ -125,7 +125,7 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 
     /* Allocate memory for "text_fuzzy". */
     get_memory (text_fuzzy, 1, text_fuzzy_t);
-    text_fuzzy->max_distance = DEFAULT_MAX_DISTANCE;
+    text_fuzzy->max_distance = NO_MAX_DISTANCE;
 
     /* Copy the string in "text" into "text_fuzzy". */
     stuff = (unsigned char *) SvPV (text, length);

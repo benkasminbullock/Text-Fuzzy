@@ -32,7 +32,7 @@ exit;
 sub search
 {
     my ($silly) = @_;
-    my $search = Text::Fuzzy->new ($silly);
+    my $search = Text::Fuzzy->new ($silly, max => 10);
     my $n = $search->nearest (\@kana);
     if ($n >= 0) {
 	printf "$silly nearest is $kana[$n] (distance %d)\n",

@@ -71,6 +71,10 @@ sub xtidy
     $text =~ s/use\s+(strict|warnings|utf8);\s+//g;
     $text =~ s/^binmode\s+STDOUT.*?utf8.*?\s+$//gm;
 
+    # Replace tabs with spaces.
+
+    $text =~ s/ {0,7}\t/        /g;
+
     # Add indentation.
 
     $text =~ s/^(.*)/    $1/gm;
