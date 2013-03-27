@@ -27,4 +27,12 @@ my $found = $tf->nearest (\@list);
 is ($found, 0);
 is ($tf->last_distance (), length ($notmatch));
 
+my $tfc = Text::Fuzzy->new ('calamari', max => 1);
+my @words = qw/Have you ever kissed in the moonlight
+	       In the grand and glorious
+	       Gay notorious
+	       South American Way?/;
+my $index = $tfc->nearest (\@words);
+is ($index, undef);
+
 done_testing ();

@@ -5,6 +5,8 @@
 * Improved performance for Unicode searches.
 * Transposition support
 * Maximum edit distance is now switched off by default.
+* "nearest" with a maximum distance set returns "undef" rather than -1
+  on failure.
 
 0.09
 

@@ -73,22 +73,25 @@ to create the object in L</new>.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/distance.pl" | xtidy %]
 
-If you also want to get which edits are used to convert the words
+To know which edits are used to convert the words, use
+L</distance_edits>.
 
 =head2 nearest
 
     my $index = $tf->nearest (\@words);
+    my $nearest_word = $words[$index];
 
 This returns the index of the nearest element in the array to the
-argument to L</new>. If none of the elements are less than the maximum
-distance away from the word, C<$index> is -1.
+argument to L</new>. 
 
-    if ($index >= 0) {
-        printf "Found at $index, distance was %d.\n",
-            $tf->last_distance ();
-    }
+It is possible to set a maximum edit distance, beyond which entries
+are rejected, using L</set_max_distance> or the C<max> parameter to
+L</new>.  In this case, if B<none> of the elements of C<@words> are
+less than the maximum distance away from the word, C<$index> is the
+undefined value, so when setting a maximum distance, check the return
+value of index using C<defined>.
 
-Use L</set_max_distance> to alter the maximum distance used.
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/check-return.pl" | xtidy %]
 
 If there is more than one word with the same edit distance in
 C<@words>, this returns the last one found, unless it is an exact
@@ -106,7 +109,7 @@ it, not the value itself.
 
     my $last_distance = $tf->last_distance ();
 
-The distance from the previous match closest match. This is used in
+The distance from the previous match's closest match. This is used in
 conjunction with L</nearest> to find the edit distance to the previous
 match.
 
@@ -130,14 +133,6 @@ match is is accepted.
 The default is to switch off the maximum distance.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/max-dist.pl" | xtidy %]
-
-=head2 get_max_distance
-
-    # Get the maximum edit distance.
-    print "The max distance is ", $tf->get_max_distance (), "\n";
-
-Get the maximum edit distance of C<$tf>. The maximum distance may be
-set with L</set_max_distance>.
 
 =head2 transpositions_ok
 
@@ -312,6 +307,14 @@ After running L</nearest> over an array, this returns the number of
 entries of the array which were rejected because the length difference
 between them and the target string was larger than the maximum
 distance allowed.
+
+=head2 get_max_distance
+
+    # Get the maximum edit distance.
+    print "The max distance is ", $tf->get_max_distance (), "\n";
+
+Get the maximum edit distance of C<$tf>. The maximum distance may be
+set with L</set_max_distance>.
 
 =head1 ACKNOWLEDGEMENTS
 

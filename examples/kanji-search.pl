@@ -29,15 +29,15 @@ sub search
     my ($silly) = @_;
     my $start = time ();
     my $search = Text::Fuzzy->new ($silly);
-#    $search->set_max_distance (3);
     my $n = $search->nearest (\@kanji);
-    if ($n >= 0) {
-	printf "$silly nearest is $kanji[$n] (distance %d)\n",
+    my $max = 3;
+    $search->set_max_distance ($max);
+    if (defined $n) {
+	printf "The nearest to \"$silly\" is $kanji[$n] (distance %d)\n",
 	    $search->last_distance ();
     }
     else {
-	printf "Nothing like '$silly' was found within the edit distance %d.\n",
-	    $search->get_max_distance ();
+	print "Nothing like '$silly' was found within $max edits.\n";
     }
     my $end = time ();
     printf "Fuzzy search took %g seconds.\n", ($end - $start);

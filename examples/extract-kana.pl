@@ -32,15 +32,15 @@ exit;
 sub search
 {
     my ($silly) = @_;
-    my $search = Text::Fuzzy->new ($silly, max => 10);
+    my $max = 10;
+    my $search = Text::Fuzzy->new ($silly, max => $max);
     my $n = $search->nearest (\@kana);
-    if ($n >= 0) {
+    if (defined $n) {
 	printf "$silly nearest is $kana[$n] (distance %d)\n",
 	    $search->last_distance ();
     }
     else {
-	printf "Nothing like '$silly' was found within the edit distance %d.\n",
-	    $search->get_max_distance ();
+	printf "Nothing like '$silly' was found within $max edits.\n";
     }
 }
 

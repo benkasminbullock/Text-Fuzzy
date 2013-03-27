@@ -25,4 +25,9 @@ is ($jcat->distance ('mogaroon'), 8);
 use utf8;
 is ($jcat->distance ('ねこちゃん'), 3);
 
+# Check no Unicode against no Unicode.
+
+no utf8;
+is ($cat->distance ('cart'), 1);
+
 done_testing ();

@@ -178,7 +178,12 @@ PPCODE:
 		}
         }
         else {
-            	PUSHs (sv_2mortal (newSViv (n)));
+		if (n >= 0) {
+            		PUSHs (sv_2mortal (newSViv (n)));
+		}
+		else {
+            		PUSHs (& PL_sv_undef);
+		}
         }
 
 

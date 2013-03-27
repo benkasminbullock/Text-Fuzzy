@@ -28,9 +28,9 @@ my @allfiles = get_all_files ($web_root, '');
 
 my $tf = Text::Fuzzy->new ($path_info);
 
-my $nearest = $tf->nearest (\@allfiles);
+my $nearest = $tf->nearest (\@allfiles, max => 5);
 
-if ($nearest >= 0) {
+if (defined $nearest) {
     redirect ($allfiles[$nearest]);
 }
 else {
