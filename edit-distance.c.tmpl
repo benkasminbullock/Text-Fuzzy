@@ -3,15 +3,14 @@
 #include <stdio.h>
 /* For INT_MAX/INT_MIN */
 #include <limits.h>
+/* For malloc. */
+#include <stdlib.h>
 #include "config.h"
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
 [%- IF trans %]
 #line
 
-/* For malloc. */
-
-#include <stdlib.h>
 
 /* Our unsorted dictionary linked list.       */
 
@@ -111,8 +110,20 @@ static int min (int a, int b)
     item *head = NULL;
 
     unsigned int swapScore,targetCharCount,i;
-    unsigned int matrix[len1 + 2][len2 + 2];
     unsigned int score_ceil = len1 + len2;
+#ifdef __GNUC__
+    unsigned int matrix[len1 + 2][len2 + 2];
+#else
+    unsigned int ** matrix;
+    int d;
+#endif
+
+#ifndef __GNUC__
+    matrix = calloc (len1 + 2, sizeof (unsigned int *));
+    for (i = 0; i < len1 + 2; i++) {
+	matrix[i] = calloc (len2 + 2, sizeof (unsigned int));
+    }
+#endif
 
     if (len1 == 0) {
 	return len2;
@@ -167,7 +178,22 @@ static int min (int a, int b)
 
     dict_free (head);
 
+#ifdef __GNUC__
+
     return matrix[len1 + 1][len2 + 1];
+
+#else
+
+    d = matrix[len1 + 1][len2 + 1];
+
+    for (i = 0; i < len1 + 2; i++) {
+	free (matrix[i]);
+    }
+    free (matrix);
+
+    return d;
+
+#endif
 
 [%- ELSE # trans %]
 #line
@@ -175,10 +201,16 @@ static int min (int a, int b)
     /* Matrix is the dynamic programming matrix. We economize on space
        by having only two columns. */
 
+#ifdef __GNUC__
     int matrix[2][len2 + 1];
+#else
+    int ** matrix;
+    int d;
+#endif
     int i;
     int j;
     int large_value;
+
 [%- IF use_text_fuzzy %]
 #line
     int max;
@@ -186,6 +218,13 @@ static int min (int a, int b)
     max = tf->max_distance;
 [%- END # use_text_fuzzy %]
 #line
+
+#ifndef __GNUC__
+    matrix = calloc (2, sizeof (int *));
+    for (i = 0; i < 2; i++) {
+	matrix[i] = calloc (len2 + 1, sizeof (int));
+    }
+#endif
 
     /*
       Initialize the 0 row of "matrix".
@@ -300,7 +339,21 @@ static int min (int a, int b)
             }
         }
     }
+#ifdef __GNUC__
+
     return matrix[len1 % 2][len2];
+
+#else
+    d = matrix[len1 % 2][len2];
+
+    for (i = 0; i < 2; i++) {
+	free (matrix[i]);
+    }
+    free (matrix);
+
+    return d;
+
+#endif
 [%- END # trans %]
 #line
 }
