@@ -296,8 +296,16 @@ undefined value. In the following, C<$l1> should be equal to C<$l2>.
     my $rejected = $tf->ualphabet_rejections ();
 
 After running L</nearest> over an array, this returns the number of
-entries of the array which were rejected using only the alphabet. Its
-value is reset to zero each time L</nearest> is called.
+entries of the array which were rejected using only the Unicode
+alphabet. Its value is reset to zero each time L</nearest> is called.
+
+=head2 alphabet_rejections
+
+    my $rejected = $tf->alphabet_rejections ();
+
+After running L</nearest> over an array, this returns the number of
+entries of the array which were rejected using only the non-Unicode
+alphabet. Its value is reset to zero each time L</nearest> is called.
 
 =head2 length_rejections
 

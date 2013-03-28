@@ -87,6 +87,10 @@ typedef struct text_fuzzy {
     /* ASCII alphabet */
     int alphabet[0x100];
 
+    /* The number of characters which were rejected using the ASCII
+       alphabet. */
+    int alphabet_rejections;
+
     /* Unicode alphabet. */
     ualphabet_t ualphabet;
 
@@ -449,6 +453,7 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 				   are within the maximum edit distance of
 				   each other. */
 
+				tf->alphabet_rejections++;
 				OK;
 			    }
 			}
@@ -556,6 +561,7 @@ FUNC (begin_scanning) (text_fuzzy_t * text_fuzzy)
 
     text_fuzzy->distance = -1;
     text_fuzzy->ualphabet.rejections = 0;
+    text_fuzzy->alphabet_rejections = 0;
     text_fuzzy->length_rejections = 0;
 
     OK;
@@ -708,6 +714,12 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
     else {
         * nearest_ptr = 0;
     }
+    OK;
+}
+
+FUNC (alphabet_rejections) (text_fuzzy_t * text_fuzzy, int * r)
+{
+    * r = text_fuzzy->alphabet_rejections;
     OK;
 }
 

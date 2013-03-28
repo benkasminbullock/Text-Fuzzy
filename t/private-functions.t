@@ -23,6 +23,14 @@ $tf->nearest (\@stuff);
 
 cmp_ok ($tf->length_rejections, '==', scalar @stuff);
 cmp_ok ($tf->ualphabet_rejections, '==', 0);
+cmp_ok ($tf->alphabet_rejections, '==', 0);
+
+# Test that the non-Unicode alphabetization is catching some matches.
+
+my $tfsim = Text::Fuzzy->new ('WXYZ');
+$tfsim->set_max_distance (1);
+my @nearest = $tfsim->nearest (\@stuff);
+cmp_ok ($tfsim->alphabet_rejections, '>', 0);
 
 my $tf2 = Text::Fuzzy->new ('あいうえ');
 

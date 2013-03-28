@@ -131,7 +131,7 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
     stuff = (unsigned char *) SvPV (text, length);
     text_fuzzy->text.length = length;
     get_memory (text_fuzzy->text.text, length + 1, char);
-    for (i = 0; i < length; i++) {
+    for (i = 0; i < (int) length; i++) {
         text_fuzzy->text.text[i] = stuff[i];
     }
     text_fuzzy->text.text[text_fuzzy->text.length] = '\0';

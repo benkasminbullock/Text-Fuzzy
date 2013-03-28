@@ -143,10 +143,11 @@ void
 nearest (tf, words)
 	Text::Fuzzy tf;
         AV * words;
-PPCODE:
+PREINIT:
 	int i;
 	int n;
 	AV * wantarray;
+PPCODE:
 
 	wantarray = 0;
 
@@ -257,6 +258,13 @@ no_exact (tf, yes_no)
 CODE:
 	tf->no_exact = SvTRUE (yes_no);
 
+int
+alphabet_rejections (tf)
+	Text::Fuzzy tf;
+CODE:
+	TEXT_FUZZY (alphabet_rejections (tf, & RETVAL));
+OUTPUT:
+	RETVAL
 
 void
 DESTROY (tf)
