@@ -204,7 +204,7 @@ static int min (int a, int b)
 #ifdef __GNUC__
     int matrix[2][len2 + 1];
 #else
-    int ** matrix;
+    int * matrix[2];
     int d;
 #endif
     int i;
@@ -220,7 +220,6 @@ static int min (int a, int b)
 #line
 
 #ifndef __GNUC__
-    matrix = calloc (2, sizeof (int *));
     for (i = 0; i < 2; i++) {
 	matrix[i] = calloc (len2 + 1, sizeof (int));
     }
@@ -335,6 +334,12 @@ static int min (int a, int b)
                 /* All the elements of the ith column are greater than the
                    maximum, so no match less than or equal to max can be
                    found by looking at succeeding columns. */
+
+#ifndef __GNUC__
+		for (i = 0; i < 2; i++) {
+		    free (matrix[i]);
+		}
+#endif
                 return large_value;
             }
         }
@@ -349,11 +354,10 @@ static int min (int a, int b)
     for (i = 0; i < 2; i++) {
 	free (matrix[i]);
     }
-    free (matrix);
 
     return d;
-
 #endif
+
 [%- END # trans %]
 #line
 }
