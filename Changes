@@ -1,3 +1,17 @@
+0.14
+
+* Internal changes for Microsoft Visual Flintstones
+
+0.13
+
+* Documentation of negative value for max, addition of negative
+  handling to set_max_distance.
+* Internal changes for Microsoft Visual Studio compilation.
+
+0.12
+
+* Internal changes affecting Microsoft Visual Studio compilation only.
+
 0.11
 
 * New syntax for "new", with parameters such as max => 1, trans => 1,

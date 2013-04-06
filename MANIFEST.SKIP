@@ -22,3 +22,7 @@ doc/.*
 # Benchmarking.
 benchmarks/.*
 MYMETA\..*
+# Used to create "config.h" in distribution.
+^config$
+# Template
+^declaration$

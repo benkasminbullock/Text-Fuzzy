@@ -45,6 +45,10 @@ L</set_max_distance>.
     my $tf = Text::Fuzzy->new ('Cinderella');
     $tf->set_max_distance (3);
 
+A negative maximum distance will switch off the maximum distance:
+
+    my $tf = Text::Fuzzy->new ('Cinderella', max => -1);
+
 =item no_exact
 
     my $tf = Text::Fuzzy->new ('slipper', no_exact => 1);
@@ -128,9 +132,12 @@ distances, call this method without an argument:
     $tf->set_max_distance ();
 
 The maximum edit distance is switched off, and whatever the nearest
-match is is accepted.
+match is is accepted. A negative value also switches it off:
 
-The default is to switch off the maximum distance.
+    $tf->set_max_distance (-1);
+
+The object created by L</new> has no maximum distance unless specified
+by the user.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/max-dist.pl" | xtidy %]
 
@@ -259,12 +266,11 @@ benchmarking the module and checking its correctness.
     $tf->no_alphabet (1);
 
 This turns off alphabetizing of the string. Alphabetizing is a filter
-used in L</nearest> where the intersection of all the characters in
-the two strings is computed, and if the alphabetical difference of the
-two strings is greater than the maximum distance, the match is
-rejected without applying the dynamic programming algorithm. This
-increases speed, because the dynamic programming algorithm is
-slow. 
+where the intersection of all the characters in the two strings is
+computed, and if the alphabetical difference of the two strings is
+greater than the maximum distance, the match is rejected without
+applying the dynamic programming algorithm. This increases speed,
+because the dynamic programming algorithm is slow.
 
 The alphabetizing should not ever reject anything which is a
 legitimate match, and it should make the program run faster in almost

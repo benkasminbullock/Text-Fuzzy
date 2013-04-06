@@ -30,10 +30,10 @@ Text::Fuzzy
 new (class, search_term, ...)
 	const char * class;
 	SV * search_term;
-CODE:
+PREINIT:
 	int i;
 	text_fuzzy_t * r;
-
+CODE:
 	r = 0;
 
 	sv_to_text_fuzzy (search_term, & r);
@@ -100,14 +100,18 @@ void
 set_max_distance (tf, max_distance = &PL_sv_undef)
 	Text::Fuzzy tf;
 	SV * max_distance;
+PREINIT:
+	int maximum;
 CODE:
-        if (SvOK (max_distance)) {
-		tf->max_distance = (int) SvIV (max_distance);
-	}
-	else {
-        	tf->max_distance = NO_MAX_DISTANCE;
-	}
+	/* Set the maximum distance to "none". */
 
+        tf->max_distance = NO_MAX_DISTANCE;
+        if (SvOK (max_distance)) {
+		maximum = (int) SvIV (max_distance);
+		if (maximum >= 0) {
+			tf->max_distance = maximum;
+		}
+	}
 
 void
 transpositions_ok (tf, trans)
