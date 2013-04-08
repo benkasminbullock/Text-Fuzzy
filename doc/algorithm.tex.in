@@ -1,4 +1,6 @@
-\bf
+\documentclass{article}
+\usepackage[pdftex]{graphicx}
+\begin{document}
 Faster fuzzy text search of a list
 
 \rm
@@ -46,6 +48,7 @@ If W has the correct length, and its alphabet is sufficiently
 coincident with the alphabet of $\Sigma_S$, the next stage is to apply
 the dynamic programming algorithm. Since we know the maximum distance
 $M$, the dynamic programming algorithm becomes much simpler.
+\includegraphics{output.png}
 
 \bf
 Extension to Unicode
@@ -64,7 +67,6 @@ Original inspiration was the ``git'' code.
 \bf
 References
 \rm
+@references
 
-\end
-
-Wagner-Fischer algorithm
+\end{document}

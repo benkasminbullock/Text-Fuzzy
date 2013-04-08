@@ -13,3 +13,23 @@ name: lev66
 
 name: lev65
 
+name: low-wag
+title: An extension of the String-to-String Correction Problem
+author1: Roy Lowrance
+author2: Robert A. Wagner
+journal: Journal of the Association for Computing Machinery
+volume: 22
+issue: 2
+date: April 1975
+pages: 177-183
+
+name: wag-fis
+author1: Wagner, R. A.
+author2: Fischer, M. J. 
+date: January 1974
+pages: 168-173 
+journal: J. ACM
+title: The string-to-string correction problem
+volume:  2l
+issue: 1 
+

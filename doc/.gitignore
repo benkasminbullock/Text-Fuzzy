@@ -2,3 +2,6 @@
 *.dvi
 *.log
 *.png
+*.pdf
+algo-old.tex
+algorithm.tex
