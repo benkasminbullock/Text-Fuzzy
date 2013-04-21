@@ -12,3 +12,4 @@ algorithm.dvi
 algorithm.log
 Text-Fuzzy-*/*
 ppport.h
+config.h
