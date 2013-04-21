@@ -662,6 +662,12 @@ FUNC (begin_scanning) (text_fuzzy_t * text_fuzzy)
     text_fuzzy->alphabet_rejections = 0;
     text_fuzzy->length_rejections = 0;
 
+    /* Set up the linked list. */
+
+    if (text_fuzzy->wantarray) {
+	text_fuzzy->last = & text_fuzzy->first;
+    }
+
     OK;
 }
 

@@ -221,15 +221,10 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
     int n_words;
     int nearest;
 
-    TEXT_FUZZY (begin_scanning (text_fuzzy));
-
     if (wantarray) {
 	text_fuzzy->wantarray = 1;
     }
-
-    if (text_fuzzy->wantarray) {
-	text_fuzzy->last = & text_fuzzy->first;
-    }
+    TEXT_FUZZY (begin_scanning (text_fuzzy));
 
     nearest = -1;
 
