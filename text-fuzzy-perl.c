@@ -214,27 +214,21 @@ text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
     }
 }
 
-typedef struct candidate candidate_t;
-
-struct candidate {
-    int distance;
-    int offset;
-    candidate_t * next;
-};
-
 static int
 text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
 {
     int i;
     int n_words;
     int nearest;
-    candidate_t first = {0};
-    candidate_t * last;
 
     TEXT_FUZZY (begin_scanning (text_fuzzy));
 
     if (wantarray) {
-	last = & first;
+	text_fuzzy->wantarray = 1;
+    }
+
+    if (text_fuzzy->wantarray) {
+	text_fuzzy->last = & text_fuzzy->first;
     }
 
     nearest = -1;
@@ -251,26 +245,16 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
         SV * word;
         word = * av_fetch (words, i, 0);
         sv_to_text_fuzzy_string (word, text_fuzzy);
+	text_fuzzy->offset = i;
         TEXT_FUZZY (compare_single (text_fuzzy));
         if (text_fuzzy->found) {
             nearest = i;
-	    if (wantarray) {
-		candidate_t * c;
-		get_memory (c, 1, candidate_t);
-		c->distance = text_fuzzy->distance;
-		c->offset = i;
-		c->next = 0;
-		last->next = c;
-		last = c;
-	    }
-	    else {
-		if (text_fuzzy->distance == 0) {
-		    /* Stop the search if there is an exact
-		       match. Note that "no_exact" is checked in
-		       "compare_single", so we don't need to check it
-		       here. */
-		    break;
-		}
+	    if (! text_fuzzy->wantarray && text_fuzzy->distance == 0) {
+		/* Stop the search if there is an exact
+		   match. Note that "no_exact" is checked in
+		   "compare_single", so we don't need to check it
+		   here. */
+		break;
 	    }
 	}
     }
@@ -286,30 +270,20 @@ text_fuzzy_av_distance (text_fuzzy_t * text_fuzzy, AV * words, AV * wantarray)
        whatever was the minimum value at that point in the progress,
        our list may contain false hits which must be discarded. */
 
-    if (wantarray) {
-	candidate_t * c;
-	last = first.next;
-	while (last) {
-	    c = last;
-
-	    /* Set "last" to the next one here so that we do not
-	       access freed memory. */
-	    last = last->next;
-
-	    /* Some of the entries might be things which had a lower
-	       distance initially, but then were beaten by later
-	       entries, so here we check that the entry actually does
-	       have the lowest distance, and only if so do we keep
-	       it. */
-
-	    if (c->distance == text_fuzzy->distance) {
+    if (text_fuzzy->wantarray) {
+	int n_candidates;
+	int * candidates;
+	int i;
+	TEXT_FUZZY (get_candidates (text_fuzzy, & n_candidates,
+				    & candidates));
+	if (n_candidates > 0) {
+	    for (i = 0; i < n_candidates; i++) {
 		SV * offset;
-
-		offset = newSViv (c->offset);
+		
+		offset = newSViv (candidates[i]);
 		av_push (wantarray, offset);
 	    }
-	    Safefree (c);
-	    text_fuzzy->n_mallocs--;
+	    TEXT_FUZZY (free_candidates (text_fuzzy, candidates));
 	}
     }
     return nearest;
