@@ -4,14 +4,14 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 
-@EXPORT_OK = qw/fuzzy_index/;
+@EXPORT_OK = qw/fuzzy_index distance_edits/;
 %EXPORT_TAGS = (
     all => \@EXPORT_OK,
 );
 
 use warnings;
 use strict;
-our $VERSION = "0.14_01";
+our $VERSION = "0.15";
 
 __PACKAGE__->bootstrap ($VERSION);
 

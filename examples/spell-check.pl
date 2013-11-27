@@ -97,8 +97,15 @@ sub read_dictionary
     close $din or die $!;
     # Apostrophe words
 
-    my @apo = qw/let's can't I'll he's don't you're I've it's one's
-		 isn't aren't doesn't won't wouldn't we're/;
+    my @apo = qw/
+
+		    let's I'll you'll he'll she'll they'll we'll I'm
+		    you're he's she's it's we're they're I've they've
+		    you've we've one's isn't aren't doesn't don't
+		    won't wouldn't I'd you'd he'd we'd they'd
+		    shouldn't couldn't didn't can't
+
+		/;
 
     # Irregular past participles.
     my @pp = qw/became/;

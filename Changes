@@ -1,18 +1,24 @@
-0.14
+Revision history for perl module Text::Fuzzy
 
-* Internal changes for Microsoft Visual Flintstones
+0.15 2013-11-27
 
-0.13
+* Add dates to Changes.
+
+0.14 2013-04-05
+
+* Internal changes for Microsoft Visual C (C89)
+
+0.13 2013-04-02
 
 * Documentation of negative value for max, addition of negative
   handling to set_max_distance.
 * Internal changes for Microsoft Visual Studio compilation.
 
-0.12
+0.12 2013-03-31
 
 * Internal changes affecting Microsoft Visual Studio compilation only.
 
-0.11
+0.11 2013-03-27
 
 * New syntax for "new", with parameters such as max => 1, trans => 1,
   or no_exact => 1.
@@ -22,21 +28,38 @@
 * "nearest" with a maximum distance set returns "undef" rather than -1
   on failure.
 
-0.09
+0.09 2013-03-13
 
-Error in documentation and examples regarding the return value of
-"nearest" (it should have said the return value is -1 for a miss).
+* Error in documentation and examples regarding the return value of
+  "nearest" (it should have said the return value is -1 for a miss).
 
-0.08
+0.08 2013-03-13
 
-Alterations for the benefit of unification with CPAN::Nearest.
+* Alterations for the benefit of unification with CPAN::Nearest.
 
-0.07
+0.07 2013-01-29
 
-This fixes a bug which happens in comparisons of Unicode-encoded
-strings with non-Unicode encoded strings.
+* This fixes a bug which happens in comparisons of Unicode-encoded
+  strings with non-Unicode encoded strings.
 
-0.06
+0.06 2012-08-19
 
-This adds a directory of examples to the distribution.
+* This adds a directory of examples to the distribution.
+
+0.05 2012-07-25
+
+* Document examples.
+* Other documentation
+
+0.04 2012-07-24
+
+* Documentation
+
+0.03 2012-07-20
+
+0.02 2012-07-19
+
+* Document "scan_file".
+
+0.01 2012-07-18
 
