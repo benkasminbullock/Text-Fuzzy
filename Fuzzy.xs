@@ -62,9 +62,13 @@ CODE:
 		x = ST (i);
 		p = (char *) SvPV (x, len);
 		if (strncmp (p, "max", strlen ("max")) == 0) {
-			r->max_distance = SvIV (ST (i + 1));
-			if (r->max_distance < 0) {
-				r->max_distance = NO_MAX_DISTANCE;
+			int max;
+			max = SvIV (ST (i + 1));
+			if (max < 0) {
+				TEXT_FUZZY (set_max_distance (r, NO_MAX_DISTANCE));
+			}
+			else {
+				TEXT_FUZZY (set_max_distance (r, max));
 			}
 		}
 		else if (strncmp (p, "no_exact", strlen ("no_exact")) == 0) {
@@ -86,9 +90,12 @@ OUTPUT:
 SV *
 get_max_distance (tf)
 	Text::Fuzzy tf;
+PREINIT:
+	int maximum;
 CODE:
-        if (tf->max_distance >= 0) {
-		RETVAL = newSViv (tf->max_distance);
+	TEXT_FUZZY (get_max_distance (tf, & maximum));	
+        if (maximum >= 0) {
+		RETVAL = newSViv (maximum);
 	}
 	else {
 		RETVAL = &PL_sv_undef;
@@ -105,13 +112,14 @@ PREINIT:
 CODE:
 	/* Set the maximum distance to "none". */
 
-        tf->max_distance = NO_MAX_DISTANCE;
+        maximum = NO_MAX_DISTANCE;
         if (SvOK (max_distance)) {
 		maximum = (int) SvIV (max_distance);
-		if (maximum >= 0) {
-			tf->max_distance = maximum;
+		if (maximum < 0) {
+			maximum = NO_MAX_DISTANCE;
 		}
 	}
+	TEXT_FUZZY (set_max_distance (tf, maximum));
 
 void
 transpositions_ok (tf, trans)
@@ -119,17 +127,17 @@ transpositions_ok (tf, trans)
 	SV * trans;
 CODE:
 	if (SvTRUE (trans)) {
-		tf->transpositions_ok = 1;
+		TEXT_FUZZY (set_transpositions (tf, 1));
 	}
 	else {
-		tf->transpositions_ok = 0;
+		TEXT_FUZZY (set_transpositions (tf, 0));
 	}
 
 int
 get_trans (tf)
 	Text::Fuzzy tf;
 CODE:
-	RETVAL = tf->transpositions_ok;
+	TEXT_FUZZY (get_transpositions (tf, & RETVAL));
 OUTPUT:
 	RETVAL
 
@@ -196,7 +204,7 @@ int
 last_distance (tf)
 	Text::Fuzzy tf;
 CODE:
-	RETVAL = tf->distance;
+	TEXT_FUZZY (last_distance (tf, & RETVAL));
 OUTPUT:
 	RETVAL
 
@@ -204,12 +212,15 @@ OUTPUT:
 SV *
 unicode_length (tf)
 	Text::Fuzzy tf;
+PREINIT:
+	int unicode_length;
 CODE:
-        if (tf->text.unicode) {
-		RETVAL = newSViv (tf->text.ulength);
+	TEXT_FUZZY (get_unicode_length (tf, & unicode_length));
+        if (unicode_length == TEXT_FUZZY_INVALID_UNICODE_LENGTH) {
+		RETVAL = &PL_sv_undef;
 	}
 	else {
-		RETVAL = &PL_sv_undef;
+		RETVAL = newSViv (tf->text.ulength);
 	}
 OUTPUT:
 	RETVAL
@@ -220,18 +231,14 @@ no_alphabet (tf, yes_no)
 	Text::Fuzzy tf;
         SV * yes_no;
 CODE:
-	tf->user_no_alphabet = SvTRUE (yes_no);
-	if (tf->user_no_alphabet) {
-		tf->use_alphabet = 0;
-		tf->use_ualphabet = 0;
-	}
+	TEXT_FUZZY (no_alphabet (tf, SvTRUE (yes_no)));
 
 
 int
 ualphabet_rejections (tf)
 	Text::Fuzzy tf;
 CODE:
-	RETVAL = tf->ualphabet.rejections;
+	TEXT_FUZZY (ualphabet_rejections (tf, & RETVAL));
 OUTPUT:
         RETVAL
 
@@ -240,7 +247,7 @@ int
 length_rejections (tf)
 	Text::Fuzzy tf;
 CODE:
-	RETVAL = tf->length_rejections;
+	TEXT_FUZZY (get_length_rejections (tf, & RETVAL));
 OUTPUT:
         RETVAL
 
@@ -260,7 +267,7 @@ no_exact (tf, yes_no)
 	Text::Fuzzy tf;
 	SV * yes_no;
 CODE:
-	tf->no_exact = SvTRUE (yes_no);
+	TEXT_FUZZY (set_no_exact (tf, SvTRUE (yes_no)));
 
 int
 alphabet_rejections (tf)

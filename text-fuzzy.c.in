@@ -169,6 +169,11 @@ typedef struct text_fuzzy {
 }
 text_fuzzy_t;
 
+/* The string is not unicode so its length in unicode characters is
+   unknown. */
+
+#define TEXT_FUZZY_INVALID_UNICODE_LENGTH -1
+
 #endif /* HEADER */
 
 /* The following calculations need to be done twice, first when
@@ -847,6 +852,75 @@ FUNC (free_memory) (text_fuzzy_t * text_fuzzy)
     if (text_fuzzy->ualphabet.alphabet) {
 	free (text_fuzzy->ualphabet.alphabet);
 	text_fuzzy->n_mallocs--;
+    }
+    OK;
+}
+
+FUNC (set_max_distance) (text_fuzzy_t * text_fuzzy, int max_distance)
+{
+    text_fuzzy->max_distance = max_distance;
+    OK;
+}
+
+FUNC (get_max_distance) (text_fuzzy_t * text_fuzzy, int * max_distance)
+{
+    * max_distance = text_fuzzy->max_distance;
+    OK;
+}
+
+FUNC (set_transpositions) (text_fuzzy_t * text_fuzzy, int transpositions)
+{
+    text_fuzzy->transpositions_ok = transpositions != 0 ? 1 : 0;
+    OK;
+}
+
+FUNC (get_transpositions) (text_fuzzy_t * text_fuzzy, int * transpositions)
+{
+    * transpositions = text_fuzzy->transpositions_ok;
+    OK;
+}
+
+FUNC (last_distance) (text_fuzzy_t * text_fuzzy, int * last_distance)
+{
+    * last_distance = text_fuzzy->distance;
+    OK;
+}
+
+FUNC (no_alphabet) (text_fuzzy_t * text_fuzzy, int yes_no)
+{
+    text_fuzzy->user_no_alphabet = yes_no != 0 ? 1 : 0;
+    if (text_fuzzy->user_no_alphabet) {
+	text_fuzzy->use_alphabet = 0;
+	text_fuzzy->use_ualphabet = 0;
+    }
+    OK;
+}
+
+FUNC (ualphabet_rejections) (text_fuzzy_t * text_fuzzy, int * ualphabet_rejections)
+{
+    * ualphabet_rejections = text_fuzzy->ualphabet.rejections;
+    OK;
+}
+
+FUNC (set_no_exact) (text_fuzzy_t * text_fuzzy, int yes_no)
+{
+    text_fuzzy->no_exact = yes_no != 0 ? 1 : 0;
+    OK;
+}
+
+FUNC (get_length_rejections) (text_fuzzy_t * text_fuzzy, int * length_rejections)
+{
+    * length_rejections = text_fuzzy->length_rejections;
+    OK;
+}
+
+FUNC (get_unicode_length) (text_fuzzy_t * text_fuzzy, int * unicode_length)
+{
+    if (text_fuzzy->text.unicode) {
+	* unicode_length = text_fuzzy->text.ulength;
+    }
+    else {
+	* unicode_length = TEXT_FUZZY_INVALID_UNICODE_LENGTH;
     }
     OK;
 }

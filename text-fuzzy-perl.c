@@ -1,7 +1,7 @@
 /* This file is included into "Fuzzy.xs". The reason for having it as
    a separate file from "Fuzzy.xs" is so that this file can easily be
-   edited in C mode without the C mode causing problems when editing
-   "Fuzzy.xs". */
+   edited in Emacs C mode without the C mode causing problems when
+   editing "Fuzzy.xs". */
 
 /* Get memory via Perl. */
 
