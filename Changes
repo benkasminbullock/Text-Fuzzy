@@ -1,9 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
-0.16 2014-02-05
+0.16 2015-01-23
 
+* Behaviour in array context changed due to bug
 * Add README to distribution
-* Internal changes
 
 0.15 2013-11-27
 

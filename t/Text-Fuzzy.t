@@ -45,7 +45,7 @@ my @uwords = qw/
 サイエンスはV
 /;
 my $nearest4 = $tf4->nearest (\@uwords);
-is ($nearest4, 1);
+is ($nearest4, 2);
 is ($tf4->last_distance (), 2);
 
 $tf->set_max_distance ();

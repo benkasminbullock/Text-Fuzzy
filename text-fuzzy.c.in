@@ -20,6 +20,8 @@
 
 #ifdef HEADER
 
+//#define VERBOSE 1
+
 /* Alphabet over unicode characters. */
 
 typedef struct ualphabet {
@@ -346,7 +348,7 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 
 	/* If we have too many misses, stop searching. */
 
-	if (misses >= tf->max_distance) {
+	if (misses > tf->max_distance) {
 	    MESSAGE ("%s:%s: %d misses over %d: ",
 		    tf->text.text, tf->b.text, misses, tf->max_distance);
 	    return 1;
