@@ -17,11 +17,16 @@ Unicode), treating each Unicode character as a single entity.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/unicode.pl" | xtidy %]
 
-The default is the Levenshtein edit distance, which applies an equal
-weight of one to additions (C<cat> -> C<cart>), substitutions (C<cat>
--> C<cut>), and deletions (C<carp> -> C<cap>). The Damerau-Levenshtein
-edit distance, which allows transpositions (C<salt> -> C<slat>) may
-also be selected.
+The default edit distance is the Levenshtein one, which counts each
+addition (C<cat> -> C<cart>), substitution (C<cat> -> C<cut>), and
+deletion (C<carp> -> C<cap>) as one unit. The Damerau-Levenshtein edit
+distance, which also allows transpositions (C<salt> -> C<slat>) may
+also be selected with the L</transpositions_ok> method or the
+L</trans> option.
+
+This module is particularly suited to searching for the nearest match
+to a term over a list of words, using the L</nearestv> or L</nearest>
+methods.
 
 =head1 METHODS
 
@@ -31,7 +36,7 @@ also be selected.
 
 Create a new Text::Fuzzy object from the supplied word.
 
-The following parameters may be supplied:
+The following parameters may be supplied to new:
 
 =over
 
@@ -39,32 +44,55 @@ The following parameters may be supplied:
 
     my $tf = Text::Fuzzy->new ('Cinderella', max => 3);
 
-This sets the maximum edit distance allowed, in the same way as
-L</set_max_distance>.
+This option affects the behaviour of L</nearestv> and L</nearest>
+methods. When searching over an array, this sets the maximum edit
+distance allowed for a word to be considered a "near match". For
+example, with
 
     my $tf = Text::Fuzzy->new ('Cinderella');
     $tf->set_max_distance (3);
 
-A negative maximum distance will switch off the maximum distance:
+when using L</nearest>, 'Cinder' will not be considered a match, but
+'derella' will.
+
+To switch off the maximum distance, and allow all words to be
+considered, you can set C<max> to be a negative value:
 
     my $tf = Text::Fuzzy->new ('Cinderella', max => -1);
+
+Note that this is the default, so there is hardly any point specifying
+it, except if you want to make self-documenting code, or you're
+worried that the module's default behaviour may suddenly change.
+
+Setting C<max> to zero makes C<$tf> only match exactly, which is also
+pointless, but you're very welcome to do it.
+
+The method L</set_max_distance> also does the same thing as this
+parameter.
 
 =item no_exact
 
     my $tf = Text::Fuzzy->new ('slipper', no_exact => 1);
 
-This switches on rejection of exact matches, in the same way as
-L</no_exact>:
+This parameter switches on rejection of exact matches, in the same way
+as the method L</no_exact>:
 
     my $tf = Text::Fuzzy->new ('slipper');
     $tf->no_exact (1);
+
+This is useful for the case of scanning an array which contains the
+search term itself, when we are interested in near matches only. For
+example, if we have a dictionary of words and we need to find near
+matches for a word which is in the dictionary.
 
 =item trans
 
     my $tf = Text::Fuzzy->new ('glass', trans => 1);
 
-This switches on transpositions, in the same way as
-L</transpositions_ok>.
+This switches on transpositions, in other words it uses the
+Damerau-Levenshtein edit distance rather than the Levenshtein edit
+distance. The method L</transpositions_ok> has the same effect as
+this.
 
 =back
 
@@ -72,40 +100,63 @@ L</transpositions_ok>.
 
     my $dist = $tf->distance ($word);
 
-The return value is the edit distance to C<$word> from the word used
-to create the object in L</new>.
+This method's return value is the edit distance to C<$word> from the
+word used to create the object in L</new>.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/distance.pl" | xtidy %]
 
 To know which edits are used to convert the words, use
 L</distance_edits>.
 
+=head2 nearestv
+
+    my $nearest_word = $tf->nearestv (\@words);
+    my @nearest_words = $tf->nearestv (\@words);
+
+Returns the value in C<@words> which has the nearest distance to the
+value given to C<$tf> in L</new>. In array context, it returns a list
+of the nearest values.
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/nearestv.pl" | xtidy %]
+
+The behaviour of the match can be controlled with L</no_exact> and
+L</max_distance> in exactly the same way as L</nearest>.
+
+This is a convenient wrapper around the L</nearest>
+function. L</nearest> is annoying to use, because it only returns
+array offsets, and also error-prone due to having to check to
+distinguish the first element of the array from an undefined value
+using C<defined>.
+
 =head2 nearest
 
     my $index = $tf->nearest (\@words);
     my $nearest_word = $words[$index];
 
-This returns the index of the nearest element in the array to the
-argument to L</new>. 
+Given an array reference, this returns a number, the index of the
+nearest element in the array C<@words> to the argument to
+L</new>. Having found the nearest match you then need to look up the
+value in the array, as in C<$nearest_word> above.
 
 It is possible to set a maximum edit distance, beyond which entries
 are rejected, using L</set_max_distance> or the C<max> parameter to
-L</new>.  In this case, if B<none> of the elements of C<@words> are
-less than the maximum distance away from the word, C<$index> is the
-undefined value, so when setting a maximum distance, check the return
-value of index using C<defined>.
+L</new>.  In this case, if none of the elements of C<@words> are less
+than the maximum distance away from the word, C<$index> is the
+undefined value, so when setting a maximum distance, it is necessary
+to check the return value of index using C<defined>.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/check-return.pl" | xtidy %]
 
 If there is more than one word with the same edit distance in
 C<@words>, this returns the last one found, unless it is an exact
-match, in which case it returns the first one found. To get all matches, call it in array context:
+match, in which case it returns the first one found. To get all
+matches, call it in array context:
 
     my @nearest = $tf->nearest (\@words);
 
-If there are no matches within minimum distance, it returns an empty
-list. If there is one or more match, it returns the array offset of
-it, not the value itself.
+In array context, if there are no matches within the minimum distance,
+C<nearest> returns an empty list. If there is one or more match, it
+returns the array offset of it or them, not the value itself.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/list-context.pl" | xtidy %]
 
@@ -114,8 +165,10 @@ it, not the value itself.
     my $last_distance = $tf->last_distance ();
 
 The distance from the previous match's closest match. This is used in
-conjunction with L</nearest> to find the edit distance to the previous
-match.
+conjunction with L</nearest> or L</nearestv> to find the edit distance
+to the previous match.
+
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/last-distance.pl" | xtidy %]
 
 =head2 set_max_distance
 
@@ -140,6 +193,16 @@ The object created by L</new> has no maximum distance unless specified
 by the user.
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/max-dist.pl" | xtidy %]
+
+Setting the maximum distance is a way to make a search more rapid. For
+example if you are searching over a dictionary of 100,000 or a million
+words, and only need close matches, you can more rapidly reject
+unwanted matches by setting the maximum distance to a lower
+value. Calculating Levenshtein distance is an O(n^2) algorithm in the
+lengths of the words, so even a small increase in the maximum
+permitted distance means a much larger amount of work for the computer
+to do. With the maximum distance set, the computer can give up
+calculating more quickly with bad matches.
 
 =head2 transpositions_ok
 
@@ -184,7 +247,7 @@ values. It does not currently support Unicode-encoded files.
 
 =head2 distance_edits
 
-    my ($distance, $edits) = distance_edits ('piece', 'peace');
+    my ($distance, $edits) = distance_edits ('before', 'after');
 
 This returns the edit distance between the two arguments, and the
 edits necessary to transform the first one into the second
@@ -193,7 +256,12 @@ I<d>, and I<i>, for "keep", "replace", "delete", and "insert"
 respectively. For example, for "piece" and "peace", C<$edits> contains
 "krrkk" for "keep, replace, replace, keep, keep".
 
-This does not handle transpositions.
+[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/distance-edits.pl" | xtidy %]
+
+This does not handle transpositions. Unlike the rest of the module,
+this is pure Perl rather than XS, and not optimized for speed. The
+edit distance search within L</nearest> is optimized for speed, and
+hence discards its record of edits used to get the result.
 
 =head1 EXAMPLES
 
@@ -257,8 +325,7 @@ L<http://code.activestate.com/ppm/Text-Fuzzy/>.
 
 =head1 PRIVATE METHODS
 
-The general user should not need any of these methods. They are not
-expected to be useful for the general user. They may be useful in
+You probably do not need any of these methods. They are for
 benchmarking the module and checking its correctness.
 
 =head2 no_alphabet
@@ -329,6 +396,12 @@ distance allowed.
 
 Get the maximum edit distance of C<$tf>. The maximum distance may be
 set with L</set_max_distance>.
+
+=head1 SEE ALSO
+
+=head2 L<Text::Fuzzy::PP>
+
+This is Nick Logan's Pure Perl version of this module.
 
 =head1 ACKNOWLEDGEMENTS
 

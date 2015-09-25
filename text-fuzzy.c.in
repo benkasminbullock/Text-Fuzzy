@@ -251,7 +251,8 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     /* Create a zeroed alphabet. */
 
     u->alphabet = calloc (u->size, sizeof (char));
-    FAIL (! u->alphabet, memory_error);
+    FAIL_MSG (! u->alphabet, memory_failure, "Could not allocate %d memory slots",
+	      u->size);
 
     tf->n_mallocs++;
 
@@ -532,7 +533,7 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 	if (tf->wantarray) {
 	    candidate_t * c;
 	    c = malloc (sizeof (candidate_t));
-	    FAIL (! c, memory_error);
+	    FAIL (! c, memory_failure);
 	    tf->n_mallocs+=1;
 	    c->distance = d;
 	    c->offset = tf->offset;
@@ -570,7 +571,7 @@ FUNC (get_candidates) (text_fuzzy_t * text_fuzzy,
     }
 
     candidates = malloc (sizeof (int) * n_candidates);
-    FAIL (! candidates, memory_error);
+    FAIL (! candidates, memory_failure);
     text_fuzzy->n_mallocs+=1;
 
     last = text_fuzzy->first.next;
@@ -817,7 +818,7 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
 	    else {
 		nearest = realloc (nearest, ff.b.length + 1);
 	    }
-	    FAIL (! nearest, memory_error);
+	    FAIL (! nearest, memory_failure);
 	    strncpy (nearest, ff.b.text, ff.b.length);
 	    nearest[ff.b.length] = '\0';
         }

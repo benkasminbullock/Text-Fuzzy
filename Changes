@@ -1,5 +1,20 @@
 Revision history for perl module Text::Fuzzy
 
+0.19 2015-09-25
+
+* Eliminate GCC-specific compiler instructions
+* Figlet letters are back in README
+
+0.18 2015-09-25
+
+* Add convenience function "nearestv"
+* Add SEE ALSO and mention Text::Fuzzy::PP
+* Rewrite documentation for clarity
+
+0.17 2015-01-28
+
+* Fixes bug affecting empty Unicode strings
+
 0.16 2015-01-23
 
 * Behaviour in array context changed due to bug

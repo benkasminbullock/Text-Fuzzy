@@ -11,7 +11,7 @@ require DynaLoader;
 
 use warnings;
 use strict;
-our $VERSION = "0.16";
+our $VERSION = "0.19";
 
 __PACKAGE__->bootstrap ($VERSION);
 
@@ -114,5 +114,31 @@ sub fuzzy_index
     return ($row1[$n], $way[$m][$n]);
 }
 
+sub nearestv
+{
+    my ($tf, $array_ref) = @_;
+    if (wantarray) {
+	my @values;
+	my @offsets = $tf->nearest ($array_ref);
+	if (@offsets) {
+	    for (@offsets) {
+		push @values, $array_ref->[$_];
+	    }
+	    return @values;
+	}
+	else {
+	    return ();
+	}
+    }
+    else {
+	my $offset = $tf->nearest ($array_ref);
+	if (defined $offset) {
+	    return $array_ref->[$offset];
+	}
+	else {
+	    return undef;
+	}
+    }
+}
 
 1;

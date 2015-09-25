@@ -148,12 +148,16 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 
 	sv_to_int_ptr (text, & text_fuzzy->text);
 
-	/* Generate the Unicode alphabet. */
+	if (text_fuzzy->text.ulength > 0) {
+	    /* Generate the Unicode alphabet. */
 
-	TEXT_FUZZY (generate_ualphabet (text_fuzzy));
+	    TEXT_FUZZY (generate_ualphabet (text_fuzzy));
+	}
     }
     else {
-	TEXT_FUZZY (generate_alphabet (text_fuzzy));
+	if (text_fuzzy->text.length > 0) {
+	    TEXT_FUZZY (generate_alphabet (text_fuzzy));
+	}
     }
     * text_fuzzy_ptr = text_fuzzy;
 }
