@@ -252,12 +252,17 @@ OUTPUT:
         RETVAL
 
 
-char *
+SV *
 scan_file (tf, file_name)
 	Text::Fuzzy tf;
         char * file_name;
+PREINIT:
+	char * nearest;
+	int nearest_length;
 CODE:
-        TEXT_FUZZY (scan_file (tf, file_name, & RETVAL));
+        TEXT_FUZZY (scan_file (tf, file_name, & nearest, & nearest_length));
+	RETVAL = newSVpv (nearest, (STRLEN) nearest_length);
+        TEXT_FUZZY (scan_file_free (nearest));
 OUTPUT:
         RETVAL
 

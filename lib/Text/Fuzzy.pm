@@ -11,7 +11,7 @@ require DynaLoader;
 
 use warnings;
 use strict;
-our $VERSION = "0.19";
+our $VERSION = '0.21';
 
 __PACKAGE__->bootstrap ($VERSION);
 
@@ -27,7 +27,7 @@ sub dl_load_flags
 # edit steps necessary to convert one string into the other. $distance
 # is a boolean. If true it switches on
 
-my $verbose = undef;
+our $verbose;
 
 sub distance_edits
 {
@@ -36,7 +36,10 @@ sub distance_edits
 
 sub fuzzy_index
 {
+    # $distance is usually 0 or undefined here.
+
     my ($needle, $haystack, $distance) = @_;
+
     # Test whether the inputs make any sense here.
 
     my $m = length ($needle);
@@ -103,7 +106,7 @@ sub fuzzy_index
 		$way[$i][$j] = ($way[$i-1][$j-1] ? $way[$i-1][$j-1]:'') . $way;
 	    }
 	    else {
-		exit;
+		die "Internal bug: unrecognized path";
 	    }
 	    $row2[$j] = $min;
 	    print $row2[$j],$way[$i][$j]," " if $verbose;
@@ -111,7 +114,24 @@ sub fuzzy_index
 	@row1 = @row2;
  	print "\n" if $verbose;
     }
-    return ($row1[$n], $way[$m][$n]);
+    if ($distance) {
+	return ($row1[$n], $way[$m][$n]);
+    }
+    else {
+	my $mindistance = 'inf';
+	my $bestmatch;
+	    
+	for my $j (1..$n) {
+
+	    # The best distance we have found so far.
+
+	    if ($row2[$j] < $mindistance) {
+		$bestmatch = $j;
+		$mindistance = $row2[$j];
+	    }
+	}
+	return ($bestmatch, $way[$m][$bestmatch], $mindistance);
+    }
 }
 
 sub nearestv
@@ -140,5 +160,6 @@ sub nearestv
 	}
     }
 }
+
 
 1;

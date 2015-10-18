@@ -794,7 +794,7 @@ STATIC FUNC (close) (fuzzy_file_t * ff)
    string found is returned in "* nearest_ptr". */
 
 FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
-                  char ** nearest_ptr)
+                  char ** nearest_ptr, int * nearest_length_ptr)
 {
     fuzzy_file_t ff = {0};
     char * nearest;
@@ -814,11 +814,12 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
             found = 1;
 	    if (! nearest) {
 		nearest = malloc (ff.b.length + 1);
+		FAIL (! nearest, memory_failure);
 	    }
 	    else {
 		nearest = realloc (nearest, ff.b.length + 1);
+		FAIL (! nearest, memory_failure);
 	    }
-	    FAIL (! nearest, memory_failure);
 	    strncpy (nearest, ff.b.text, ff.b.length);
 	    nearest[ff.b.length] = '\0';
         }
@@ -837,6 +838,12 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
     else {
         * nearest_ptr = 0;
     }
+    OK;
+}
+
+FUNC (scan_file_free) (char * nearest)
+{
+    free (nearest);
     OK;
 }
 

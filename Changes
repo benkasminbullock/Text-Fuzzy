@@ -1,5 +1,15 @@
 Revision history for perl module Text::Fuzzy
 
+0.21 2015-10-19
+
+* Documents the undocumented fuzzy_index function
+* Fixes the return values for fuzzy_index to make sense
+* Adds a simple test for fuzzy_index
+
+0.20 2015-10-07
+
+* Plugs small memory leak plug in file scanner
+
 0.19 2015-09-25
 
 * Eliminate GCC-specific compiler instructions
