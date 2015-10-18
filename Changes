@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.22 2015-10-19
+
+* Minor documentation fixes
+
 0.21 2015-10-19
 
 * Documents the undocumented fuzzy_index function

@@ -1,8 +1,9 @@
+[% start_year = 2012 %]
 =encoding UTF-8
 
 =head1 NAME
 
-Text::Fuzzy - partial or fuzzy string matching using edit distances
+Text::Fuzzy - Partial string matching using edit distances
 
 =head1 SYNOPSIS
 
@@ -245,6 +246,8 @@ values. It does not currently support Unicode-encoded files.
 
 =head1 FUNCTIONS
 
+These functions do not require a C<Text::Fuzzy> object.
+
 =head2 distance_edits
 
     my ($distance, $edits) = distance_edits ('before', 'after');
@@ -262,6 +265,24 @@ This does not handle transpositions. Unlike the rest of the module,
 this is pure Perl rather than XS, and not optimized for speed. The
 edit distance search within L</nearest> is optimized for speed, and
 hence discards its record of edits used to get the result.
+
+=head2 fuzzy_index
+
+    my ($offset, $edits, $distance) = fuzzy_index ($needle, $haystack);
+
+Searches for SUBSTR in STR using fuzzy matching.
+
+Return value is the offest of the closest match found, the edits
+necessary on C<$needle> to make it into the matching text, and the
+Levenshtein edit distance between the matching part of C<$haystack>
+and C<$needle>.
+
+For the algorithm used, see
+
+L<http://ginstrom.com/scribbles/2007/12/01/fuzzy-substring-matching-with-levenshtein-distance-in-python/>
+
+This is implemented in Perl not C, and it's slow due to lots of
+debugging code. Please expect the interface and internals to change.
 
 =head1 EXAMPLES
 
@@ -396,26 +417,6 @@ distance allowed.
 
 Get the maximum edit distance of C<$tf>. The maximum distance may be
 set with L</set_max_distance>.
-
-=head2 fuzzy_index
-
-    my ($offset, $edits, $distance) = fuzzy_index ($needle, $haystack);
-
-Searches for SUBSTR in STR using fuzzy matching.
-
-Return value is the offest of the closest match found, the edits
-necessary on C<$needle> to make it into the matching text, and the
-Levenshtein edit distance between the matching part of C<$haystack>
-and C<$needle>.
-
-For the algorithm used, see
-
-L<http://ginstrom.com/scribbles/2007/12/01/fuzzy-substring-matching-with-levenshtein-distance-in-python/>
-
-This is implemented in Perl not C, and it's slow due to lots of
-debugging code. Please expect the interface and internals to change.
-
-=cut
 
 =head1 SEE ALSO
 
