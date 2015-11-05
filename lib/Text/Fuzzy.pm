@@ -11,7 +11,7 @@ require DynaLoader;
 
 use warnings;
 use strict;
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 __PACKAGE__->bootstrap ($VERSION);
 
@@ -118,7 +118,8 @@ sub fuzzy_index
 	return ($row1[$n], $way[$m][$n]);
     }
     else {
-	my $mindistance = 'inf';
+	# Windows doesn't like "inf" apparently.
+	my $mindistance = 1_000_000_000;
 	my $bestmatch;
 	    
 	for my $j (1..$n) {

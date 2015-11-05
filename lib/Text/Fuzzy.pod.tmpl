@@ -129,6 +129,8 @@ array offsets, and also error-prone due to having to check to
 distinguish the first element of the array from an undefined value
 using C<defined>.
 
+This method was added in version 0.18 of Text::Fuzzy.
+
 =head2 nearest
 
     my $index = $tf->nearest (\@words);
@@ -420,17 +422,23 @@ set with L</set_max_distance>.
 
 =head1 SEE ALSO
 
-=head2 L<Text::Fuzzy::PP>
+Similar modules on CPAN include the following.
+
+=over
+
+=item L<Text::Fuzzy::PP>
 
 This is Nick Logan's Pure Perl version of this module.
 
-=head2 L<Text::Levenshtein::XS>
+=item L<Text::Levenshtein::XS>
 
 This is an XS implementation of the Levenshtein edit distance.
 
-=head2 L<Text::Levenshtein::Damerau>
+=item L<Text::Levenshtein::Damerau>
 
 This implements the Levenshtein-Damerau edit distance.
+
+=back
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -439,3 +447,4 @@ Logan (UGEXE). Some of the tests in F<t/trans.t> are taken from the
 L<Text::Levenshtein::Damerau::XS> module.
 
 [% INCLUDE "author" %]
+[% INCLUDE "terminology" %]
