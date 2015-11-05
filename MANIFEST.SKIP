@@ -26,3 +26,4 @@ MYMETA\..*
 ^config$
 # Template
 ^declaration$
+^timesheet\.txt$

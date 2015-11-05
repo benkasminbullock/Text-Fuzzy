@@ -183,8 +183,9 @@ PPCODE:
 
 	if (wantarray) {
 		SV * e;
-		EXTEND (SP, av_len (wantarray));
-		for (i = 0; i <= av_len (wantarray); i++) {
+		int wasize = av_len (wantarray) + 1;
+		EXTEND (SP, wasize);
+		for (i = 0; i < wasize; i++) {
 			e = * av_fetch (wantarray, i, 0);
 			SvREFCNT_inc_simple_void_NN (e);
 			PUSHs (sv_2mortal (e));
