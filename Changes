@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.25 2016-12-07
+
+* Documentation changes only
+
 0.24 2015-11-06
 
 * Array length underflow error

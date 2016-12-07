@@ -2,11 +2,20 @@
 use warnings;
 use strict;
 use Template;
+use Perl::Build qw/get_info get_commit/;
 BEGIN: {
-    use FindBin;
+    use FindBin '$Bin';
     use lib "$FindBin::Bin/../lib";
 };
 use FindBin;
+
+my %pbv = (
+    base => "$Bin/..",
+#    verbose => 1,
+);
+
+my $info = get_info (%pbv);
+my $commit = get_commit (%pbv);
 
 # Names of the input and output files containing the documentation.
 
@@ -31,7 +40,10 @@ close $config or die $!;
 
 # Template toolkit variable holder
 
-my %vars;
+my %vars = (
+    commit => $commit,
+    info => $info,
+);
 $vars{config} = \%config;
 
 my $tt = Template->new (
@@ -48,6 +60,7 @@ my $tt = Template->new (
             0,
         ],
     },
+    STRICT => 1,
 );
 
 $tt->process ($input, \%vars, $output, {binmode => 'utf8'})

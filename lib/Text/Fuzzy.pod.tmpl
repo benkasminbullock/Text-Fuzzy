@@ -1,5 +1,4 @@
 [% start_year = 2012 -%]
-[% status = in_use -%]
 =encoding UTF-8
 
 =head1 NAME
@@ -9,6 +8,12 @@ Text::Fuzzy - Partial string matching using edit distances
 =head1 SYNOPSIS
 
 [% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/synopsis.pl" | xtidy %]
+
+=head1 VERSION
+
+This documents version [% info.version %] of Text::Fuzzy corresponding
+to git commit L<[% commit.commit %]|[% info.repo %]/commit/[%
+commit.commit %]> released on [% commit.date %].
 
 =head1 DESCRIPTION
 
@@ -332,13 +337,7 @@ Text::Fuzzy.
 
 =head2 Reporting a bug
 
-There is a bug tracker for the module at
-L<https://github.com/benkasminbullock/Text-Fuzzy/issues>
-
-=head2 Mailing list
-
-There is a mailing list at Google Groups at
-L<https://groups.google.com/group/textfuzzy>
+There is a bug tracker for the module at L<[% info.repo %]/issues>.
 
 =head2 Testing
 
@@ -427,17 +426,25 @@ Similar modules on CPAN include the following.
 
 =over
 
+=item L<String::Approx>
+
 =item L<Text::Fuzzy::PP>
 
 This is Nick Logan's Pure Perl version of this module.
+
+=item L<Text::Levenshtein::Damerau>
+
+This implements the Levenshtein-Damerau edit distance.
+
+=item L<Text::Levenshtein>
+
+=item L<Text::Levenshtein::Flexible>
 
 =item L<Text::Levenshtein::XS>
 
 This is an XS implementation of the Levenshtein edit distance.
 
-=item L<Text::Levenshtein::Damerau>
-
-This implements the Levenshtein-Damerau edit distance.
+=item L<Text::LevenshteinXS>
 
 =back
 
@@ -448,4 +455,3 @@ Logan (UGEXE). Some of the tests in F<t/trans.t> are taken from the
 L<Text::Levenshtein::Damerau::XS> module.
 
 [% INCLUDE "author" %]
-[% INCLUDE "terminology" %]
