@@ -7,7 +7,7 @@ Text::Fuzzy - Partial string matching using edit distances
 
 =head1 SYNOPSIS
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/synopsis.pl" | xtidy %]
+[% INCLUDE "synopsis.pl" | xtidy %]
 
 =head1 VERSION
 
@@ -22,7 +22,7 @@ arrays and files to find the nearest entry by edit distance. It
 handles both byte strings and character strings (strings containing
 Unicode), treating each Unicode character as a single entity.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/unicode.pl" | xtidy %]
+[% INCLUDE "unicode.pl" | xtidy %]
 
 The default edit distance is the Levenshtein one, which counts each
 addition (C<cat> -> C<cart>), substitution (C<cat> -> C<cut>), and
@@ -110,7 +110,7 @@ this.
 This method's return value is the edit distance to C<$word> from the
 word used to create the object in L</new>.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/distance.pl" | xtidy %]
+[% INCLUDE "distance.pl" | xtidy %]
 
 To know which edits are used to convert the words, use
 L</distance_edits>.
@@ -124,7 +124,7 @@ Returns the value in C<@words> which has the nearest distance to the
 value given to C<$tf> in L</new>. In array context, it returns a list
 of the nearest values.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/nearestv.pl" | xtidy %]
+[% INCLUDE "nearestv.pl" | xtidy %]
 
 The behaviour of the match can be controlled with L</no_exact> and
 L</set_max_distance> in exactly the same way as L</nearest>.
@@ -154,7 +154,7 @@ than the maximum distance away from the word, C<$index> is the
 undefined value, so when setting a maximum distance, it is necessary
 to check the return value of index using C<defined>.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/check-return.pl" | xtidy %]
+[% INCLUDE "check-return.pl" | xtidy %]
 
 If there is more than one word with the same edit distance in
 C<@words>, this returns the last one found, unless it is an exact
@@ -167,7 +167,7 @@ In array context, if there are no matches within the minimum distance,
 C<nearest> returns an empty list. If there is one or more match, it
 returns the array offset of it or them, not the value itself.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/list-context.pl" | xtidy %]
+[% INCLUDE "list-context.pl" | xtidy %]
 
 =head2 last_distance
 
@@ -177,7 +177,7 @@ The distance from the previous match's closest match. This is used in
 conjunction with L</nearest> or L</nearestv> to find the edit distance
 to the previous match.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/last-distance.pl" | xtidy %]
+[% INCLUDE "last-distance.pl" | xtidy %]
 
 =head2 set_max_distance
 
@@ -201,7 +201,7 @@ match is is accepted. A negative value also switches it off:
 The object created by L</new> has no maximum distance unless specified
 by the user.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/max-dist.pl" | xtidy %]
+[% INCLUDE "max-dist.pl" | xtidy %]
 
 Setting the maximum distance is a way to make a search more rapid. For
 example if you are searching over a dictionary of 100,000 or a million
@@ -233,11 +233,11 @@ transpositions:
 This is a flag to L</nearest> which makes it ignore exact matches. For
 example,
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact.pl" | xtidy %]
+[% INCLUDE "no-exact.pl" | xtidy %]
 
 This prints
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/no-exact-out.txt" | xtidy %]
+[% INCLUDE "no-exact-out.txt" | xtidy %]
 
 This is for the case of searching over an array which contains the
 searched-for item itself.
@@ -267,7 +267,7 @@ I<d>, and I<i>, for "keep", "replace", "delete", and "insert"
 respectively. For example, for "piece" and "peace", C<$edits> contains
 "krrkk" for "keep, replace, replace, keep, keep".
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/distance-edits.pl" | xtidy %]
+[% INCLUDE "distance-edits.pl" | xtidy %]
 
 This does not handle transpositions. Unlike the rest of the module,
 this is pure Perl rather than XS, and not optimized for speed. The
@@ -301,7 +301,7 @@ script which does something similar to the Apache mod_speling module,
 offering spelling corrections for mistyped URLs and sending the user
 to a correct page.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/misspelt-web-page.cgi" | xtidy %]
+[% INCLUDE "misspelt-web-page.cgi" | xtidy %]
 
 See also L<http://www.lemoda.net/perl/perl-mod-speling/> for how to
 set up F<.htaccess> to use the script.
@@ -316,7 +316,7 @@ dictionary of words specified by a command-line option "-d":
 It prints out any words which look like spelling mistakes, using the
 dictionary.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/spell-check.pl" | xtidy %]
+[% INCLUDE "spell-check.pl" | xtidy %]
 
 Because the usual Unix dictionary doesn't have plurals, it uses
 L<Lingua::EN::PluralToSingular>, to convert nouns into singular
@@ -331,7 +331,7 @@ and does some fuzzy searches on them. It requires a local copy of the
 file to run. This script demonstrates the use of Unicode searches with
 Text::Fuzzy.
 
-[% INCLUDE "/home/ben/projects/Text-Fuzzy/examples/extract-kana.pl" | xtidy %]
+[% INCLUDE "extract-kana.pl" | xtidy %]
 
 =head1 SUPPORT
 
@@ -427,6 +427,8 @@ Similar modules on CPAN include the following.
 =over
 
 =item L<String::Approx>
+
+=item L<Text::EditTranscript>
 
 =item L<Text::Fuzzy::PP>
 

@@ -6,7 +6,7 @@ use strict;
 
 
 use Lingua::JA::Moji ':all';
-use FindBin;
+use FindBin '$Bin';
 my $max = 0;
 my $infile = '/home/ben/data/edrdg/edict';
 
@@ -30,7 +30,7 @@ while (<$in>) {
 }
 close $in or die $!;
 
-my $outfile = "$FindBin::Bin/kana.txt";
+my $outfile = "$Bin/kana.txt";
 open my $out, ">:encoding(UTF-8)", $outfile or die $!;
 for (@kana) {
     print $out "$_\n";

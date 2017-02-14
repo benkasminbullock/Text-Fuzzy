@@ -2,13 +2,13 @@
 use warnings;
 use strict;
 use Template;
-use FindBin;
+use FindBin '$Bin';
 use File::Compare;
 
 my $tt = Template->new (
     ABSOLUTE => 1,
     INCLUDE_PATH => [
-        $FindBin::Bin,
+        $Bin,
     ],
 );
 my $file = 'edit-distance';
@@ -46,7 +46,7 @@ for my $trans (0, 1) {
 
 # Write "config.h" from "config".
 
-open my $config, "<", "$FindBin::Bin/config" or die $!;
+open my $config, "<", "$Bin/config" or die $!;
 my %config;
 while (<$config>) {
     if (/^\s*#/ || /^\s*$/) {
@@ -61,7 +61,7 @@ while (<$config>) {
 
 close $config or die $!;
 
-open my $cfgh, ">", "$FindBin::Bin/config.h" or die $!;
+open my $cfgh, ">", "$Bin/config.h" or die $!;
 my $w = 'TEXT_FUZZY_CONFIG';
 print $cfgh <<EOF;
 #ifndef $w

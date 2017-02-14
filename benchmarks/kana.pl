@@ -6,8 +6,8 @@ use Time::HiRes 'time';
 use JSON;
 use utf8;
 binmode STDOUT, ":utf8";
-use FindBin;
-my $infile = "$FindBin::Bin/kana.txt";
+use FindBin '$Bin';
+my $infile = "$Bin/kana.txt";
 open my $in, "<:encoding(UTF-8)", $infile or die $!;
 my @kana;
 while (<$in>) {
