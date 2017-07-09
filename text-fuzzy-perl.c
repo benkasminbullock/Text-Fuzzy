@@ -90,12 +90,12 @@ static void allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
 static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
 {
     int i;
-    U8 * utf;
+    const U8 * utf;
     STRLEN curlen;
     STRLEN length;
-    unsigned char * stuff;
+    const unsigned char * stuff;
 
-    stuff = (unsigned char *) SvPV (text, length);
+    stuff = (const unsigned char *) SvPV (text, length);
 
     utf = stuff;
     curlen = length;
@@ -118,7 +118,7 @@ static void
 sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 {
     STRLEN length;
-    unsigned char * stuff;
+    const unsigned char * stuff;
     text_fuzzy_t * text_fuzzy;
     int i;
     int is_utf8;
@@ -173,7 +173,10 @@ sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * tf)
 {
     STRLEN length;
     tf->b.text = SvPV (word, length);
+    tf->b.allocated = 0;
     tf->b.length = length;
+    /* Hack for "get_memory". */
+    text_fuzzy_t * text_fuzzy = tf;
     if (SvUTF8 (word) || tf->unicode) {
 
 	/* Make a Unicode version of b. */
@@ -188,6 +191,8 @@ sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * tf)
 	    int i;
 
 	    tf->b.length = tf->b.ulength;
+	    tf->b.allocated = 1;
+	    get_memory (tf->b.text, tf->b.length + 1, char);
 	    for (i = 0; i < tf->b.ulength; i++) {
 		int c;
 
@@ -210,6 +215,10 @@ text_fuzzy_sv_distance (text_fuzzy_t * tf, SV * word)
 {
     sv_to_text_fuzzy_string (word, tf);
     TEXT_FUZZY (compare_single (tf));
+    if (tf->b.allocated) {
+	Safefree (tf->b.text);
+	tf->n_mallocs--;
+    }
     if (tf->found) {
         return tf->distance;
     }

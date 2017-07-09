@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <string.h>
 /* For error-handling for the file opening functions. */
 #include <errno.h>
@@ -6,6 +8,7 @@
 
 #include "config.h"
 #include "text-fuzzy.h"
+
 
 /* All of the following are automatically generated from
    "edit-distance.h.tmpl" by "make-edit-distance-c.pl". */
@@ -24,8 +27,8 @@
 
 /* Alphabet over unicode characters. */
 
-typedef struct ualphabet {
-
+typedef struct ualphabet
+{
     /* The smallest character in our alphabet. */
     int min;
 
@@ -60,6 +63,10 @@ typedef struct text_fuzzy_string {
 
     /* The length of "unicode". */
     int ulength;
+
+    /* Is "text" allocated? */
+
+    unsigned int allocated : 1;
 }
 text_fuzzy_string_t;
 
