@@ -1,3 +1,14 @@
+[% MACRO example(file) BLOCK %]
+[%- pl = file _ ".pl" -%]
+[%- out = file _ "-out.txt" -%]
+[% INCLUDE $pl | xtidy %]
+
+produces output
+
+[% INCLUDE $out | xtidy %]
+
+(This example is included as L<F<[% pl %]>|https://fastapi.metacpan.org/source/BKB/[% info.pm %]-[% info.version %]/examples/[% pl %]> in the distribution.)
+[% END %]
 [% start_year = 2012 -%]
 =encoding UTF-8
 
@@ -7,7 +18,7 @@ Text::Fuzzy - Partial string matching using edit distances
 
 =head1 SYNOPSIS
 
-[% INCLUDE "synopsis.pl" | xtidy %]
+[% example("synopsis") %]
 
 =head1 VERSION
 
@@ -22,7 +33,7 @@ arrays and files to find the nearest entry by edit distance. It
 handles both byte strings and character strings (strings containing
 Unicode), treating each Unicode character as a single entity.
 
-[% INCLUDE "unicode.pl" | xtidy %]
+[% example("unicode") %]
 
 The default edit distance is the Levenshtein one, which counts each
 addition (C<cat> -> C<cart>), substitution (C<cat> -> C<cut>), and
@@ -110,7 +121,7 @@ this.
 This method's return value is the edit distance to C<$word> from the
 word used to create the object in L</new>.
 
-[% INCLUDE "distance.pl" | xtidy %]
+[% example("distance") %]
 
 To know which edits are used to convert the words, use
 L</distance_edits>.
@@ -124,7 +135,7 @@ Returns the value in C<@words> which has the nearest distance to the
 value given to C<$tf> in L</new>. In array context, it returns a list
 of the nearest values.
 
-[% INCLUDE "nearestv.pl" | xtidy %]
+[% example("nearestv") %]
 
 The behaviour of the match can be controlled with L</no_exact> and
 L</set_max_distance> in exactly the same way as L</nearest>.
@@ -154,7 +165,7 @@ than the maximum distance away from the word, C<$index> is the
 undefined value, so when setting a maximum distance, it is necessary
 to check the return value of index using C<defined>.
 
-[% INCLUDE "check-return.pl" | xtidy %]
+[% example("check-return") %]
 
 If there is more than one word with the same edit distance in
 C<@words>, this returns the last one found, unless it is an exact
@@ -167,7 +178,7 @@ In array context, if there are no matches within the minimum distance,
 C<nearest> returns an empty list. If there is one or more match, it
 returns the array offset of it or them, not the value itself.
 
-[% INCLUDE "list-context.pl" | xtidy %]
+[% example("list-context") %]
 
 =head2 last_distance
 
@@ -177,7 +188,7 @@ The distance from the previous match's closest match. This is used in
 conjunction with L</nearest> or L</nearestv> to find the edit distance
 to the previous match.
 
-[% INCLUDE "last-distance.pl" | xtidy %]
+[% example("last-distance") %]
 
 =head2 set_max_distance
 
@@ -201,7 +212,7 @@ match is is accepted. A negative value also switches it off:
 The object created by L</new> has no maximum distance unless specified
 by the user.
 
-[% INCLUDE "max-dist.pl" | xtidy %]
+[% example("max-dist") %]
 
 Setting the maximum distance is a way to make a search more rapid. For
 example if you are searching over a dictionary of 100,000 or a million
@@ -233,11 +244,7 @@ transpositions:
 This is a flag to L</nearest> which makes it ignore exact matches. For
 example,
 
-[% INCLUDE "no-exact.pl" | xtidy %]
-
-This prints
-
-[% INCLUDE "no-exact-out.txt" | xtidy %]
+[% example("no-exact") %]
 
 This is for the case of searching over an array which contains the
 searched-for item itself.
@@ -267,7 +274,7 @@ I<d>, and I<i>, for "keep", "replace", "delete", and "insert"
 respectively. For example, for "piece" and "peace", C<$edits> contains
 "krrkk" for "keep, replace, replace, keep, keep".
 
-[% INCLUDE "distance-edits.pl" | xtidy %]
+[% example("distance-edits") %]
 
 This does not handle transpositions. Unlike the rest of the module,
 this is pure Perl rather than XS, and not optimized for speed. The
@@ -316,7 +323,7 @@ dictionary of words specified by a command-line option "-d":
 It prints out any words which look like spelling mistakes, using the
 dictionary.
 
-[% INCLUDE "spell-check.pl" | xtidy %]
+[% example("spell-check") %]
 
 Because the usual Unix dictionary doesn't have plurals, it uses
 L<Lingua::EN::PluralToSingular>, to convert nouns into singular
@@ -331,7 +338,7 @@ and does some fuzzy searches on them. It requires a local copy of the
 file to run. This script demonstrates the use of Unicode searches with
 Text::Fuzzy.
 
-[% INCLUDE "extract-kana.pl" | xtidy %]
+[% example("extract-kana") %]
 
 =head1 SUPPORT
 
