@@ -1,3 +1,6 @@
+[% MACRO exlink(file) BLOCK %]
+L<F<examples/[% file %]>|https://fastapi.metacpan.org/source/BKB/[% info.name %]-[% info.version %]/examples/[% file %]>
+[% END %]
 [% MACRO example(file) BLOCK %]
 [%- pl = file _ ".pl" -%]
 [%- out = file _ "-out.txt" -%]
@@ -7,7 +10,7 @@ produces output
 
 [% INCLUDE $out | xtidy %]
 
-(This example is included as L<F<[% pl %]>|https://fastapi.metacpan.org/source/BKB/[% info.pm %]-[% info.version %]/examples/[% pl %]> in the distribution.)
+(This example is included as L<F<[% pl %]>|https://fastapi.metacpan.org/source/BKB/[% info.name %]-[% info.version %]/examples/[% pl %]> in the distribution.)
 [% END %]
 [% start_year = 2012 -%]
 =encoding UTF-8
@@ -285,7 +288,7 @@ hence discards its record of edits used to get the result.
 
     my ($offset, $edits, $distance) = fuzzy_index ($needle, $haystack);
 
-Searches for SUBSTR in STR using fuzzy matching.
+Searches for C<$needle> in C<$haystack> using fuzzy matching.
 
 Return value is the offest of the closest match found, the edits
 necessary on C<$needle> to make it into the matching text, and the
@@ -301,9 +304,12 @@ debugging code. Please expect the interface and internals to change.
 
 =head1 EXAMPLES
 
+This section gives extended examples of the use of the module to solve
+practical problems.
+
 =head2 misspelt-web-page.cgi
 
-The file F<examples/misspelt-web-page.cgi> is an example of a CGI
+The file [% exlink("misspelt-web-page.cgi") %] is an example of a CGI
 script which does something similar to the Apache mod_speling module,
 offering spelling corrections for mistyped URLs and sending the user
 to a correct page.
@@ -315,7 +321,7 @@ set up F<.htaccess> to use the script.
 
 =head2 spell-check.pl
 
-The file F<examples/spell-check.pl> is a spell checker. It uses a
+The file [% exlink("spell-check.pl") %] is a spell checker. It uses a
 dictionary of words specified by a command-line option "-d":
 
     spell-check.pl -d /usr/dict/words file1.txt file2.txt
@@ -323,7 +329,7 @@ dictionary of words specified by a command-line option "-d":
 It prints out any words which look like spelling mistakes, using the
 dictionary.
 
-[% example("spell-check") %]
+[% INCLUDE "spell-check.pl" | xtidy %]
 
 Because the usual Unix dictionary doesn't have plurals, it uses
 L<Lingua::EN::PluralToSingular>, to convert nouns into singular
@@ -332,13 +338,23 @@ of verbs.
 
 =head2 extract-kana.pl
 
-The file F<examples/extract-kana.pl> extracts the kana entries from
-"edict", a freely-available Japanese to English electronic dictionary,
-and does some fuzzy searches on them. It requires a local copy of the
-file to run. This script demonstrates the use of Unicode searches with
-Text::Fuzzy.
+The file [% exlink("extract-kana.pl") %] extracts the kana entries
+from "edict", a freely-available Japanese to English electronic
+dictionary, and does some fuzzy searches on them. It requires a local
+copy of the file to run. This script demonstrates the use of Unicode
+searches with Text::Fuzzy.
 
-[% example("extract-kana") %]
+[% INCLUDE "extract-kana.pl" | xtidy %]
+
+=head2 L<Lingua::JA::Gairaigo::Fuzzy>
+
+The module Lingua::JA::Gairaigo::Fuzzy tries to determine whether two
+Japanese loanwords are the same word or not.
+
+=head2 L<CPAN::Nearest>
+
+The module CPAN::Nearest offers a search over the titles of CPAN
+modules using a fuzzy search to get the nearest match.
 
 =head1 SUPPORT
 
@@ -355,8 +371,8 @@ L<http://code.activestate.com/ppm/Text-Fuzzy/>.
 
 =head1 PRIVATE METHODS
 
-You probably do not need any of these methods. They are for
-benchmarking the module and checking its correctness.
+The following methods are for benchmarking the module and checking its
+correctness.
 
 =head2 no_alphabet
 
@@ -435,7 +451,11 @@ Similar modules on CPAN include the following.
 
 =item L<String::Approx>
 
+Approximate matching (fuzzy matching).
+
 =item L<Text::EditTranscript>
+
+Determine the edit transcript between two strings.
 
 =item L<Text::Fuzzy::PP>
 
@@ -443,17 +463,68 @@ This is Nick Logan's Pure Perl version of this module.
 
 =item L<Text::Levenshtein::Damerau>
 
-This implements the Levenshtein-Damerau edit distance.
+Levenshtein-Damerau edit distance.
 
 =item L<Text::Levenshtein>
 
 =item L<Text::Levenshtein::Flexible>
 
+XS Levenshtein distance calculation with bounds and costs.
+
 =item L<Text::Levenshtein::XS>
 
-This is an XS implementation of the Levenshtein edit distance.
+An XS implementation of the Levenshtein edit distance.
 
 =item L<Text::LevenshteinXS>
+
+An XS implementation of the Levenshtein edit distance
+
+=item L<Text::Levenshtein::Edlib>
+
+A wrapper around the edlib library that computes Levenshtein edit
+distance and optimal alignment path for a pair of strings.
+
+=item L<Tree::BK>
+
+Structure for efficient fuzzy matching.
+
+=item L<Text::Brew>
+
+An implementation of the Brew edit distance.
+
+=item L<Text::WagnerFischer>
+
+Wagner-Fischer edit distance.
+
+=item L<Bencher::Scenario::LevenshteinModules>
+
+Some benchmarks of various modules including this one.
+
+=back
+
+=head1 HISTORY
+
+=over
+
+=item 0.26
+
+=over
+
+=item 
+
+A bug was fixed where an input string may be overwritten in code like
+
+    my $tf = Text::Fuzzy->new ($x);
+    $tf->distance ($y);
+
+if C<$x> is a plain ASCII string and C<$y> is a Unicode string.
+
+=item
+
+Links were added to the examples, and the outputs of the examples were
+added as part of the documentation.
+
+=back
 
 =back
 
@@ -461,6 +532,7 @@ This is an XS implementation of the Levenshtein edit distance.
 
 The edit distance including transpositions was contributed by Nick
 Logan (UGEXE). Some of the tests in F<t/trans.t> are taken from the
-L<Text::Levenshtein::Damerau::XS> module.
+L<Text::Levenshtein::Damerau::XS> module. Nils Boeffel reported a bug
+where strings may be overwritten in version 0.25.
 
 [% INCLUDE "author" %]
