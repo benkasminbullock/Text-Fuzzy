@@ -9,7 +9,6 @@
 #include "config.h"
 #include "text-fuzzy.h"
 
-
 /* All of the following are automatically generated from
    "edit-distance.h.tmpl" by "make-edit-distance-c.pl". */
 
@@ -49,8 +48,8 @@ ualphabet_t;
 
 /* This structure contains one string of whatever type. */
 
-typedef struct text_fuzzy_string {
-
+typedef struct text_fuzzy_string
+{
     /* The text of the string. */
     char * text;
 
@@ -84,13 +83,12 @@ struct candidate {
    paraphenalia used in searching for the string, for example the
    alphabet of the string. */
 
-typedef struct text_fuzzy {
-
+typedef struct text_fuzzy
+{
     /* The string we are to match. */
     text_fuzzy_string_t text;
 
     /* The matching string. */
-
     text_fuzzy_string_t b;
 
     /* The maximum edit distance we allow for. */
@@ -258,7 +256,8 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     /* Create a zeroed alphabet. */
 
     u->alphabet = calloc (u->size, sizeof (char));
-    FAIL_MSG (! u->alphabet, memory_failure, "Could not allocate %d memory slots",
+    FAIL_MSG (! u->alphabet, memory_failure,
+	      "Could not allocate %d memory slots",
 	      u->size);
 
     tf->n_mallocs++;
@@ -268,8 +267,6 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
     for (i = 0; i < t->ulength; i++) {
 
 	/* Character at position "i". */
-
-
 
 	int c;
 
@@ -541,7 +538,7 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 	    candidate_t * c;
 	    c = malloc (sizeof (candidate_t));
 	    FAIL (! c, memory_failure);
-	    tf->n_mallocs+=1;
+	    tf->n_mallocs += 1;
 	    c->distance = d;
 	    c->offset = tf->offset;
 	    c->next = 0;
@@ -618,7 +615,6 @@ FUNC (free_candidates) (text_fuzzy_t * text_fuzzy, int * candidates)
     }
     OK;
 }
-
 
 /* This is the threshold above which we do not bother computing the
    alphabet of the string. If it has more than this number of unique
@@ -718,7 +714,8 @@ FUNC (end_scanning) (text_fuzzy_t * text_fuzzy)
 
 #define BUF_SIZE 0x1000
 
-typedef struct fuzzy_file {
+typedef struct fuzzy_file
+{
     const char * file_name;
     FILE * fh;
     char buf[BUF_SIZE];
