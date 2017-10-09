@@ -47,7 +47,7 @@ CODE:
 
 	for (i = 2; i < items; i++) {
 		SV * x;
-		char * p;
+		const char * p;
 		STRLEN len;
 
 		if (i >= items - 1) {
