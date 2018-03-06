@@ -1,0 +1,14 @@
+all: text-fuzzy.c text-fuzzy.h
+
+text-fuzzy.h: text-fuzzy.c
+	cfunctions text-fuzzy.c
+
+text-fuzzy.c: text-fuzzy.c.in
+	c-maker text-fuzzy
+
+clean:
+	rm -f text-fuzzy.[ch]
+
+# Local variables:
+# mode: makefile
+# End:

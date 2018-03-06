@@ -5,9 +5,7 @@ use Perl::Build;
 perl_build (
     pre => './make-edit-distance-c.pl',
     make_pod => './make-pod.pl',
-    cmaker => [
-        'text-fuzzy',
-    ],
+    makefile => './makeitfile',
     clean => './cleanup.pl',
 );
 exit;
