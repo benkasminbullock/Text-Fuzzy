@@ -1,7 +1,6 @@
 #!/home/ben/software/install/bin/perl
 use warnings;
 use strict;
-use File::Slurp;
 use Text::Fuzzy;
 use Getopt::Long;
 my $file = '/usr/share/dict/words';
