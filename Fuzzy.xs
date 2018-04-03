@@ -3,15 +3,15 @@
 #include "XSUB.h"
 #include "ppport.h"
 
-#define FAIL_STATUS
 #define ERROR_HANDLER perl_error_handler
+#define TEXT_FUZZY_USER_ERROR
 
 #include "config.h"
 #include "text-fuzzy.h"
 #include "text-fuzzy-perl.c"
 
-#undef FAIL_STATUS
-#define FAIL_STATUS
+#undef TEXT_FUZZY_USER_ERROR
+#define TEXT_FUZZY_USER_ERROR
 
 typedef text_fuzzy_t * Text__Fuzzy;
 

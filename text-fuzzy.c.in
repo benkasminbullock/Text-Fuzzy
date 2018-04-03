@@ -1,9 +1,6 @@
 #include <stdio.h>
-
 #include <string.h>
-/* For error-handling for the file opening functions. */
 #include <errno.h>
-/* For INT_MAX, INT_MIN. */
 #include <limits.h>
 
 #include "config.h"
