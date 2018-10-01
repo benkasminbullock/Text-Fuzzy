@@ -1,16 +1,21 @@
 #!/home/ben/software/install/bin/perl
+
+# This makes all the different edit distance C files from a master
+# template.
+
 use warnings;
 use strict;
 use Template;
 use FindBin '$Bin';
 use File::Compare;
-
+use C::Utility qw/linein lineout/; 
 my $tt = Template->new (
     ABSOLUTE => 1,
     INCLUDE_PATH => [
         $Bin,
     ],
 );
+
 my $file = 'edit-distance';
 
 my %vars;
@@ -74,7 +79,6 @@ print $cfgh <<EOF;
 #endif /* ndef $w */
 EOF
 close $cfgh or die $!;
-
 exit;
 
 sub do_file
@@ -84,16 +88,9 @@ sub do_file
 	chmod 0777, $outfile;
 	unlink $outfile;
     }
-    # Add line directives.
-    open my $in, "<", $infile or die $!;
-    my $text = '';
-    while (<$in>) {
-	my $n = $. + 1;
-	s/#line(\s*)$/#line $n "$infile"$1/;
-	$text .= $_;
-    }
-    close $in or die $!;
-    $tt->process (\$text, $vars, $outfile)
+    my $text = linein ($infile);
+    $tt->process (\$text, $vars, \my $textout)
         or die '' . $tt->error ();
+    lineout ($textout, $outfile);
     chmod 0444, $outfile;
 }

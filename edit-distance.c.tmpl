@@ -1,4 +1,4 @@
-#line
+#linein
 #include <stdio.h>
 /* For INT_MAX/INT_MIN */
 #include <limits.h>
@@ -9,15 +9,14 @@
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
 [%- IF trans %]
-#line
-
 
 /* Our unsorted dictionary linked list.       */
 
-struct dictionary {
+struct dictionary
+{
     [% type %] key;    /* the character        */
     unsigned int value;  /* character occurance  */
-    struct dictionary* next;
+    struct dictionary * next;
 };
 
 typedef struct dictionary item;
@@ -30,7 +29,8 @@ typedef struct dictionary item;
 #define INLINE 
 #endif
 
-static INLINE item * push (unsigned int key, item * curr)
+static INLINE item * 
+push (unsigned int key, item * curr)
 {
     item * head;
     head = malloc (sizeof (item));   
@@ -40,11 +40,12 @@ static INLINE item * push (unsigned int key, item * curr)
     return head;
 }
 
-static INLINE item * find (item * head, unsigned int key)
+static INLINE item * 
+find (item * head, unsigned int key)
 {
     item * iterator = head;
     while (iterator) {
-	if (iterator->key == key){
+	if (iterator->key == key) {
 	    return iterator;
 	}
 	iterator = iterator->next;
@@ -54,30 +55,31 @@ static INLINE item * find (item * head, unsigned int key)
 
 /* find & push in 1 function (sperg optimization) */
 
-static INLINE item * uniquePush (item * head, unsigned int key)
+static INLINE item * 
+unique_push (item * head, unsigned int key)
 {
     item * iterator = head;
 
-    while(iterator){
-	if(iterator->key == key){
+    while (iterator) {
+	if (iterator->key == key) {
 	    return head;
 	}
 	iterator = iterator->next;
     }
-    return push(key,head); 
+    return push (key, head); 
 }
 
 /* Free the memory associated with "head". */
 
-static void dict_free (item * head)
+static void 
+dict_free (item * head)
 {
     item * iterator = head;
-    while(iterator){
+    while(iterator) {
 	item * temp = iterator;
 	iterator = iterator->next;
 	free(temp);
     }
-    
     head = NULL;
 }
 
@@ -91,10 +93,9 @@ static int minimum (int a, int b)
 
 
 [%- END %]
-#line 1 "declaration"
+#lineout
 [% INCLUDE declaration %]
 {
-#line
 [% IF ed_type == 'int' %]
 [% length = 'ulength' %]
 [% value = 'unicode' %]
@@ -105,7 +106,7 @@ static int minimum (int a, int b)
     fprintf (stderr, "Unhandled type [% type %].\n");
     exit (1);
 [% END # ed_type %]
-#line
+#linein
     const [% type %] * word1 = (const [% type %] *) tf->b.[% value %];
     int len1 = tf->b.[% length %];
     const [% type %] * word2 = (const [% type %] *) tf->text.[% value %];
@@ -117,7 +118,7 @@ static int minimum (int a, int b)
 
     item *head = NULL;
 
-    unsigned int swapScore,targetCharCount,i;
+    unsigned int swap_score,targetCharCount,i;
     unsigned int score_ceil = len1 + len2;
 #ifdef __GNUC__
     unsigned int matrix[len1 + 2][len2 + 2];
@@ -147,43 +148,50 @@ static int minimum (int a, int b)
     matrix[0][1] = score_ceil;
     matrix[1][1] = 0;
 
-    head = uniquePush (uniquePush (head, word1[0]), word2[0]);
+    head = unique_push (unique_push (head, word1[0]), word2[0]);
 
     for (i = 1; i <= len1; i++) { 
-	int swapCount;
+	int swap_count;
 	int j;
 
-	head = uniquePush (head, word1[i]);
+	head = unique_push (head, word1[i]);
 	matrix[i+1][1] = i;
 	matrix[i+1][0] = score_ceil;
 	
-	swapCount = 0;
+	swap_count = 0;
 
-	for (j = 1; j <= len2; j++){
+	for (j = 1; j <= len2; j++) {
+	    item * found;
 	    if (i == 1) {
 		/* only initialize on the first pass     */
 		/* optimized over 2 additional for loops */
-		head = uniquePush (head, word2[j]);
+		head = unique_push (head, word2[j]);
 		matrix[1][j + 1] = j;
 		matrix[0][j + 1] = score_ceil;
 	    }
-
-	    targetCharCount = find (head, word2[j-1])->value;
-
-	    swapScore = matrix[targetCharCount][swapCount] + i - targetCharCount - 1 + j - swapCount;
 	    
-	    if(word1[i-1] != word2[j-1]){      
-		matrix[i+1][j + 1] = minimum(swapScore,(minimum(matrix[i][j], minimum(matrix[i+1][j], matrix[i][j + 1])) + 1));
+	    found = find (head, word2[j-1]);
+	    if (! found) {
 	    }
-	    else{ 
-		swapCount = j;
-		matrix[i+1][j + 1] = minimum (matrix[i][j], swapScore);
+	    targetCharCount = found->value;
+
+	    swap_score = matrix[targetCharCount][swap_count] + i
+		- targetCharCount - 1 + j - swap_count;
+	    
+	    if (word1[i-1] != word2[j-1]) {      
+		int x;
+		int y;
+		x = minimum (matrix[i+1][j], matrix[i][j + 1]);
+		y = minimum (matrix[i][j], x);
+		matrix[i+1][j + 1] = minimum (swap_score, (y + 1));
+	    }
+	    else { 
+		swap_count = j;
+		matrix[i+1][j + 1] = minimum (matrix[i][j], swap_score);
 	    } 
 	}
-	
 	find (head, word1[i-1])->value = i;
     }
-
     dict_free (head);
 
 #ifdef __GNUC__
@@ -204,7 +212,7 @@ static int minimum (int a, int b)
 #endif
 
 [%- ELSE # trans %]
-#line
+#linein
 
     /* Matrix is the dynamic programming matrix. We economize on space
        by having only two columns. */
@@ -220,12 +228,12 @@ static int minimum (int a, int b)
     int large_value;
 
 [%- IF use_text_fuzzy %]
-#line
+#linein
     int max;
 
     max = tf->max_distance;
 [%- END # use_text_fuzzy %]
-#line
+#linein
 
 #ifndef __GNUC__
     for (i = 0; i < 2; i++) {
@@ -367,6 +375,6 @@ static int minimum (int a, int b)
 #endif
 
 [%- END # trans %]
-#line
+#linein
 }
 
