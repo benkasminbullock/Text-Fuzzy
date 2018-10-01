@@ -30,3 +30,4 @@ MYMETA\..*
 # Author tests
 ^xt/.*$
 ^examples/.*-out\.txt
+^edit-distance-.*-no-tf\.[ch]$

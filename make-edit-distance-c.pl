@@ -23,29 +23,34 @@ $vars{compare_c1_c2} = 'c1 == c2';
 $vars{insert_cost} = 1;
 $vars{delete_cost} = 1;
 $vars{substitute_cost} = 1;
-$vars{use_text_fuzzy} = 1;
-for my $trans (0, 1) {
-    $vars{trans} = $trans;
-    for my $type (qw/char int/) {
-	$vars{type} = "unsigned $type";
-	$vars{function} = "distance_$type";
-	$vars{ed_type} = "$type";
-	$vars{stem} = "$type";
-	if ($trans) {
-	    $vars{function} .= "_trans";
-	    $vars{stem} .= "-trans";
+for my $fuzzy (0, 1) {
+    $vars{use_text_fuzzy} = $fuzzy;
+    for my $trans (0, 1) {
+	$vars{trans} = $trans;
+	for my $type (qw/char int/) {
+	    $vars{type} = "unsigned $type";
+	    $vars{function} = "distance_$type";
+	    $vars{ed_type} = "$type";
+	    $vars{stem} = "$type";
+	    if ($trans) {
+		$vars{function} .= "_trans";
+		$vars{stem} .= "-trans";
+	    }
+	    if (! $fuzzy) {
+		$vars{stem} .= '-no-tf';
+	    }
+	    my $base = "$file-$vars{stem}";
+	    # This is the macro used in the .h file as a double-inclusion
+	    # guard.
+	    my $wrapper = "$base-h";
+	    $wrapper =~ s/-/_/g;
+	    $wrapper = uc $wrapper;
+	    $vars{wrapper} = $wrapper;
+	    my $cfile = "$base.c";
+	    do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
+	    my $hfile = "$base.h";
+	    do_file ($tt, "$file.h.tmpl", \%vars, $hfile);
 	}
-	my $base = "$file-$vars{stem}";
-	# This is the macro used in the .h file as a double-inclusion
-	# guard.
-	my $wrapper = "$base-h";
-	$wrapper =~ s/-/_/g;
-	$wrapper = uc $wrapper;
-	$vars{wrapper} = $wrapper;
-	my $cfile = "$base.c";
-	do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
-	my $hfile = "$base.h";
-	do_file ($tt, "$file.h.tmpl", \%vars, $hfile);
     }
 }
 

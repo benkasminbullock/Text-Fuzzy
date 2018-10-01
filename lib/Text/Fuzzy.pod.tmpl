@@ -1,18 +1,18 @@
-[% MACRO exlink(file) BLOCK %]
+[%- MACRO exlink(file) BLOCK %]
 L<F<examples/[% file %]>|https://fastapi.metacpan.org/source/BKB/[% info.name %]-[% info.version %]/examples/[% file %]>
-[% END %]
-[% MACRO example(file) BLOCK %]
+[%- END %]
+[%- MACRO example(file) BLOCK %]
 [%- pl = file _ ".pl" -%]
 [%- out = file _ "-out.txt" -%]
-[% INCLUDE $pl | xtidy %]
+[%- INCLUDE $pl | xtidy %]
 
 produces output
 
 [% INCLUDE $out | xtidy %]
 
 (This example is included as L<F<[% pl %]>|https://fastapi.metacpan.org/source/BKB/[% info.name %]-[% info.version %]/examples/[% pl %]> in the distribution.)
-[% END %]
-[% start_year = 2012 -%]
+[%- END %]
+[%- start_year = 2012 -%]
 =encoding UTF-8
 
 =head1 NAME
@@ -226,6 +226,9 @@ lengths of the words, so even a small increase in the maximum
 permitted distance means a much larger amount of work for the computer
 to do. With the maximum distance set, the computer can give up
 calculating more quickly with bad matches.
+
+As of this version, this only works in the non-transposition code
+case.
 
 =head2 transpositions_ok
 

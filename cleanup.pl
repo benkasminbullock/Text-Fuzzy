@@ -1,4 +1,7 @@
 #!/home/ben/software/install/bin/perl
+
+# remove generated files
+
 use warnings;
 use strict;
 use Deploy 'do_system';
@@ -9,12 +12,14 @@ my @files;
 for my $trans (0, 1) {
     for my $type (@types) {
 	for my $suffix (@suffixes) {
-	    my $base = "edit-distance-$type";
-	    if ($trans) {
-		$base .= "-trans";
+	    for my $tf ('', '-no-tf') {
+		my $base = "edit-distance-$type";
+		if ($trans) {
+		    $base .= "-trans";
+		}
+		my $file = "$base$tf.$suffix";
+		push @files, $file;
 	    }
-	    my $file = "$base.$suffix";
-	    push @files, $file;
 	}
     }
 }

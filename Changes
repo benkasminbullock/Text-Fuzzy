@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.27_01 2018-10-01
+
+* Internals changed for transposition matching
+
 0.27 2017-08-15
 
 * Safety measure for 64 bit systems
