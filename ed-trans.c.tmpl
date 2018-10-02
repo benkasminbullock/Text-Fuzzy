@@ -4,277 +4,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#ifdef __GNUC__
-#define STACKALLOCOK 1
-#else
-/* User's compiler cannot allocate on the stack. */
-#undef STACKALLOCOK
-#endif
-
 #include "config.h"
 #include "text-fuzzy.h"
 #include "ed-trans-[% ed_type %].h"
-[%- IF ed_type == 'int' %]
-[%- format = '%d' %]
-[%- ELSIF ed_type == 'char' %]
-[%- format = '%c' %]
-[% ELSE %]
-[% format = 'format' _ ed_type # Cause an error %]
-[%- END %]
-#linein
 
-#define CALLOC(x,n,s) {						\
-	x = calloc (n, s);					\
-	if (! x) {						\
-	    fprintf (stderr, "%s:%d: calloc %d x %d failed.\n",	\
-		     __FILE__, __LINE__, n, s);			\
-	    return -1;						\
-	}							\
-    }
-
-static int
-minimum (int a, int b)
-{
-    if (a > b) {
-	return b;
-    }
-    return a;
-}
-
-static int
-maximum (int a, int b)
-{
-    if (a > b) {
-	return a;
-    }
-    return b;
-}
-
-#lineout
-[% IF type == 'unsigned char' %]
-#linein
-
-typedef struct
-{
-    int stack[UINT8_MAX];
-}
-stack_t;
-
-static int
-init_stack (stack_t * stack, const [% type %] * word1, int len1)
-{
-    int i;
-    for (i = 0; i < UINT8_MAX; i++) {
-	stack->stack[i] = 0;
-    }
-    return 0;
-}
-
-static int
-free_stack (stack_t * stack)
-{
-    return 0;
-}
-
-static int
-find (stack_t * stack, [% type %] key)
-{
-    return stack->stack[key];
-}
-
-static int
-set (stack_t * stack, [% type %] key, int value)
-{
-    stack->stack[key] = value;
-    return value;
-}
-
-#lineout
-[% ELSE %]
-#linein
-
-typedef struct item
-{
-    /* The character. */
-    [% type %] key; 
-    /* The position of the character in the first string. */
-    unsigned int value;
-}
-item_t;
-
-typedef struct
-{
-    item_t * items;
-    /* Top of the stack. */
-    int top;
-    /* Largest value. */
-    int max;
-}
-stack_t;
-
-/* For the binary search of stack->items. */
-
-static int
-stackcomp (const void * a, const void * b)
-{
-    item_t * ai = (item_t *) a;
-    item_t * bi = (item_t *) b;
-    return ai->key - bi->key;
-}
-
-/* For sorting the elements of worduniq into key order. */
-
-static int
-uniqcomp (const void * a, const void * b)
-{
-    return * ([% type %] *) a - * ([% type %] *) b;
-}
-
-/* Set up the array of "stack" to be a list of items sorted by the
-   characters of "word1". */
-
-static int
-init_stack (stack_t * stack, const [% type %] * word1, int len1)
-{
-    int i;
-    [% type %] prev;
-#ifdef STACKALLOCOK
-    [% type %] worduniq[len1];
-#else
-    [% type %] * worduniq;
-#endif
-
-#ifndef STACKALLOCOK
-    CALLOC (worduniq, len1, sizeof ([% type %]));
-#endif
-    /* Put word1 into a copy then sort the copy to get the unique
-       elements. */
-    for (i = 0; i < len1; i++) {
-	worduniq[i] = word1[i];
-    }
-    qsort (worduniq, len1, sizeof ([% type %]), uniqcomp);
-
-    /* Count uniques. */
-
-    stack->max = 0;
-    /* There should not be any zeros in word1. */
-    prev = 0;
-    for (i = 0; i < len1; i++) {
-	[% type %] key;
-
-	key = worduniq[i];
-	if (key == prev) {
-	    continue;
-	}
-	stack->max++;
-	prev = key;
-    }
-    /* Fill "items" with the keys. Values are all zero at this point. */
-
-    CALLOC (stack->items, stack->max, sizeof (item_t));
-
-    stack->top = 0;
-    /* There should not be any zeros in word1. */
-    prev = 0;
-    for (i = 0; i < len1; i++) {
-	int j;
-	int found;
-	[% type %] key;
-
-	key = worduniq[i];
-	if (key == prev) {
-	    continue;
-	}
-	stack->items[stack->top].key = key;
-	stack->items[stack->top].value = 0;
-	stack->top++;
-	if (stack->top > stack->max) {
-	    fprintf (stderr, "%s:%d: stack overflow %d > %d.\n",
-		     __FILE__, __LINE__, stack->top, stack->max);
-	    return -1;
-	}
-	prev = key;
-    }
-#ifndef STACKALLOCOK
-    free (worduniq);
-#endif
-    /* Because we sorted worduniq above, stack->items is already
-       sorted into key order, and we don't need to sort it with
-       stackcomp to use bsearch. */
-    return 0;
-}
-
-static int
-free_stack (stack_t * stack)
-{
-    free (stack->items);
-    stack->items = 0;
-    return 0;
-}
-
-static item_t * 
-stackfind (stack_t * stack, [% type %] key)
-{
-    item_t s = {0};
-    s.key = key;
-    return bsearch (& s, stack->items, stack->max, sizeof (item_t), stackcomp);
-}
-
-/* Look for the most recent example of the character "key" in the
-   stack of letters from "word1". If it is not there anywhere, return
-   0. */
-
-static int
-find (stack_t * stack, [% type %] key)
-{
-    item_t * found;
-    found = stackfind (stack, key);
-    if (! found) {
-	return 0;
-    }
-    return found->value;
-}
-
-/* Set the value of stack[key] to value. */
-
-static int
-set (stack_t * stack, [% type %] key, int value)
-{
-    item_t * found;
-    found = stackfind (stack, key);
-    if (! found) {
-	fprintf (stderr,
-		 "%s:%d: could not set element [% format %]: not found.\n",
-		 __FILE__, __LINE__, key);
-	return -1;
-    }
-    found->value = value;
-    return 0;
-}
-
-#lineout
-[% END # type equals %]
-#linein
 int [% function %] (text_fuzzy_t * tf)
 {
-#lineout
-[%- IF ed_type == 'int' %]
-[%- length = 'ulength' %]
-[%- value = 'unicode' %]
-[%- ELSIF ed_type == 'char' %]
-[%- length = 'length' %]
-[%- value = 'text' %]
-[%- ELSE %]
-#linein
-    fprintf (stderr, "Unhandled type [% type %].\n");
-    exit (1);
-#lineout
-[%- END # ed_type %]
-#linein
-    const [% type %] * word1 = (const [% type %] *) tf->b.[% value %];
-    int len1 = tf->b.[% length %];
-    const [% type %] * word2 = (const [% type %] *) tf->text.[% value %];
-    int len2 = tf->text.[% length %];
+    /* "tf->text" is the studied string, so we need it to be word1. */
+    const [% type %] * word1 = (const [% type %] *) tf->text.[% value %];
+    int len1 = tf->text.[% length %];
+    const [% type %] * word2 = (const [% type %] *) tf->b.[% value %];
+    int len2 = tf->b.[% length %];
 
     /* Return value. */
     int d;
@@ -283,13 +23,13 @@ int [% function %] (text_fuzzy_t * tf)
     int j;
     /* Unfeasible value; indicates no match. */
     int large_value;
-#lineout
+    /* Maximum distance we are interested in. */
     int max;
     int size1 = len1 + 2;
     int size2 = len2 + 2;
-    /* This stack tracks the characters we have seen for the sake of
-       transpositions. */
-    stack_t stack = {0};
+    /* This dictionary tracks the locations of characters from word1
+       we have seen, for the sake of transpositions. */
+    [% dic %]_t * dic;
 #ifdef STACKALLOCOK
     unsigned int matrix[size1][size2];
 #else
@@ -306,10 +46,6 @@ int [% function %] (text_fuzzy_t * tf)
 	return len1;
     }
 
-    max = tf->max_distance;
-    init_stack (& stack, word1, len1);
-    large_value = len1 + len2;
- 
 #ifndef STACKALLOCOK
     CALLOC (matrix, size1, sizeof (unsigned int *));
     for (i = 0; i < size1; i++) {
@@ -317,6 +53,10 @@ int [% function %] (text_fuzzy_t * tf)
     }
 #endif /* STACKALLOCOK */
 
+    dic = & tf->[% dic %];
+    max = tf->max_distance;
+    large_value = len1 + len2;
+ 
     /* Initialize the dynamic programming matrix's values. */
 
     matrix[0][0] = large_value;  
@@ -351,7 +91,7 @@ int [% function %] (text_fuzzy_t * tf)
 
 	    jc = word2[j - 1];
 	    /* See if we can find jc somewhere in "word1". */
-	    lmr = find (& stack, jc);
+	    lmr = [% dic %]_find (dic, jc);
 	    if (lmr > 0) {
 		/* We have found "jc" at some offset into "word1", so
 		   work out the cost of swapping. */
@@ -382,25 +122,21 @@ int [% function %] (text_fuzzy_t * tf)
 	    }
 	    row_max = maximum (row_max, matrix[i + 1][j + 1]);
 	}
-#if 1
 	if (max > 0 && row_max > max) {
-//	    fprintf (stderr, "Achieved maximum of %d\n", max);
 	    d = max + 1;
 	    goto cleanup;
 	}
 
-#endif
-	/* Change the value of ic on the stack to be "i" since that is
-	   now the most recent example of it. Notice this sets i > 0
-	   always, even for the first character. */
-	set (& stack, ic, i);
+	/* Change the location of ic in the dictionary to be "i" since
+	   that is now the most recent example of it. Notice this sets
+	   i > 0 always, even for the first character. */
+	[% dic %]_set (dic, ic, i);
     }
 
     d = matrix[len1 + 1][len2 + 1];
 
     cleanup:
 
-    free_stack (& stack);
 #ifndef STACKALLOCOK
     for (i = 0; i < size1; i++) {
 	free (matrix[i]);

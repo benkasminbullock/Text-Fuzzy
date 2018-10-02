@@ -26,7 +26,12 @@ $vars{delete_cost} = 1;
 $vars{substitute_cost} = 1;
 my @cfiles;
 for my $type (qw/char int/) {
+    # This is stupid, keeping it like this until ed-trans.c.tmpl is
+    # all sorted out.
     $vars{type} = "unsigned $type";
+    if ($type eq 'int') {
+	$vars{type} = 'int';
+    }
     $vars{function} = "distance_$type";
     $vars{ed_type} = "$type";
     $vars{stem} = "$type";
@@ -38,6 +43,19 @@ for my $type (qw/char int/) {
     $wrapper =~ s/-/_/g;
     $wrapper = uc $wrapper;
     $vars{wrapper} = $wrapper;
+    if ($type eq 'int') {
+	$vars{length} = 'ulength';
+	$vars{value} = 'unicode';
+	$vars{dic} = 'istack';
+    }
+    elsif ($type eq 'char') {
+	$vars{length} = 'length';
+	$vars{value} = 'text';
+	$vars{dic} = 'astack';
+    }
+    else {
+	die "Bad type $type";
+    }
     # Temporarily, don't even build the trans versions
     my $cfile = "$base.c";
     do_file ($tt, "$file.c.tmpl", \%vars, $cfile);

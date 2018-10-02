@@ -66,6 +66,26 @@ my $tf = Text::Fuzzy->new (
 );
 my $d = $tf->distance ('mlkjihgfedcba');
 is ($d, 3);
+
+$tf = undef;
+
+# Test doing multiple tests, to make sure the construction of the
+# internal dictionary is not going wrong.
+
+my $tfrepa = Text::Fuzzy->new ('central', trans => 1);
+is ($tfrepa->distance ('centre'), 2);
+is ($tfrepa->distance ('sinter'), 5);
+is ($tfrepa->distance ('central'), 0);
+
+$tfrepa = undef;
+
+my $tfrepi = Text::Fuzzy->new ('かきくけこ', trans => 1);
+is ($tfrepi->distance ('かきふらい'), 3);
+is ($tfrepi->distance ('きかくこけ'), 2);
+is ($tfrepi->distance ('かきくけこ'), 0);
+
+$tfrepi = undef;
+
 done_testing ();
 exit;
 

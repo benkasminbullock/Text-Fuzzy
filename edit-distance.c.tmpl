@@ -8,24 +8,18 @@
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
 
-#ifdef __GNUC__
-#define STACKALLOCOK 1
-#else
-/* User's compiler cannot allocate on the stack. */
-#undef STACKALLOCOK
-#endif
-
 #linein
 [%- IF ed_type == 'int' %]
 [%- format = '%d' %]
-[% length = 'ulength' %]
-[% value = 'unicode' %]
+[%- length = 'ulength' %]
+[%- value = 'unicode' %]
 [%- ELSIF ed_type == 'char' %]
 [%- format = '%c' %]
-[% length = 'length' %]
-[% value = 'text' %]
+[%- length = 'length' %]
+[%- value = 'text' %]
 [%- END %]
 #lineout
+
 int [% function %] (text_fuzzy_t * tf)
 {
 
@@ -57,12 +51,7 @@ int [% function %] (text_fuzzy_t * tf)
 
 #ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {
-	matrix[i] = calloc (len2 + 1, sizeof (int));
-	if (! matrix[i]) {
-	    fprintf (stderr, "%s:%d: calloc failed.\n",
-		     __FILE__, __LINE__);
-	    return -1;
-	}
+	CALLOC (matrix[i], len2 + 1, sizeof (int));
     }
 #endif
 
@@ -178,16 +167,14 @@ int [% function %] (text_fuzzy_t * tf)
                    maximum, so no match less than or equal to max can be
                    found by looking at succeeding columns. */
 
-#ifndef STACKALLOCOK
-		for (i = 0; i < 2; i++) {
-		    free (matrix[i]);
-		}
-#endif
-                return large_value;
+		d = large_value;
+		goto cleanup;
             }
         }
     }
     d = matrix[len1 % 2][len2];
+
+    cleanup:
 
 #ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {
@@ -196,8 +183,3 @@ int [% function %] (text_fuzzy_t * tf)
 #endif
     return d;
 }
-
-/* Some people are not using GCC-compatible compilers. See, for
-   example, this test failure.
-   http://ppm4.activestate.com/sun4-solaris-64/5.12/1200/B/BK/BKB/Text-Fuzzy-0.11.d/log-20130328T025706.txt */
-
