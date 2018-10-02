@@ -56,7 +56,6 @@ for my $type (qw/char int/) {
     else {
 	die "Bad type $type";
     }
-    # Temporarily, don't even build the trans versions
     my $cfile = "$base.c";
     do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
     push @cfiles, $cfile;

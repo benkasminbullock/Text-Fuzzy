@@ -429,12 +429,6 @@ adic_reset_dic (adic_t * dic)
 }
 
 int
-adic_free_dic (adic_t * dic)
-{
-    return 0;
-}
-
-int
 adic_find (adic_t * dic, uint8_t key)
 {
     return dic->dic[key];
