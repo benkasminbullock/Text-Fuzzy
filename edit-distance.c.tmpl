@@ -8,21 +8,8 @@
 #include "text-fuzzy.h"
 #include "edit-distance-[% stem %].h"
 
-#linein
-[%- IF ed_type == 'int' %]
-[%- format = '%d' %]
-[%- length = 'ulength' %]
-[%- value = 'unicode' %]
-[%- ELSIF ed_type == 'char' %]
-[%- format = '%c' %]
-[%- length = 'length' %]
-[%- value = 'text' %]
-[%- END %]
-#lineout
-
 int [% function %] (text_fuzzy_t * tf)
 {
-
     const [% type %] * word1 = (const [% type %] *) tf->b.[% value %];
     int len1 = tf->b.[% length %];
     const [% type %] * word2 = (const [% type %] *) tf->text.[% value %];
@@ -45,9 +32,7 @@ int [% function %] (text_fuzzy_t * tf)
     int * matrix[2];
 #endif
 
-[%- IF use_text_fuzzy %]
     max = tf->max_distance;
-[%- END # use_text_fuzzy %]
 
 #ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {

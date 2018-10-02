@@ -46,12 +46,12 @@ for my $type (qw/char int/) {
     if ($type eq 'int') {
 	$vars{length} = 'ulength';
 	$vars{value} = 'unicode';
-	$vars{dic} = 'istack';
+	$vars{dic} = 'idic';
     }
     elsif ($type eq 'char') {
 	$vars{length} = 'length';
 	$vars{value} = 'text';
-	$vars{dic} = 'astack';
+	$vars{dic} = 'adic';
     }
     else {
 	die "Bad type $type";
