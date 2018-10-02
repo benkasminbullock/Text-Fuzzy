@@ -83,7 +83,8 @@ text_fuzzy_string_t;
 
 typedef struct candidate candidate_t;
 
-struct candidate {
+struct candidate
+{
     int distance;
     int offset;
     candidate_t * next;
@@ -185,7 +186,12 @@ typedef struct text_fuzzy
 
     int offset;
 
+    /* ASCII match dictionary for transposition searches. */
+
     adic_t adic;
+
+    /* Unicode match dictionary (integer) for transposition
+       searches. */
 
     idic_t idic;
 
