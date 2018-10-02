@@ -36,8 +36,10 @@ for my $fuzzy (0, 1) {
 		$vars{function} .= "_trans";
 		$vars{stem} .= "-trans";
 	    }
+	    my $notf = '';
 	    if (! $fuzzy) {
 		$vars{stem} .= '-no-tf';
+		$notf = '-no-tf';
 	    }
 	    my $base = "$file-$vars{stem}";
 	    # This is the macro used in the .h file as a double-inclusion
@@ -50,6 +52,11 @@ for my $fuzzy (0, 1) {
 	    do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
 	    my $hfile = "$base.h";
 	    do_file ($tt, "$file.h.tmpl", \%vars, $hfile);
+	    if (! $trans) {
+		next;
+	    }
+	    do_file ($tt, "ed-trans.c.tmpl", \%vars, "ed-trans-$type$notf.c");
+	    do_file ($tt, "ed-trans.h.tmpl", \%vars, "ed-trans-$type$notf.h");
 	}
     }
 }

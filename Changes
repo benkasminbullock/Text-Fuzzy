@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.27_02 
+
+* Useless computations removed in transposition search
+
 0.27_01 2018-10-01
 
 * Internals changed for transposition matching

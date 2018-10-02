@@ -13,3 +13,4 @@ Text-Fuzzy-*/*
 ppport.h
 config.h
 README
+ed-trans-*.[ch]

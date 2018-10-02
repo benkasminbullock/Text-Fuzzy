@@ -1,5 +1,5 @@
 int [% function %] (
-[%- IF use_text_fuzzy %]
+[%- IF use_text_fuzzy -%]
                     text_fuzzy_t * tf
 [%- ELSE -%]
                     const [% type %] * word1,
