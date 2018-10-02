@@ -9,8 +9,8 @@
 /* All of the following are automatically generated from
    "edit-distance.h.tmpl" by "make-edit-distance-c.pl". */
 
-#include "edit-distance-char-trans.h"
-#include "edit-distance-int-trans.h"
+#include "ed-trans-char.h"
+#include "ed-trans-int.h"
 #include "edit-distance-char.h"
 #include "edit-distance-int.h"
 
@@ -378,7 +378,6 @@ static int ualphabet_miss (text_fuzzy_t * tf, text_fuzzy_string_t * b)
 
 FUNC (compare_single) (text_fuzzy_t * tf)
 {
-
     /* The edit distance between "tf->search_term" and the
        truncated version of "tf->buf". */
 

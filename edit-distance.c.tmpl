@@ -5,197 +5,34 @@
 #include <stdint.h>
 
 #include "config.h"
-[%- IF use_text_fuzzy %]
-#linein
 #include "text-fuzzy.h"
-[%- END # text_fuzzy %]
 #include "edit-distance-[% stem %].h"
 
+#ifdef __GNUC__
+#define STACKALLOCOK 1
+#else
+/* User's compiler cannot allocate on the stack. */
+#undef STACKALLOCOK
+#endif
+
+#linein
 [%- IF ed_type == 'int' %]
 [%- format = '%d' %]
-[%- ELSIF ed_type == 'char' %]
-[%- format = '%c' %]
-[% ELSE %]
-[% format = 'format' _ ed_type # Cause an error %]
-[%- END %]
-[%- IF trans %]
-#linein
-
-static int
-minimum (int a, int b)
-{
-    if (a > b) {
-	return b;
-    }
-    return a;
-}
-
-[% IF type == 'unsigned char' %]
-
-typedef struct
-{
-    int stack[UINT8_MAX];
-}
-stack_t;
-
-static int
-init_stack (stack_t * stack, int len1)
-{
-    int i;
-    for (i = 0; i < UINT8_MAX; i++) {
-	stack->stack[i] = 0;
-    }
-    return 0;
-}
-
-static int
-free_stack (stack_t * stack)
-{
-    return 0;
-}
-
-/* "unique_push" is a no-op for the unsigned char stack, since all
-   entries are all zero initially. */
-
-static int
-unique_push (stack_t * stack, [% type %] key)
-{
-    return 0;
-}
-
-static int
-find (stack_t * stack, [% type %] key)
-{
-    return stack->stack[key];
-}
-
-static int
-set (stack_t * stack, [% type %] key, int value)
-{
-    stack->stack[key] = value;
-    return value;
-}
-
-[% ELSE %]
-
-typedef struct item
-{
-    /* The character. */
-    [% type %] key; 
-    /* The position of the character in the first string. */
-    unsigned int value;
-}
-item_t;
-
-typedef struct
-{
-    item_t * items;
-    /* Top of the stack. */
-    int top;
-    /* Largest value. */
-    int max;
-}
-stack_t;
-
-static int
-init_stack (stack_t * stack, int len1)
-{
-    stack->max = len1;
-    stack->items = calloc (len1, sizeof (item_t));
-    if (! stack->items) {
-	fprintf (stderr, "%s:%d: calloc failed for %d x %d\n",
-		 __FILE__, __LINE__, len1, sizeof (item_t));
-	return -1;
-    }
-    return 0;
-}
-
-static int
-free_stack (stack_t * stack)
-{
-    free (stack->items);
-    return 0;
-}
-
-/* Push "key" into the stack of characters in "word1". */
-
-static int
-unique_push (stack_t * stack, [% type %] key)
-{
-    int i;
-    for (i = stack->top - 1; i >= 0; i--) {
-	if (stack->items[i].key == key) {
-	    return 0;
-	}
-    }
-    stack->items[stack->top].key = key;
-    stack->items[stack->top].value = 0;
-    stack->top++;
-    if (stack->top > stack->max) {
-	fprintf (stderr, "%s:%d: stack overflow %d > %d.\n",
-		 __FILE__, __LINE__, stack->top, stack->max);
-	return -1;
-    }
-    return 0;
-}
-
-/* Look for the most recent example of the character "key" in the
-   stack of letters from "word1". If it is not there anywhere, return
-   0. */
-
-static int
-find (stack_t * stack, [% type %] key)
-{
-    int i;
-    for (i = 0; i < stack->top; i++) {
-	if (stack->items[i].key == key) {
-	    return stack->items[i].value;
-	}
-    }
-    return 0;
-}
-
-/* Set the value of stack[key] to value. */
-
-static int
-set (stack_t * stack, [% type %] key, int value)
-{
-    int i;
-    for (i = 0; i < stack->top; i++) {
-	if (stack->items[i].key == key) {
-	    stack->items[i].value = value;
-	    return 0;
-	}
-    }
-    fprintf (stderr, "%s:%d: could not set element [% format %]: not found.\n",
-	     __FILE__, __LINE__, key);
-    return -1;
-}
-[%- END # type == %]
-
-[%- END %]
-#lineout
-[% INCLUDE declaration %]
-{
-[% IF ed_type == 'int' %]
 [% length = 'ulength' %]
 [% value = 'unicode' %]
-[% ELSIF ed_type == 'char' %]
+[%- ELSIF ed_type == 'char' %]
+[%- format = '%c' %]
 [% length = 'length' %]
 [% value = 'text' %]
-[% ELSE %]
-    fprintf (stderr, "Unhandled type [% type %].\n");
-    exit (1);
-[% END # ed_type %]
-#linein
-[%- IF use_text_fuzzy %]
-#linein
+[%- END %]
+#lineout
+int [% function %] (text_fuzzy_t * tf)
+{
 
     const [% type %] * word1 = (const [% type %] *) tf->b.[% value %];
     int len1 = tf->b.[% length %];
     const [% type %] * word2 = (const [% type %] *) tf->text.[% value %];
     int len2 = tf->text.[% length %];
-[%- END # use_text_fuzzy %]
     /* Return value. */
     int d;
     /* X and Y coordinates in the matrix of strings. */
@@ -203,154 +40,12 @@ set (stack_t * stack, [% type %] key, int value)
     int j;
     /* Unfeasible value; indicates no match. */
     int large_value;
-[%- IF use_text_fuzzy %]
-#linein
     int max;
-[%- END # use_text_fuzzy %]
-#linein
-[%- IF trans %]
-#linein
-    int size1 = len1 + 2;
-    int size2 = len2 + 2;
-    stack_t stack = {0};
-#ifdef __GNUC__
-    unsigned int matrix[size1][size2];
-[% IF type != 'unsigned char' %]
-    item_t items[len1];
-[% END %]
-#else
-    unsigned int ** matrix;
-#endif
-[%- IF use_text_fuzzy %]
-    max = tf->max_distance;
-[%- END # use_text_fuzzy %]
-    init_stack (& stack, len1);
-
-    large_value = len1 + len2;
-
-    /* First handle the two extreme cases of one or the other strings
-       being empty. */
-
-    if (len1 == 0) {
-	return len2;
-    }
-    if (len2 == 0) {
-	return len1;
-    }
- 
-#ifndef __GNUC__
-
-    /* User's compiler cannot allocate on the stack. */
-
-    matrix = calloc (size1, sizeof (unsigned int *));
-    if (! matrix) {
-	fprintf (stderr, "%s:%d: malloc failed.\n",
-		 __FILE__, __LINE__);
-	return -1;
-    }
-    for (i = 0; i < size1; i++) {
-	matrix[i] = calloc (size2, sizeof (unsigned int));
-	if (! matrix[i]) {
-	    fprintf (stderr, "%s:%d: calloc failed.\n",
-		     __FILE__, __LINE__);
-	    return -1;
-	}
-    }
-
-#endif /* __GNUC__ */
-
-    
-    /* Initialize the dynamic programming matrix's values. */
-
-    matrix[0][0] = large_value;  
-    matrix[1][0] = large_value;
-
-    for (j = 0; j <= len2; j++) {
-	matrix[1][j + 1] = j;
-	matrix[0][j + 1] = large_value;
-    }
-
-    /* This stack tracks the characters we have seen for the sake of
-       transpositions. */
-
-    for (i = 0; i < len1; i++) { 
-	unique_push (& stack, word1[i]);
-    }
-
-    for (i = 1; i <= len1; i++) { 
-	/* Last matching column. */
-	int lmc;
-	[% type %] ic;
-
-	ic = word1[i - 1];
-
-	matrix[i + 1][1] = i;
-	matrix[i + 1][0] = large_value;
-	
-	lmc = 0;
-
-	for (j = 1; j <= len2; j++) {
-	    /* Last matching row */
-	    unsigned int lmr;
-	    /* Swap score */
-	    unsigned int ss;
-	    [% type %] jc;
-
-	    jc = word2[j - 1];
-	    /* See if we can find jc somewhere in "word1". */
-	    lmr = find (& stack, jc);
-	    if (lmr > 0) {
-		/* We have found "jc" at some offset into "word1", so
-		   work out the cost of swapping. */
-		ss = matrix[lmr][lmc] + i + j - 1 - lmr - lmc;
-	    }
-	    else {
-		/* Have not found "jc" in "word1", so there is no
-		   possibility of transposition, don't bother
-		   calculating any more. */
-		ss = large_value;
-	    }
-	    if (ic != jc) {
-		int x;
-		int y;
-		/* Insertion, deletion, or replacement. */
-		x = minimum (matrix[i + 1][j], matrix[i][j + 1]);
-		y = minimum (matrix[i][j], x);
-		/* Swapping or one of the above. */
-		matrix[i + 1][j + 1] = minimum (ss, y + 1);
-	    }
-	    else { 
-		/* Exact match, mark this as the last matching
-		   column. */
-		lmc = j;
-		/* Copy the character. */
-		matrix[i + 1][j + 1] = matrix[i][j];
-	    } 
-	}
-	/* Change the value of ic on the stack to be "i" since that is
-	   now the most recent example of it. */
-	set (& stack, ic, i);
-    }
-
-    d = matrix[len1 + 1][len2 + 1];
-
-#ifndef __GNUC__
-    for (i = 0; i < size1; i++) {
-	free (matrix[i]);
-	matrix[i] = 0;
-    }
-    free (matrix);
-#endif /* __GNUC__ */
-
-    free_stack (& stack);
-
-[%- ELSE # not trans %]
-#linein
 
     /* Matrix is the dynamic programming matrix. We economize on space
        by having only two columns. */
 
-#ifdef __GNUC__
+#ifdef STACKALLOCOK
     int matrix[2][len2 + 1];
 #else
     int * matrix[2];
@@ -360,7 +55,7 @@ set (stack_t * stack, [% type %] key, int value)
     max = tf->max_distance;
 [%- END # use_text_fuzzy %]
 
-#ifndef __GNUC__
+#ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {
 	matrix[i] = calloc (len2 + 1, sizeof (int));
 	if (! matrix[i]) {
@@ -483,7 +178,7 @@ set (stack_t * stack, [% type %] key, int value)
                    maximum, so no match less than or equal to max can be
                    found by looking at succeeding columns. */
 
-#ifndef __GNUC__
+#ifndef STACKALLOCOK
 		for (i = 0; i < 2; i++) {
 		    free (matrix[i]);
 		}
@@ -494,13 +189,11 @@ set (stack_t * stack, [% type %] key, int value)
     }
     d = matrix[len1 % 2][len2];
 
-#ifndef __GNUC__
+#ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {
 	free (matrix[i]);
     }
 #endif
-[%- END # trans %]
-#linein
     return d;
 }
 

@@ -9,6 +9,7 @@ use Template;
 use FindBin '$Bin';
 use File::Compare;
 use C::Utility qw/linein lineout/; 
+use Deploy 'do_system';
 my $tt = Template->new (
     ABSOLUTE => 1,
     INCLUDE_PATH => [
@@ -23,42 +24,29 @@ $vars{compare_c1_c2} = 'c1 == c2';
 $vars{insert_cost} = 1;
 $vars{delete_cost} = 1;
 $vars{substitute_cost} = 1;
-for my $fuzzy (0, 1) {
-    $vars{use_text_fuzzy} = $fuzzy;
-    for my $trans (0, 1) {
-	$vars{trans} = $trans;
-	for my $type (qw/char int/) {
-	    $vars{type} = "unsigned $type";
-	    $vars{function} = "distance_$type";
-	    $vars{ed_type} = "$type";
-	    $vars{stem} = "$type";
-	    if ($trans) {
-		$vars{function} .= "_trans";
-		$vars{stem} .= "-trans";
-	    }
-	    my $notf = '';
-	    if (! $fuzzy) {
-		$vars{stem} .= '-no-tf';
-		$notf = '-no-tf';
-	    }
-	    my $base = "$file-$vars{stem}";
-	    # This is the macro used in the .h file as a double-inclusion
-	    # guard.
-	    my $wrapper = "$base-h";
-	    $wrapper =~ s/-/_/g;
-	    $wrapper = uc $wrapper;
-	    $vars{wrapper} = $wrapper;
-	    my $cfile = "$base.c";
-	    do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
-	    my $hfile = "$base.h";
-	    do_file ($tt, "$file.h.tmpl", \%vars, $hfile);
-	    if (! $trans) {
-		next;
-	    }
-	    do_file ($tt, "ed-trans.c.tmpl", \%vars, "ed-trans-$type$notf.c");
-	    do_file ($tt, "ed-trans.h.tmpl", \%vars, "ed-trans-$type$notf.h");
-	}
-    }
+my @cfiles;
+for my $type (qw/char int/) {
+    $vars{type} = "unsigned $type";
+    $vars{function} = "distance_$type";
+    $vars{ed_type} = "$type";
+    $vars{stem} = "$type";
+    my $notf = '';
+    my $base = "$file-$vars{stem}";
+    # This is the macro used in the .h file as a double-inclusion
+    # guard.
+    my $wrapper = "$base-h";
+    $wrapper =~ s/-/_/g;
+    $wrapper = uc $wrapper;
+    $vars{wrapper} = $wrapper;
+    # Temporarily, don't even build the trans versions
+    my $cfile = "$base.c";
+    do_file ($tt, "$file.c.tmpl", \%vars, $cfile);
+    push @cfiles, $cfile;
+    $vars{function} .= "_trans";
+    $vars{stem} .= "-trans";
+    my $tcfile = "ed-trans-$type.c";
+    do_file ($tt, "ed-trans.c.tmpl", \%vars, $tcfile);
+    push @cfiles, $tcfile;
 }
 
 # Write "config.h" from "config".
@@ -91,6 +79,10 @@ print $cfgh <<EOF;
 #endif /* ndef $w */
 EOF
 close $cfgh or die $!;
+
+for my $cfile (@cfiles) {
+    do_system ("cfunctions $cfile");
+}
 exit;
 
 sub do_file

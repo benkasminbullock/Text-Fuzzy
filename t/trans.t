@@ -57,6 +57,15 @@ is( d ('ⓕⓞⓤⓡ','ⓕⓤⓞⓡ'), 1, 'transposition (utf8)');
 is( d ('ⓕⓞⓤⓡ','ⓞⓤⓕⓡ'), 2, 'test adjacent transpositions');
 is( d ('ⓕⓞⓤⓡ','ⓕⓧⓧⓡ'), 2, 'substitution (utf8)');
 
+# Test with a maximum distance.
+
+my $tf = Text::Fuzzy->new (
+    'abcdefghijklm',
+    trans => 1,
+    max => 2,
+);
+my $d = $tf->distance ('mlkjihgfedcba');
+is ($d, 3);
 done_testing ();
 exit;
 

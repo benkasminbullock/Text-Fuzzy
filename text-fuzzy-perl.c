@@ -213,7 +213,7 @@ free_text (text_fuzzy_t * text_fuzzy)
     }
 }
 
-/* The following palaver is related to the macros "FAIL" and
+/* The following definitions relate to the macros "FAIL" and
    "FAIL_MSG" in "text-fuzzy.c.in". */
 
 #undef TEXT_FUZZY_USER_ERROR

@@ -14,11 +14,11 @@ for my $trans (0, 1) {
 	for my $suffix (@suffixes) {
 	    for my $tf ('', '-no-tf') {
 		my $base = "edit-distance-$type";
-		if ($trans) {
-		    $base .= "-trans";
-		}
 		my $file = "$base$tf.$suffix";
 		push @files, $file;
+		my $tbase = "ed-trans-$type";
+		my $tfile = "$tbase$tf.$suffix";
+		push @files, $tfile;
 	    }
 	}
     }
