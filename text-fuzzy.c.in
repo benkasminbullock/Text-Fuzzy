@@ -30,12 +30,6 @@
     }
 
 #endif /* def HEADER */
-
-#include "ed-trans-char.h"
-#include "ed-trans-int.h"
-#include "edit-distance-char.h"
-#include "edit-distance-int.h"
-
 #ifdef HEADER
 
 //#define VERBOSE 1
@@ -95,6 +89,8 @@ struct candidate {
     candidate_t * next;
 };
 
+/* Dictionary for transposition character matches. The "a" in "adic_t"
+   stands for "ascii". */
 
 typedef struct
 {
@@ -102,20 +98,24 @@ typedef struct
 }
 adic_t;
 
+/* One item in dictionary for transposition integer matches. */
+
 typedef struct item
 {
     /* The character. */
     int key; 
     /* The position of the character in the first string. */
-    unsigned int value;
+    unsigned int position;
 }
 idic_item_t;
 
+/* Dictionary of last-seen positions of characters for transposition
+   integer matches. */
+
 typedef struct
 {
+    /* Allocated by size of dictionary. */
     idic_item_t * items;
-    /* Top of the dic. */
-    int top;
     /* Largest value. */
     int max;
 }
@@ -281,6 +281,7 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
 {
     int i;
     int prev;
+    int top;
 #ifdef STACKALLOCOK
     int worduniq[len1];
 #else
@@ -316,7 +317,8 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
 
     CALLOC (dic->items, dic->max, sizeof (idic_item_t));
 
-    dic->top = 0;
+    top = 0;
+
     /* There should not be any zeros in word1. */
     prev = 0;
     for (i = 0; i < len1; i++) {
@@ -328,12 +330,12 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
 	if (key == prev) {
 	    continue;
 	}
-	dic->items[dic->top].key = key;
-	dic->items[dic->top].value = 0;
-	dic->top++;
-	if (dic->top > dic->max) {
+	dic->items[top].key = key;
+	dic->items[top].position = 0;
+	top++;
+	if (top > dic->max) {
 	    fprintf (stderr, "%s:%d: dic overflow %d > %d.\n",
-		     __FILE__, __LINE__, dic->top, dic->max);
+		     __FILE__, __LINE__, top, dic->max);
 	    return -1;
 	}
 	prev = key;
@@ -360,6 +362,8 @@ idic_dicfind (idic_t * dic, int key)
 {
     idic_item_t s = {0};
     s.key = key;
+    /* If the number of items in dic is very small, it might be smart
+       to use a linear search. */
     return bsearch (& s, dic->items, dic->max,
 		    sizeof (idic_item_t), item_comp);
 }
@@ -376,13 +380,13 @@ idic_find (idic_t * dic, int key)
     if (! found) {
 	return 0;
     }
-    return found->value;
+    return found->position;
 }
 
 /* Set the value of dic[key] to value. */
 
 int
-idic_set (idic_t * dic, int key, int value)
+idic_set (idic_t * dic, int key, int position)
 {
     idic_item_t * found;
     found = idic_dicfind (dic, key);
@@ -392,7 +396,7 @@ idic_set (idic_t * dic, int key, int value)
 		 __FILE__, __LINE__, key);
 	return -1;
     }
-    found->value = value;
+    found->position = position;
     return 0;
 }
 
@@ -403,7 +407,7 @@ idic_reset (idic_t * dic)
 {
     int i;
     for (i = 0; i < dic->max; i++) {
-	dic->items[i].value = 0;
+	dic->items[i].position = 0;
     }
     return 0;
 }
@@ -431,11 +435,16 @@ adic_find (adic_t * dic, uint8_t key)
 }
 
 int
-adic_set (adic_t * dic, uint8_t key, int value)
+adic_set (adic_t * dic, uint8_t key, int position)
 {
-    dic->dic[key] = value;
-    return value;
+    dic->dic[key] = position;
+    return position;
 }
+
+#include "ed-trans-char.h"
+#include "ed-trans-int.h"
+#include "edit-distance-char.h"
+#include "edit-distance-int.h"
 
 /* The following calculations need to be done twice, first when
    creating the alphabet and second when looking up a new character in
