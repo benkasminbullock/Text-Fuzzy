@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.27_03 2018-10-03
+
+* Build fix
+
 0.27_02 2018-10-02
 
 * Useless computations removed in transposition search

@@ -328,8 +328,6 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
     /* There should not be any zeros in word1. */
     prev = 0;
     for (i = 0; i < len1; i++) {
-	int j;
-	int found;
 	int key;
 
 	key = worduniq[i];
