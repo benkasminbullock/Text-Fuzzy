@@ -24,7 +24,7 @@
 	x = calloc (n, s);					\
 	if (! x) {						\
 	    fprintf (stderr, "%s:%d: calloc %d x %d failed.\n",	\
-		     __FILE__, __LINE__, n, s);			\
+		     __FILE__, __LINE__, n, (int) s);		\
 	    return -1;						\
 	}							\
     }

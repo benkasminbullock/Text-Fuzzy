@@ -14,3 +14,4 @@ ppport.h
 config.h
 README
 ed-trans-*.[ch]
+text-fuzzy-single.c

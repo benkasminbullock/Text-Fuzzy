@@ -31,4 +31,9 @@ MYMETA\..*
 # Author tests
 ^xt/.*$
 ^examples/.*-out\.txt
-^edit-distance-.*-no-tf\.[ch]$
+^text-fuzzy\.[ch]$
+^ed-trans-(char|int)\.[ch]$
+^edit-distance-(char|int)\.[ch]$
+^config\.h$
+^make-pod\.pl$
+^make-single\.pl$

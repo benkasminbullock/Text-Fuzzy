@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.27_04 2018-10-03
+
+* Simpler file structure (fewer C files in distro)
+
 0.27_03 2018-10-03
 
 * Build fix

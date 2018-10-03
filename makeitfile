@@ -1,4 +1,7 @@
-all: text-fuzzy.c text-fuzzy.h
+all: text-fuzzy-single.c
+
+text-fuzzy-single.c: text-fuzzy.c text-fuzzy.h ed-trans.c.tmpl edit-distance.c.tmpl make-edit-distance-c.pl
+	./make-single.pl
 
 text-fuzzy.h: text-fuzzy.c
 	cfunctions text-fuzzy.c

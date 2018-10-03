@@ -9,7 +9,7 @@
 #define TEXT_FUZZY_USER_ERROR
 
 #include "config.h"
-#include "text-fuzzy.h"
+#include "text-fuzzy-single.c"
 #include "text-fuzzy-perl.c"
 
 #undef TEXT_FUZZY_USER_ERROR
