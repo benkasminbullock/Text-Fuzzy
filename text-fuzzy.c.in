@@ -20,14 +20,22 @@
 #undef STACKALLOCOK
 #endif
 
-#define CALLOC(x,n,s) {						\
-	x = calloc (n, s);					\
+#ifdef PERL_MEMORY_MANAGEMENT
+#define CALLOC(x,n,t) Newxz(x,n,t)
+#define REALLOC(x,n,t) Renew(x,n,t)
+#define FREE(x) Safefree(x)
+#else /* not PERL_MEMORY_MANAGEMENT */
+#define CALLOC(x,n,t) {						\
+	x = calloc (n, sizeof (t));				\
 	if (! x) {						\
 	    fprintf (stderr, "%s:%d: calloc %d x %d failed.\n",	\
-		     __FILE__, __LINE__, n, (int) s);		\
-	    return -1;						\
+		     __FILE__, __LINE__, n, (int) sizeof (t));	\
+	    return text_fuzzy_status_memory_failure;		\
 	}							\
     }
+#define REALLOC(x,n,t) x = realloc (x, n * sizeof (t))
+#define FREE(x) free (x)
+#endif /* def PERL_MEMORY_MANAGEMENT */
 
 #endif /* def HEADER */
 #ifdef HEADER
@@ -295,7 +303,7 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
 #endif
 
 #ifndef STACKALLOCOK
-    CALLOC (worduniq, len1, sizeof (int));
+    CALLOC (worduniq, len1, int);
 #endif
     /* Put word1 into a copy then sort the copy to get the unique
        elements. */
@@ -321,7 +329,7 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
     }
     /* Fill "items" with the keys. Values are all zero at this point. */
 
-    CALLOC (dic->items, dic->max, sizeof (idic_item_t));
+    CALLOC (dic->items, dic->max, idic_item_t);
 
     top = 0;
 
@@ -345,7 +353,7 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
 	prev = key;
     }
 #ifndef STACKALLOCOK
-    free (worduniq);
+    FREE (worduniq);
 #endif
     /* Because we sorted worduniq above, dic->items is already
        sorted into key order, and we don't need to sort it with
@@ -356,7 +364,7 @@ idic_init_dic (idic_t * dic, const int * word1, int len1)
 int
 idic_free_dic (idic_t * dic)
 {
-    free (dic->items);
+    FREE (dic->items);
     dic->items = 0;
     return 0;
 }
@@ -516,11 +524,7 @@ FUNC (generate_ualphabet) (text_fuzzy_t * tf)
 
     /* Create a zeroed alphabet. */
 
-    u->alphabet = calloc (u->size, sizeof (char));
-    FAIL_MSG (! u->alphabet, memory_failure,
-	      "Could not allocate %d memory slots",
-	      u->size);
-
+    CALLOC (u->alphabet, u->size, unsigned char);
     tf->n_mallocs++;
 
     /* Get the minimum and maximum values. */
@@ -804,8 +808,7 @@ FUNC (compare_single) (text_fuzzy_t * tf)
 	}
 	if (tf->wantarray) {
 	    candidate_t * c;
-	    c = malloc (sizeof (candidate_t));
-	    FAIL (! c, memory_failure);
+	    CALLOC (c, 1, candidate_t);
 	    tf->n_mallocs += 1;
 	    c->distance = d;
 	    c->offset = tf->offset;
@@ -842,8 +845,7 @@ FUNC (get_candidates) (text_fuzzy_t * text_fuzzy,
 	OK;
     }
 
-    candidates = malloc (sizeof (int) * n_candidates);
-    FAIL (! candidates, memory_failure);
+    CALLOC (candidates, n_candidates, int);
     text_fuzzy->n_mallocs++;
 
     last = text_fuzzy->first.next;
@@ -865,7 +867,7 @@ FUNC (get_candidates) (text_fuzzy_t * text_fuzzy,
 	    candidates[i] = c->offset;
 	    i++;
 	}
-	free (c);
+	FREE (c);
 	text_fuzzy->n_mallocs--;
     }
     FAIL_MSG (i != n_candidates, miscount,
@@ -878,7 +880,7 @@ FUNC (get_candidates) (text_fuzzy_t * text_fuzzy,
 FUNC (free_candidates) (text_fuzzy_t * text_fuzzy, int * candidates)
 {
     if (candidates) {
-	free (candidates);
+	FREE (candidates);
 	text_fuzzy->n_mallocs--;
     }
     OK;
@@ -1085,12 +1087,10 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
         if (text_fuzzy->found) {
             found = 1;
 	    if (! nearest) {
-		nearest = malloc (ff.b.length + 1);
-		FAIL (! nearest, memory_failure);
+		CALLOC (nearest, ff.b.length + 1, char);
 	    }
 	    else {
-		nearest = realloc (nearest, ff.b.length + 1);
-		FAIL (! nearest, memory_failure);
+		REALLOC (nearest, ff.b.length + 1, char);
 	    }
 	    strncpy (nearest, ff.b.text, ff.b.length);
 	    nearest[ff.b.length] = '\0';
@@ -1115,7 +1115,7 @@ FUNC (scan_file) (text_fuzzy_t * text_fuzzy, char * file_name,
 
 FUNC (scan_file_free) (char * nearest)
 {
-    free (nearest);
+    FREE (nearest);
     OK;
 }
 
@@ -1132,7 +1132,7 @@ FUNC (alphabet_rejections) (text_fuzzy_t * text_fuzzy, int * r)
 FUNC (free_memory) (text_fuzzy_t * text_fuzzy)
 {
     if (text_fuzzy->ualphabet.alphabet) {
-	free (text_fuzzy->ualphabet.alphabet);
+	FREE (text_fuzzy->ualphabet.alphabet);
 	text_fuzzy->n_mallocs--;
     }
     if (text_fuzzy->idic_ok) {

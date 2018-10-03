@@ -9,6 +9,7 @@
 #define TEXT_FUZZY_USER_ERROR
 
 #include "config.h"
+#define PERL_MEMORY_MANAGEMENT
 #include "text-fuzzy-single.c"
 #include "text-fuzzy-perl.c"
 
