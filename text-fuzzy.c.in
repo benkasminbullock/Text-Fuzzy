@@ -25,6 +25,9 @@
 #define REALLOC(x,n,t) Renew(x,n,t)
 #define FREE(x) Safefree(x)
 #else /* not PERL_MEMORY_MANAGEMENT */
+/* Perl's Newxz uses the type of the final argument rather than
+   directly using that as a size, so to make this macro compatible
+   with Perl we do the same thing. */
 #define CALLOC(x,n,t) {						\
 	x = calloc (n, sizeof (t));				\
 	if (! x) {						\

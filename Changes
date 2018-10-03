@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.27_05 2018-10-03
+
+* Memory failures on Windows addressed
+
 0.27_04 2018-10-03
 
 * Simpler file structure (fewer C files in distro)
