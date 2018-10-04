@@ -1,5 +1,10 @@
 Revision history for perl module Text::Fuzzy
 
+0.27_06 2018-10-04
+
+* Compilation failures on Solaris addressed
+* Error in threshold (max distance) code fixed in transposition code
+
 0.27_05 2018-10-03
 
 * Memory failures on Windows addressed
