@@ -1,30 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
-0.27_06 2018-10-04
-
-* Compilation failures on Solaris addressed
-* Error in threshold (max distance) code fixed in transposition code
-
-0.27_05 2018-10-03
-
-* Memory failures on Windows addressed
-
-0.27_04 2018-10-03
+0.28 2018-10-05
 
 * Simpler file structure (fewer C files in distro)
-
-0.27_03 2018-10-03
-
-* Build fix
-
-0.27_02 2018-10-02
-
-* Useless computations removed in transposition search
-* Dictionaries for transpositions now stored in Text::Fuzzy object
-
-0.27_01 2018-10-01
-
-* Internals changed for transposition matching
+* Internals improved for transposition matching
 
 0.27 2017-08-15
 
