@@ -36,7 +36,7 @@ int [% function %] (text_fuzzy_t * tf)
 
 #ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {
-	CALLOC (matrix[i], len2 + 1, sizeof (int));
+	CALLOC (matrix[i], len2 + 1, int);
     }
 #endif
 
@@ -163,7 +163,7 @@ int [% function %] (text_fuzzy_t * tf)
 
 #ifndef STACKALLOCOK
     for (i = 0; i < 2; i++) {
-	free (matrix[i]);
+	FREE (matrix[i]);
     }
 #endif
     return d;

@@ -86,6 +86,10 @@ is ($tfrepi->distance ('かきくけこ'), 0);
 
 $tfrepi = undef;
 
+my $alleygater = Text::Fuzzy->new ('alleygater', trans => 1, max => 2);
+my $alleydistance = $alleygater->distance ('overgreatly');
+ok ($alleydistance == 3);
+note ($d);
 done_testing ();
 exit;
 

@@ -259,15 +259,6 @@ minimum (int a, int b)
     return a;
 }
 
-int
-maximum (int a, int b)
-{
-    if (a > b) {
-	return a;
-    }
-    return b;
-}
-
 /* Dictionaries for the transposition searches. */
 
 /* For the binary search of dic->items. */

@@ -47,9 +47,9 @@ int [% function %] (text_fuzzy_t * tf)
     }
 
 #ifndef STACKALLOCOK
-    CALLOC (matrix, size1, sizeof (unsigned int *));
+    CALLOC (matrix, size1, unsigned int *);
     for (i = 0; i < size1; i++) {
-	CALLOC (matrix[i], size2, sizeof (unsigned int));
+	CALLOC (matrix[i], size2, unsigned int);
     }
 #endif /* STACKALLOCOK */
 
@@ -70,8 +70,8 @@ int [% function %] (text_fuzzy_t * tf)
     for (i = 1; i <= len1; i++) { 
 	/* Last matching column. */
 	int lmc;
-	/* Maximum value on the row. */
-	int row_max;
+	/* Minimum value on the row. */
+	int row_min;
 	[% type %] ic;
 
 	ic = word1[i - 1];
@@ -80,7 +80,7 @@ int [% function %] (text_fuzzy_t * tf)
 	matrix[i + 1][0] = large_value;
 	
 	lmc = 0;
-	row_max = 0;
+	row_min = INT_MAX;
 
 	for (j = 1; j <= len2; j++) {
 	    /* Last matching row */
@@ -120,9 +120,9 @@ int [% function %] (text_fuzzy_t * tf)
 		/* Copy the character. */
 		matrix[i + 1][j + 1] = matrix[i][j];
 	    }
-	    row_max = maximum (row_max, matrix[i + 1][j + 1]);
+	    row_min = minimum (row_min, matrix[i + 1][j + 1]);
 	}
-	if (max > 0 && row_max > max) {
+	if (max > 0 && row_min > max) {
 	    d = max + 1;
 	    goto cleanup;
 	}
@@ -139,10 +139,10 @@ int [% function %] (text_fuzzy_t * tf)
 
 #ifndef STACKALLOCOK
     for (i = 0; i < size1; i++) {
-	free (matrix[i]);
+	FREE (matrix[i]);
 	matrix[i] = 0;
     }
-    free (matrix);
+    FREE (matrix);
 #endif /* STACKALLOCOK */
 
     return d;
