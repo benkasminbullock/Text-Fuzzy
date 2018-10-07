@@ -10,8 +10,7 @@ binmode $builder->todo_output,    ":utf8";
 binmode STDOUT, ":encoding(utf8)";
 binmode STDERR, ":encoding(utf8)";
 use Perl::Build 'get_info';
-use Perl::Build::Dist qw/bad_modules depend/;
-use Perl::Build::Pod 'get_dep_section';
+use Perl::Build::Dist ':all';
 
 my $info = get_info (base => "$Bin/..");
 
@@ -23,20 +22,9 @@ SKIP: {
     if (! @modules) {
 	skip "No dependencies", 2;
     }
-    my @bad = bad_modules (\@modules);
-    ok (! @bad, "no bad modules used");
-    if (@bad) {
-	for (@bad) {
-	    note ("Bad module $_");
-	}
-    }
-    my $deps = get_dep_section ($pod);
-    ok ($deps, "has dependencies section");
-    if ($deps) {
-	for my $m (@modules) {
-	    like ($deps, qr!L<\Q$m\E(?:/.*)?>!, "Documented dependence on $m");
-	}
-    }
+    check_bad_modules (\@modules);
+    check_dep_section ($pod, \@modules);
+    check_makefile_dep (\@modules);
 };
 
 
