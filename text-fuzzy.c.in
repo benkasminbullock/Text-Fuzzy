@@ -72,7 +72,7 @@ ualphabet_t;
 typedef struct text_fuzzy_string
 {
     /* The text of the string. */
-    char * text;
+    const char * text;
 
     /* The length of "text". */
     int length;

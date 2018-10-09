@@ -122,6 +122,7 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
     text_fuzzy_t * text_fuzzy;
     int i;
     int is_utf8;
+    char * copy;
 
     /* Allocate memory for "text_fuzzy". */
     get_memory (text_fuzzy, 1, text_fuzzy_t);
@@ -129,12 +130,13 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 
     /* Copy the string in "text" into "text_fuzzy". */
     stuff = (const unsigned char *) SvPV (text, length);
-    text_fuzzy->text.length = length;
-    get_memory (text_fuzzy->text.text, length + 1, char);
+    get_memory (copy, length + 1, char);
     for (i = 0; i < (int) length; i++) {
-        text_fuzzy->text.text[i] = stuff[i];
+        copy[i] = stuff[i];
     }
-    text_fuzzy->text.text[text_fuzzy->text.length] = '\0';
+    copy[length] = '\0';
+    text_fuzzy->text.length = length;
+    text_fuzzy->text.text = copy;
     is_utf8 = SvUTF8 (text);
     if (is_utf8) {
 
@@ -166,6 +168,7 @@ static void
 sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * text_fuzzy)
 {
     STRLEN length;
+    char * nonu;
     text_fuzzy->b.text = SvPV (word, length);
     text_fuzzy->b.allocated = 0;
     text_fuzzy->b.length = length;
@@ -184,20 +187,21 @@ sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * text_fuzzy)
 
 	    text_fuzzy->b.length = text_fuzzy->b.ulength;
 	    text_fuzzy->b.allocated = 1;
-	    get_memory (text_fuzzy->b.text, text_fuzzy->b.length + 1, char);
+	    get_memory (nonu, text_fuzzy->b.length + 1, char);
 	    for (i = 0; i < text_fuzzy->b.ulength; i++) {
 		int c;
 
 		c = text_fuzzy->b.unicode[i];
 		if (c <= 0x80) {
-		    text_fuzzy->b.text[i] = c;
+		    nonu[i] = c;
 		}
 		else {
 		    /* Put a non-matching character in there. */
 
-		    text_fuzzy->b.text[i] = text_fuzzy->invalid_char;
+		    nonu[i] = text_fuzzy->invalid_char;
 		}
 	    }
+	    text_fuzzy->b.text = nonu;
 	}
     }
 }
