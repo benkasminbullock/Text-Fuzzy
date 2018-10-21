@@ -133,6 +133,23 @@ typedef struct
 }
 idic_t;
 
+/* Type of edit applied. */
+
+typedef enum
+{
+    /* Use zero value as invalid, so we know if we haven't done things
+     * properly. */
+    tf_invalid,
+    /* Keep, insert, replace, delete for standard Lev. edits. */
+    tf_keep,
+    tf_insert,
+    tf_replace,
+    tf_delete,
+    /* Transpose THIS char with the NEXT char. */
+    tf_transpose,
+}
+tf_edit_t;
+
 /* The following structure contains one string plus additional
    paraphenalia used in searching for the string, for example the
    alphabet of the string. */
@@ -205,6 +222,11 @@ typedef struct text_fuzzy
        searches. */
 
     idic_t idic;
+
+    /* The edits required to turn "text" into "b". */
+    tf_edit_t * edits;
+    int edits_size;
+    int n_edit;
 
     /* Does the user want to use an alphabet filter? Default is yes,
        so this must be set to a non-zero value to switch off use. */
@@ -441,6 +463,44 @@ adic_set (adic_t * dic, uint8_t key, int position)
     return position;
 }
 
+static FUNC(large_edits) (text_fuzzy_string_t * string, int * size_ptr)
+{
+    int len;
+    int size;
+    len = string->length;
+    if (string->ulength > len) {
+	len = string->ulength;
+    }
+    len *= 2;
+    size = 1;
+    while (len >>= 1) {
+	size <<= 1;
+    }
+    * size_ptr = size;
+    OK;
+}
+
+static FUNC(allocate_edits) (text_fuzzy_t * text_fuzzy)
+{
+    int edits_size;
+    CALL (large_edits (& text_fuzzy->text, & edits_size));
+    CALLOC (text_fuzzy->edits, edits_size, tf_edit_t);
+    text_fuzzy->n_mallocs++;
+    text_fuzzy->edits_size = edits_size;
+    OK;
+}
+
+static FUNC(resize_edits) (text_fuzzy_t * text_fuzzy)
+{
+    if (text_fuzzy->b.length > text_fuzzy->edits_size ||
+	text_fuzzy->b.ulength > text_fuzzy->edits_size) {
+	int b_size;
+	CALL (large_edits (& text_fuzzy->b, & b_size));
+	REALLOC (text_fuzzy->edits, b_size, tf_edit_t);
+    }
+    OK;
+}
+
 #include "ed-trans-char.h"
 #include "ed-trans-int.h"
 #include "edit-distance-char.h"
@@ -644,6 +704,8 @@ FUNC (compare_single) (text_fuzzy_t * tf)
        truncated version of "tf->buf". */
 
     int d;
+
+    CALL (resize_edits (tf));
 
     d = NOT_FOUND;
 
@@ -1132,6 +1194,12 @@ FUNC (free_memory) (text_fuzzy_t * text_fuzzy)
     if (text_fuzzy->idic_ok) {
 	idic_free_dic (& text_fuzzy->idic);
 	text_fuzzy->idic_ok = 0;
+	text_fuzzy->n_mallocs--;
+    }
+    if (text_fuzzy->edits) {
+	FREE (text_fuzzy->edits);
+	text_fuzzy->edits = 0;
+	text_fuzzy->edits_size = 0;
 	text_fuzzy->n_mallocs--;
     }
 

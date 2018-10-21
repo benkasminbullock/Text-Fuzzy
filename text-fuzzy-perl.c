@@ -161,6 +161,7 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 	    TEXT_FUZZY (generate_alphabet (text_fuzzy));
 	}
     }
+    TEXT_FUZZY (allocate_edits (text_fuzzy));
     * text_fuzzy_ptr = text_fuzzy;
 }
 
