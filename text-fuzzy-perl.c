@@ -15,6 +15,20 @@
         text_fuzzy->n_mallocs++;                                \
     }
 
+typedef enum {
+   tfp_ok,
+   tfp_unicode_failure,
+   tfp_text_fuzzy_error,
+}
+tfp_status_t;
+
+#define TFPCALL(x) {				\
+	tfp_status_t status = x;		\
+	if (status != tfp_ok) {			\
+	    return status;			\
+	}					\
+    }
+
 /* Send a bad return value from one of the C routines in
    "text-fuzzy.c" back to the user via Perl's error handlers. The
    parameters "file_name" and "line_number" are the name of the C file
@@ -60,7 +74,8 @@ static void fake_length (text_fuzzy_t * text_fuzzy, int minimum)
 
 /* Allocate the memory for b. */
 
-static void allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
+static void 
+allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
 {
 
     if (! text_fuzzy->b.unicode) {
@@ -87,34 +102,30 @@ static void allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
    characters, use Perl's Unicode handlers to turn it into a string of
    integers. */
 
-static void sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
+static tfp_status_t
+sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
 {
     int i;
     const U8 * utf;
-    STRLEN curlen;
+    const U8 * send;
     STRLEN length;
-    const unsigned char * stuff;
 
-    stuff = (const unsigned char *) SvPV (text, length);
-
-    utf = stuff;
-    curlen = length;
+    utf = (const U8 *) SvPV (text, length);
+    send = utf + length;
     for (i = 0; i < tfs->ulength; i++) {
         STRLEN len;
-
-	/* The documentation for "utf8n_to_uvuni" can be found in
-	   "perldoc perlapi". There is an online version here:
-	   "http://perldoc.perl.org/perlapi.html#Unicode-Support". */
-
-        tfs->unicode[i] = utf8n_to_uvuni (utf, curlen, & len, 0);
-        curlen -= len;
+        tfs->unicode[i] = (int) utf8_to_uvchr_buf (utf, send, & len);
+	if (len == -1 || tfs->unicode[i] == 0) {
+	    return tfp_unicode_failure;
+	}
         utf += len;
     }
+    return tfp_ok;
 }
 
 /* Convert a Perl SV into the text_fuzzy_t structure. */
 
-static void
+static tfp_status_t
 sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 {
     STRLEN length;
@@ -148,7 +159,7 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
 
 	get_memory (text_fuzzy->text.unicode, text_fuzzy->text.ulength, int);
 
-	sv_to_int_ptr (text, & text_fuzzy->text);
+	TFPCALL(sv_to_int_ptr(text, & text_fuzzy->text));
 
 	if (text_fuzzy->text.ulength > 0) {
 	    /* Generate the Unicode alphabet. */
@@ -163,9 +174,10 @@ sv_to_text_fuzzy (SV * text, text_fuzzy_t ** text_fuzzy_ptr)
     }
     TEXT_FUZZY (allocate_edits (text_fuzzy));
     * text_fuzzy_ptr = text_fuzzy;
+    return tfp_ok;
 }
 
-static void
+static tfp_status_t
 sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * text_fuzzy)
 {
     STRLEN length;
@@ -205,6 +217,7 @@ sv_to_text_fuzzy_string (SV * word, text_fuzzy_t * text_fuzzy)
 	    text_fuzzy->b.text = nonu;
 	}
     }
+    return tfp_ok;
 }
 
 static void
