@@ -1,5 +1,9 @@
 Revision history for perl module Text::Fuzzy
 
+0.28_01 2020-12-07
+
+* Internals changed due to deprecating
+
 0.28 2018-10-05
 
 * Simpler file structure (fewer C files in distro)
