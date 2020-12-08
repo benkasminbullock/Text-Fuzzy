@@ -1,6 +1,6 @@
 Revision history for perl module Text::Fuzzy
 
-0.28_01 2020-12-07
+0.28_02 2020-12-07
 
 * Internals changed due to deprecating
 

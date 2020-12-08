@@ -105,6 +105,30 @@ allocate_b_unicode (text_fuzzy_t * text_fuzzy, int b_length)
 static tfp_status_t
 sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
 {
+#if PERL_REVISION == 5 && PERL_VERSION < 16
+     int i;
+     const U8 * utf;
+     STRLEN curlen;
+     STRLEN length;
+     const unsigned char * stuff;
+ 
+     stuff = (const unsigned char *) SvPV (text, length);
+ 
+     utf = stuff;
+     curlen = length;
+     for (i = 0; i < tfs->ulength; i++) {
+         STRLEN len;
+
+	 /* The documentation for "utf8n_to_uvuni" can be found in
+	    "perldoc perlapi". There is an online version here:
+	    "http://perldoc.perl.org/perlapi.html#Unicode-Support". */
+	 
+	 tfs->unicode[i] = utf8n_to_uvuni (utf, curlen, & len, 0);
+	 curlen -= len;
+         utf += len;
+     }
+     return tfp_ok;
+#else /* Perl version/revision */
     int i;
     const U8 * utf;
     const U8 * send;
@@ -121,6 +145,7 @@ sv_to_int_ptr (SV * text, text_fuzzy_string_t * tfs)
         utf += len;
     }
     return tfp_ok;
+#endif /* Perl version/revision */
 }
 
 /* Convert a Perl SV into the text_fuzzy_t structure. */
