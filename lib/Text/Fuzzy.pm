@@ -11,7 +11,7 @@ require DynaLoader;
 
 use warnings;
 use strict;
-our $VERSION = '0.28_02';
+our $VERSION = '0.29';
 
 __PACKAGE__->bootstrap ($VERSION);
 
