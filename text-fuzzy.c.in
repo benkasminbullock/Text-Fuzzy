@@ -480,6 +480,8 @@ static FUNC(large_edits) (text_fuzzy_string_t * string, int * size_ptr)
     OK;
 }
 
+// Ignore compilation warnings that this is unused, it is used in
+// text-fuzzy-perl.c.
 static FUNC(allocate_edits) (text_fuzzy_t * text_fuzzy)
 {
     int edits_size;
