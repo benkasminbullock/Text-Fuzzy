@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
+use Config;
 
 my $pm = 'lib/Text/Fuzzy.pm';
 my $pod = 'lib/Text/Fuzzy.pod';
@@ -26,4 +27,5 @@ WriteMakefile (
     OBJECT => 'Fuzzy.o',
 #    OPTIMIZE => '-Wall -O',
     MIN_PERL_VERSION => '5.008001',
+    CCFLAGS      => $Config{ccflags} . ' -Wno-compound-token-split-by-macro -Wno-macro-redefined ',
 );

@@ -1052,7 +1052,7 @@ typedef struct fuzzy_file
     text_fuzzy_string_t b;
     int remaining;
     int offset;
-    int eof : 1;
+    unsigned int eof : 1;
 }
 fuzzy_file_t;
 
